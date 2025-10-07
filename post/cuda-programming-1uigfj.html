@@ -1,0 +1,439 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>面向CUDA编程 | Homeの主页のPage</title><meta name="author" content="lovedream-ms"><meta name="copyright" content="lovedream-ms"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="面向CUDA编程 文字版教程 视频版教程 应用视频  GPU硬件机制CUDA编程模型基础host：CPU及其内存 device：GPU及其内存 核心组件：流式多处理器SM​ 在物理机中包含多个SM，SM会划分Block执行任务。 SM的核心组件包括CUDA核心，共享内存，寄存器等，可以并发的执行数百个线程。 SM有多个基本执行单元线程束 在单个SM执行任务时，SM采用的是SIMT ，基本的执行单元">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面向CUDA编程">
+<meta property="og:url" content="https://blog.lovedream.icu/post/cuda-programming-1uigfj.html">
+<meta property="og:site_name" content="Homeの主页のPage">
+<meta property="og:description" content="面向CUDA编程 文字版教程 视频版教程 应用视频  GPU硬件机制CUDA编程模型基础host：CPU及其内存 device：GPU及其内存 核心组件：流式多处理器SM​ 在物理机中包含多个SM，SM会划分Block执行任务。 SM的核心组件包括CUDA核心，共享内存，寄存器等，可以并发的执行数百个线程。 SM有多个基本执行单元线程束 在单个SM执行任务时，SM采用的是SIMT ，基本的执行单元">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg">
+<meta property="article:published_time" content="2025-03-04T09:40:40.000Z">
+<meta property="article:modified_time" content="2025-05-01T08:47:56.000Z">
+<meta property="article:author" content="lovedream-ms">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "面向CUDA编程",
+  "url": "https://blog.lovedream.icu/post/cuda-programming-1uigfj.html",
+  "image": "https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg",
+  "datePublished": "2025-03-04T09:40:40.000Z",
+  "dateModified": "2025-05-01T08:47:56.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "lovedream-ms",
+      "url": "https://blog.lovedream.icu/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250429153115.png"><link rel="canonical" href="https://blog.lovedream.icu/post/cuda-programming-1uigfj.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1B1B1B')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: true,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '面向CUDA编程',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/bilibili.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/oneImageFlow.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fps.css" media="defer" onload="this.media='all'"><span id="fps"></span><link rel="stylesheet" href="/css/selfCard/selfCard.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/selfCard/cardStatus.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/page.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/pageTitle.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/toc.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fontWeight.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Homeの主页のPage</span></a><a class="nav-page-title" href="/"><span class="site-name">面向CUDA编程</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">面向CUDA编程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2025-05-01T08:47:56.000Z" title="更新于 2025-05-01 16:47:56">2025-05-01</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span class="waline-pageview-count" data-path="/post/cuda-programming-1uigfj.html"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/post/cuda-programming-1uigfj.html#post-comment"><span class="waline-comment-count" data-path="/post/cuda-programming-1uigfj.html"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="面向CUDA编程"><a href="#面向CUDA编程" class="headerlink" title="面向CUDA编程"></a>面向CUDA编程</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/34587739">文字版教程</a> <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1sM4y1x7of/">视频版教程</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV19Bb5z9ErL/?share_source=copy_web&amp;vd_source=c8643a01e258c28eb18c3e49c8d1b934">应用视频</a></p>
+</blockquote>
+<h2 id="GPU硬件机制"><a href="#GPU硬件机制" class="headerlink" title="GPU硬件机制"></a>GPU硬件机制</h2><h3 id="CUDA编程模型基础"><a href="#CUDA编程模型基础" class="headerlink" title="CUDA编程模型基础"></a>CUDA编程模型基础</h3><p>host：CPU及其内存</p>
+<p>device：GPU及其内存</p>
+<h3 id="核心组件：流式多处理器SM"><a href="#核心组件：流式多处理器SM" class="headerlink" title="核心组件：流式多处理器SM"></a>核心组件：<strong>流式多处理器</strong>SM</h3><p><img src="https://pic3.zhimg.com/v2-dcc0f678850d5bf1683753c34ca4b308_1440w.jpg" alt="image" title="CUDA编程的逻辑层和物理层">​</p>
+<p>在物理机中包含多个SM，SM会划分Block执行任务。</p>
+<p>SM的核心组件包括<strong>CUDA核心</strong>，<strong>共享内存</strong>，<strong>寄存器</strong>等，可以并发的执行数百个线程。</p>
+<p>SM有多个基本执行单元<strong>线程束</strong></p>
+<p>在单个SM执行任务时，SM采用的是SIMT ，基本的执行单元是<strong>线程束</strong>（warps)</p>
+<p>SM采用SIMT架构，基本执行单元是32线程组成的线程束。</p>
+<h4 id="线程束（Warp）"><a href="#线程束（Warp）" class="headerlink" title="线程束（Warp）"></a><strong>线程束（Warp）</strong></h4><p>同一线程束内所有线程特点：</p>
+<ol>
+<li>同步执行相同指令</li>
+<li>拥有<strong>独立寄存器</strong>状态和<strong>指令地址计数器</strong></li>
+</ol>
+<p>可因分支产生不同执行路径（<strong>线程束分化</strong>）</p>
+<p>线程束分化会导致部分线程等待，降低执行效率</p>
+<p><strong>串行执行不同分支</strong>：SM会<strong>先执行条件满足的线程</strong>（例如进入 <code>if</code> 分支的线程），此时不满足条件的线程被<strong>临时禁用（masked out）</strong> 。执行完当前分支后，SM会<strong>返回分支点</strong>，再执行另一分支的指令（例如 <code>else</code> 分支），此时原分支的线程被禁用。</p>
+<h4 id="资源分配限制"><a href="#资源分配限制" class="headerlink" title="资源分配限制"></a>资源分配限制</h4><p>SM为每个线程块分配共享内存</p>
+<p>为每个线程分配独立寄存器资源</p>
+<p>资源限制决定了SM能并发的线程块和线程束数量</p>
+<h4 id="性能优化关键点"><a href="#性能优化关键点" class="headerlink" title="性能优化关键点"></a><strong>性能优化关键点</strong></h4><ol>
+<li>Block大小应设为32的倍数（匹配线程束的32线程基础单元）</li>
+<li>尽量减少线程束分化（如避免过多分支判断）</li>
+</ol>
+<p>正如jyy说过：计算机世界没有魔法，我们可以通过代码去测试检验他的线程束分化（这里是伪代码）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义存在线程束分化的内核</span></span><br><span class="line">函数 <span class="built_in">divergent_kernel</span>(数据数组, 数组长度):</span><br><span class="line">    计算当前线程的全局索引 idx = 块ID × 块大小 + 线程ID</span><br><span class="line">    如果 idx &lt; 数组长度:</span><br><span class="line">        如果 idx 是偶数:        <span class="comment">// 同一线程束内的线程会分化</span></span><br><span class="line">            数据数组[idx] = idx × <span class="number">2</span></span><br><span class="line">        否则:</span><br><span class="line">            数据数组[idx] = idx × <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义无分化的内核（所有线程执行相同操作）</span></span><br><span class="line">函数 <span class="built_in">no_divergent_kernel</span>(数据数组, 数组长度):</span><br><span class="line">    计算当前线程的全局索引 idx = 块ID × 块大小 + 线程ID</span><br><span class="line">    如果 idx &lt; 数组长度:</span><br><span class="line">        数据数组[idx] = idx × <span class="number">2</span>  <span class="comment">// 无分支，所有线程执行相同操作</span></span><br><span class="line"></span><br><span class="line">主程序:</span><br><span class="line">    分配设备内存 d_data（大小为 <span class="number">1</span>,<span class="number">04</span>8,<span class="number">576</span> 元素）</span><br><span class="line"></span><br><span class="line">    配置线程组织:</span><br><span class="line">        块大小 = <span class="number">256</span> 线程/块</span><br><span class="line">        网格大小 = 总数据量 / 块大小（向上取整）</span><br><span class="line"></span><br><span class="line">    记录开始时间</span><br><span class="line">    启动 divergent_kernel（带分支的内核）</span><br><span class="line">    记录结束时间</span><br><span class="line">    输出 <span class="string">&quot;存在分化的内核耗时: X ms&quot;</span></span><br><span class="line"></span><br><span class="line">    记录开始时间</span><br><span class="line">    启动 no_divergent_kernel（无分支的内核）</span><br><span class="line">    记录结束时间</span><br><span class="line">    输出 <span class="string">&quot;无分化的内核耗时: Y ms&quot;</span></span><br><span class="line"></span><br><span class="line">    释放内存</span><br><span class="line"></span><br><span class="line"><span class="comment">// 预期结果示例（实际时间因硬件而异）</span></span><br><span class="line">存在分化的内核耗时: <span class="number">0.45</span> ms</span><br><span class="line">无分化的内核耗时: <span class="number">0.12</span> ms</span><br></pre></td></tr></table></figure>
+<h3 id="GPU架构与计算能力"><a href="#GPU架构与计算能力" class="headerlink" title="GPU架构与计算能力"></a>GPU架构与计算能力</h3><p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/image-20250308120527-3nmrtvy.png" alt="image"></p>
+<p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/image-20250308120748-n2mpkz9.png" alt="image"></p>
+<p>计算能力和性能没有严格的关联。</p>
+<p>编译的时候可以指定-arch=compute_xx设置虚拟架构</p>
+<p>编译的时候可以指定-code=sm_xx设置真实架构</p>
+<p>要求真实架构必须大于虚拟架构</p>
+<p>可以通过-gcode=xxx去编译多架构的可执行文件，成为旁二进制文件。</p>
+<h2 id="CUDA程序"><a href="#CUDA程序" class="headerlink" title="CUDA程序"></a>CUDA程序</h2><h3 id="典型的CUDA程序的执行流程："><a href="#典型的CUDA程序的执行流程：" class="headerlink" title="典型的CUDA程序的执行流程："></a><strong>典型的CUDA程序的执行流程：</strong></h3><ol>
+<li>分配host内存，并进行数据初始化；</li>
+<li>分配device内存，并从host将数据拷贝到device上；</li>
+<li>调用CUDA的<strong>核函数</strong>在device上完成指定的运算；</li>
+<li>将device上的运算结果拷贝到host上；</li>
+<li>释放device和host上分配的内存。</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取GPU设备数量</span></span><br><span class="line"><span class="type">int</span> iDeviceCount=<span class="number">0</span>;</span><br><span class="line">cudaError_terror=cudaGetDeviceCount（&amp;iDeviceCount);</span><br></pre></td></tr></table></figure>
+<h3 id="三个函数限定词"><a href="#三个函数限定词" class="headerlink" title="三个函数限定词"></a><strong>三个函数限定词</strong></h3><p>由于GPU实际上是异构模型，所以需要区分host和device上的代码，在CUDA中是通过函数类型限定词开区别host和device上的函数，主要的三个函数类型限定词如下：</p>
+<ul>
+<li>​<code>__global__</code>：在device上执行，从host中调用（一些特定的GPU也可以从device上调用），返回类型必须是<code>void</code>，不支持可变参数参数，不能成为类成员函数。注意用<code>__global__</code>定义的kernel是异步的，这意味着host不会等待kernel执行完就执行下一步。</li>
+<li>​<code>__device__</code>：在device上执行，单仅可以从device中调用，不可以和<code>__global__</code>同时用。</li>
+<li>​<code>__host__</code>：在host上执行，仅可以从host上调用，一般省略不写，不可以和<code>__global__</code>同时用，但可和<code>__device__</code>，此时函数会在device和host都编译。</li>
+</ul>
+<h4 id="核函数"><a href="#核函数" class="headerlink" title="核函数"></a>核函数</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// __global__和返回值必须是void</span></span><br><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">hello_from_gpu</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Hello CUDA\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意事项：</p>
+<ul>
+<li>核函数只能访问GPU内存</li>
+<li>核函数不能使用变长参数</li>
+<li>核函数不能使用静态变量</li>
+<li>核函数不能使用函数指针</li>
+<li>核函数具有异步性</li>
+</ul>
+<p>在执行时，一个<strong>核函数</strong>会启动一个<strong>网格。</strong></p>
+<h3 id="CUDA内存模型详解"><a href="#CUDA内存模型详解" class="headerlink" title="CUDA内存模型详解"></a>CUDA内存模型详解</h3><p>他们有一些性质：</p>
+<ol>
+<li>同一个网格上的<strong>线程</strong>共享相同的全局内存空间</li>
+<li>线程都是并行化运行（由于GPU的多核心特性，线程是轻量化的）</li>
+<li>每一个线程可以通过（blockIdx，threadIdx）来唯一标识</li>
+<li>一个block的线程是放在同一个<strong>流式多处理器</strong>（SM)上的，单个SM的资源有限，这导致线程块中的线程数是<strong>有限制</strong>的，现代GPUs的线程块可支持的线程数可达1024个。</li>
+</ol>
+<h4 id="线程全局ID计算"><a href="#线程全局ID计算" class="headerlink" title="线程全局ID计算"></a>线程全局ID计算</h4><p>在已知线程的内置变量blockDim和gridDim的情况下</p>
+<p>对于一个2-dim的block $(D_x, D_y)$ ，线程 $(x, y)$ 的ID值为 $(x + y <em> D_x)$ ，如果是3-dim的block $(D_x, D_y, D_z)$ ，线程 $(x, y, z)$ 的ID值为 $(x + y </em> D_x + z <em> D_x </em> D_y)$ 。</p>
+<p><img src="https://pica.zhimg.com/v2-e4258399e69394620daa1e199d53fe0e_1440w.jpg" alt=""></p>
+<h4 id="CUDA的内存模型"><a href="#CUDA的内存模型" class="headerlink" title="CUDA的内存模型"></a>CUDA的内存模型</h4><p><img src="https://pic2.zhimg.com/v2-6456af75530956da6bc5bab7418ff9e5_1440w.jpg" alt=""></p>
+<ol>
+<li>每个线程Thread有自己的私有本地内存</li>
+<li>每个线程块Block有包含共享内存</li>
+<li>所有的线程都可以访问全局内存</li>
+<li>全局内存（Global Memory）<br> 只读内存块：<br> 常量内存（Constant Memory）<br> 纹理内存（Texture Memory）</li>
+</ol>
+<p>‍</p>
+<h3 id="内存管理API"><a href="#内存管理API" class="headerlink" title="内存管理API"></a>内存管理API</h3><p>在device上分配内存的<strong>cudaMalloc</strong>函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">cudaError_t <span class="title">cudaMalloc</span><span class="params">(<span class="type">void</span>** devPtr, <span class="type">size_t</span> size)</span></span>;</span><br><span class="line"><span class="comment">// devPtr是指向所分配内存的指针</span></span><br></pre></td></tr></table></figure>
+<p>负责host和device之间数据通信的<strong>cudaMemcpy</strong>函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">cudaError_t <span class="title">cudaMemcpy</span><span class="params">(<span class="type">void</span>* dst, <span class="type">const</span> <span class="type">void</span>* src, <span class="type">size_t</span> count, cudaMemcpyKind kind)</span></span></span><br><span class="line"><span class="function"><span class="comment">// 其中src指向数据源，而dst是目标区域，count是复制的字节数，</span></span></span><br><span class="line"><span class="function"><span class="comment">// 其中kind控制复制的方向：</span></span></span><br><span class="line"><span class="function"><span class="comment">// cudaMemcpyHostToHost, cudaMemcpyHostToDevice, </span></span></span><br><span class="line"><span class="function"><span class="comment">// cudaMemcpyDeviceToHost及cudaMemcpyDeviceToDevice</span></span></span><br><span class="line"><span class="function"><span class="comment">// 如cudaMemcpyHostToDevice将host上数据拷贝到device上。</span></span></span><br></pre></td></tr></table></figure>
+<p>上述由用户手动去控制内存分配容易出问题，于是在CUDA 6.0引入统一内存来避免这一麻烦</p>
+<p><strong>cudaMallocManaged</strong>函数分配托管内存</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">cudaError_t <span class="title">cudaMallocManaged</span><span class="params">(<span class="type">void</span> **devPtr, <span class="type">size_t</span> size, <span class="type">unsigned</span> <span class="type">int</span> flag=<span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="comment">// 申请托管内存</span></span><br><span class="line"><span class="type">float</span> *x, *y, *z;</span><br><span class="line"><span class="built_in">cudaMallocManaged</span>((<span class="type">void</span>**)&amp;x, nBytes);</span><br><span class="line"><span class="built_in">cudaMallocManaged</span>((<span class="type">void</span>**)&amp;y, nBytes);</span><br><span class="line"><span class="built_in">cudaMallocManaged</span>((<span class="type">void</span>**)&amp;z, nBytes);</span><br></pre></td></tr></table></figure>
+<p>在程序运行结束要用cudaDeviceSynchronize()函数保证device和host同步</p>
+<h2 id="以矩阵计算为例，讲解上述CUDA概念的应用"><a href="#以矩阵计算为例，讲解上述CUDA概念的应用" class="headerlink" title="以矩阵计算为例，讲解上述CUDA概念的应用"></a>以矩阵计算为例，讲解上述CUDA概念的应用</h2><p>每一个输出元素使用一个线程来计算。如果输入的矩阵特别大，会将矩阵拆分为更小的块（tiles），整个线程束会协同计算数据矩阵的一个分块（tiles），可以为每一个分块启动一个wrap</p>
+<h1 id="资源链接-面向CUDA编程"><a href="#资源链接-面向CUDA编程" class="headerlink" title="资源链接-面向CUDA编程"></a>资源链接-面向CUDA编程</h1><p>‍</p>
+</article><div class="tag_share"><div class="post-share"><div class="addtoany"><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_button_wechat"></a><a class="a2a_button_email"></a><a class="a2a_button_copy_link"></a><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a></div></div><script async="async" src="https://static.addtoany.com/menu/page.js"></script></div></div><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"/><div class="post-reward"><button class="tip-button reward-button"><span class="tip-button__text">赞助</span><div class="coin-wrapper"><div class="coin"><div class="coin__middle"></div><div class="coin__back"></div><div class="coin__front"></div></div></div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" target="_blank"><img class="post-qr-code-img" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li></ul></div></button></div><audio id="coinAudio" src="https://npm.elemecdn.com/akilar-candyassets@1.0.36/audio/aowu.m4a"></audio><script defer="defer" src="/js/coin.js"></script><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/gtest-z2gv4yl.html" title="Gtest"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Gtest</div></div><div class="info-2"><div class="info-item-1">Gtest 知乎​[1] B站​[2]  1234567891011$ tree -L 2.├── build├── CMakeLists.txt├── include├── src│   └── main.cpp└── tests    └── test_main.cpp4 directories, 3 files 1cmake .. &amp;&amp; make -j4 &amp;&amp; ls CMakeLists.txt模板1234567891011121314151617181920212223242526272829303132cmake_minimum_required(VERSION 3.14)project(MyProject)# 设置 C++ 标准set(CMAKE_CXX_STANDARD 17)set(CMAKE_CXX_STANDARD_REQUIRED ON)# 启用覆盖率支持set(CMAKE_CXX_FLAGS &quot;$&#123;CMAKE_CXX_FLAGS&#125; -fprofile-arcs...</div></div></div></a><a class="pagination-related" href="/post/cmake-zsai8o.html" title="CMakeLists.txt 语法详解与最佳实践"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-1.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">CMakeLists.txt 语法详解与最佳实践</div></div><div class="info-2"><div class="info-item-1">本文详细解析了CMakeLists.txt的核心语法与最佳实践，主要内容包括：基础配置指令、关键构建命令、目录与链接管理 、现代CMake特性、安装部署，特别强调现代CMake应优先使用target_xxx系列命令，通过目标作用域隔离提升工程可维护性。文中通过对比表格清晰展示新旧写法的兼容性差异与适用场景。</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">lovedream-ms</div><div class="author-info-description">别急着赶路，去感受路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lovedream-ms"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lovedream-ms" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/2179417385@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我们读书是为了成为提灯人去照亮黑暗，而不是为了自己有灯而沾沾自喜还要去吹灭别人的蜡烛</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9D%A2%E5%90%91CUDA%E7%BC%96%E7%A8%8B"><span class="toc-text">面向CUDA编程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#GPU%E7%A1%AC%E4%BB%B6%E6%9C%BA%E5%88%B6"><span class="toc-text">GPU硬件机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CUDA%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80"><span class="toc-text">CUDA编程模型基础</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%EF%BC%9A%E6%B5%81%E5%BC%8F%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8SM"><span class="toc-text">核心组件：流式多处理器SM</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%9D%9F%EF%BC%88Warp%EF%BC%89"><span class="toc-text">线程束（Warp）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E9%99%90%E5%88%B6"><span class="toc-text">资源分配限制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E5%85%B3%E9%94%AE%E7%82%B9"><span class="toc-text">性能优化关键点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GPU%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%A1%E7%AE%97%E8%83%BD%E5%8A%9B"><span class="toc-text">GPU架构与计算能力</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CUDA%E7%A8%8B%E5%BA%8F"><span class="toc-text">CUDA程序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B8%E5%9E%8B%E7%9A%84CUDA%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B%EF%BC%9A"><span class="toc-text">典型的CUDA程序的执行流程：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E4%B8%AA%E5%87%BD%E6%95%B0%E9%99%90%E5%AE%9A%E8%AF%8D"><span class="toc-text">三个函数限定词</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%87%BD%E6%95%B0"><span class="toc-text">核函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CUDA%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E8%AF%A6%E8%A7%A3"><span class="toc-text">CUDA内存模型详解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%85%A8%E5%B1%80ID%E8%AE%A1%E7%AE%97"><span class="toc-text">线程全局ID计算</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CUDA%E7%9A%84%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-text">CUDA的内存模型</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86API"><span class="toc-text">内存管理API</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A5%E7%9F%A9%E9%98%B5%E8%AE%A1%E7%AE%97%E4%B8%BA%E4%BE%8B%EF%BC%8C%E8%AE%B2%E8%A7%A3%E4%B8%8A%E8%BF%B0CUDA%E6%A6%82%E5%BF%B5%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-text">以矩阵计算为例，讲解上述CUDA概念的应用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B5%84%E6%BA%90%E9%93%BE%E6%8E%A5-%E9%9D%A2%E5%90%91CUDA%E7%BC%96%E7%A8%8B"><span class="toc-text">资源链接-面向CUDA编程</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习的数学原理"/></a><div class="content"><a class="title" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理">强化学习的数学原理</a><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/data-structure-zbgbam.html" title="数据结构"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/data-structure-zbgbam.html" title="数据结构">数据结构</a><time datetime="2025-09-27T14:04:28.000Z" title="更新于 2025-09-27 22:04:28">2025-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2024 - 2025 By lovedream-ms</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b1</a></span></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  /* 使用 link_color 作为社交图标的颜色 */
+  .social-links i {
+    color: rgba(0, 159, 183, 1);
+  }
+  .social-link {
+    /* 使用 link_color 作为链接默认颜色 */
+    color: rgba(0, 159, 183, 1);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    /* 使用 blockquote_background_color 作为链接背景色，保持风格统一 */
+    background: rgba(0, 159, 183, 0.1);
+  }
+  .social-link:hover {
+    /* 鼠标悬停时，图标颜色变为白色以保证对比度 */
+    color: #ffffff;
+    /* 使用 button_hover 作为链接悬停背景色 */
+    background: #F7C67F;
+    transform: translateY(-3px) scale(1.2);
+    /* 阴影颜色与悬停背景色匹配 */
+    box-shadow: 0 5px 15px rgba(247, 198, 127, 0.4);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  /* 版权信息使用 meta_color */
+  .copyright {
+    font-size: 1.1rem; 
+    color: #778899;
+    font-weight: 400;
+  }
+  /* 标语使用 main 主色调，突出显示 */
+  .tagline {
+    font-size: 0.8rem;
+    color: #8ADBB4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* 访客统计信息使用 meta_color */
+  .visitor-count {
+    font-size: 0.75rem;
+    color: #778899;
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <div class="social-links">
+    <a href="https://github.com/lovedream-ms" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://blog.csdn.net/2303_76343222" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="CSDN" title="CSDN">
+      <i class="fas fa-code"></i>
+    </a>
+    <a href="https://space.bilibili.com/1397568600" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="bilibili" title="bilibili">
+      <i class="fab fa-bilibili"></i>
+    </a>
+  </div>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-up"></i><span class="scroll-percent"></span></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://commit-manger.vercel.app/',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: true,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script async src="/js/costom.js"></script><script async src="/js/fps.js"></script><script async src="/js/coin.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>

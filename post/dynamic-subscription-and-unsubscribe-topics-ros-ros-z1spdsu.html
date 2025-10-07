@@ -1,0 +1,358 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ROS动态订阅与取消话题的方法 | Homeの主页のPage</title><meta name="author" content="lovedream-ms"><meta name="copyright" content="lovedream-ms"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="本文介绍了在ROS中实现动态订阅和取消订阅话题的两种实用方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROS动态订阅与取消话题的方法">
+<meta property="og:url" content="https://blog.lovedream.icu/post/dynamic-subscription-and-unsubscribe-topics-ros-ros-z1spdsu.html">
+<meta property="og:site_name" content="Homeの主页のPage">
+<meta property="og:description" content="本文介绍了在ROS中实现动态订阅和取消订阅话题的两种实用方法">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg">
+<meta property="article:published_time" content="2024-07-25T07:43:11.000Z">
+<meta property="article:modified_time" content="2025-05-02T07:15:43.000Z">
+<meta property="article:author" content="lovedream-ms">
+<meta property="article:tag" content="ros">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ROS动态订阅与取消话题的方法",
+  "url": "https://blog.lovedream.icu/post/dynamic-subscription-and-unsubscribe-topics-ros-ros-z1spdsu.html",
+  "image": "https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg",
+  "datePublished": "2024-07-25T07:43:11.000Z",
+  "dateModified": "2025-05-02T07:15:43.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "lovedream-ms",
+      "url": "https://blog.lovedream.icu/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250429153115.png"><link rel="canonical" href="https://blog.lovedream.icu/post/dynamic-subscription-and-unsubscribe-topics-ros-ros-z1spdsu.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1B1B1B')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: true,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ROS动态订阅与取消话题的方法',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/bilibili.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/oneImageFlow.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fps.css" media="defer" onload="this.media='all'"><span id="fps"></span><link rel="stylesheet" href="/css/selfCard/selfCard.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/selfCard/cardStatus.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/page.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/pageTitle.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/toc.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fontWeight.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Homeの主页のPage</span></a><a class="nav-page-title" href="/"><span class="site-name">ROS动态订阅与取消话题的方法</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">ROS动态订阅与取消话题的方法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2025-05-02T07:15:43.000Z" title="更新于 2025-05-02 15:15:43">2025-05-02</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">851</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span class="waline-pageview-count" data-path="/post/dynamic-subscription-and-unsubscribe-topics-ros-ros-z1spdsu.html"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/post/dynamic-subscription-and-unsubscribe-topics-ros-ros-z1spdsu.html#post-comment"><span class="waline-comment-count" data-path="/post/dynamic-subscription-and-unsubscribe-topics-ros-ros-z1spdsu.html"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="ROS动态订阅与取消话题的方法"><a href="#ROS动态订阅与取消话题的方法" class="headerlink" title="ROS动态订阅与取消话题的方法"></a>ROS动态订阅与取消话题的方法</h1><h3 id="1-根据传感器状态动态订阅"><a href="#1-根据传感器状态动态订阅" class="headerlink" title="1. 根据传感器状态动态订阅"></a>1. 根据传感器状态动态订阅</h3><p>假设你有一个机器人，上面安装了多个传感器。你希望只有在某个传感器处于活动状态时才订阅其数据话题。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SensorSubscriber</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.sensor_status = &#123;&#125;  <span class="comment"># 存储传感器状态的字典</span></span><br><span class="line">        <span class="variable language_">self</span>.subs = &#123;&#125;  <span class="comment"># 存储订阅者的字典</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 示例：初始化传感器状态</span></span><br><span class="line">        <span class="variable language_">self</span>.sensor_status[<span class="string">&#x27;camera&#x27;</span>] = <span class="literal">False</span></span><br><span class="line">        <span class="variable language_">self</span>.sensor_status[<span class="string">&#x27;lidar&#x27;</span>] = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 创建一个定时器，定期检查传感器状态并更新订阅</span></span><br><span class="line">        rospy.Timer(rospy.Duration(<span class="number">1</span>), <span class="variable language_">self</span>.check_sensors)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">check_sensors</span>(<span class="params">self, event</span>):</span><br><span class="line">        <span class="keyword">for</span> sensor, active <span class="keyword">in</span> <span class="variable language_">self</span>.sensor_status.items():</span><br><span class="line">            topic_name = <span class="string">&quot;/&#123;&#125;/data&quot;</span>.<span class="built_in">format</span>(sensor)</span><br><span class="line">            <span class="keyword">if</span> active <span class="keyword">and</span> sensor <span class="keyword">not</span> <span class="keyword">in</span> <span class="variable language_">self</span>.subs:</span><br><span class="line">                <span class="variable language_">self</span>.subs[sensor] = rospy.Subscriber(topic_name, String, <span class="variable language_">self</span>.callback, callback_args=sensor)</span><br><span class="line">                rospy.loginfo(<span class="string">&quot;Subscribed to %s&quot;</span>, topic_name)</span><br><span class="line">            <span class="keyword">elif</span> <span class="keyword">not</span> active <span class="keyword">and</span> sensor <span class="keyword">in</span> <span class="variable language_">self</span>.subs:</span><br><span class="line">                <span class="variable language_">self</span>.subs[sensor].unregister()</span><br><span class="line">                <span class="keyword">del</span> <span class="variable language_">self</span>.subs[sensor]</span><br><span class="line">                rospy.loginfo(<span class="string">&quot;Unsubscribed from %s&quot;</span>, topic_name)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">callback</span>(<span class="params">self, msg, sensor</span>):</span><br><span class="line">        rospy.loginfo(<span class="string">&quot;Received data from %s: %s&quot;</span>, sensor, msg.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_sensor_status</span>(<span class="params">self, sensor, active</span>):</span><br><span class="line">        <span class="variable language_">self</span>.sensor_status[sensor] = active</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    rospy.init_node(<span class="string">&#x27;sensor_subscriber&#x27;</span>)</span><br><span class="line">    ss = SensorSubscriber()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 示例：在运行时动态改变传感器状态</span></span><br><span class="line">    rospy.sleep(<span class="number">5</span>)</span><br><span class="line">    ss.set_sensor_status(<span class="string">&#x27;camera&#x27;</span>, <span class="literal">True</span>)  <span class="comment"># 激活相机传感器</span></span><br><span class="line">    rospy.sleep(<span class="number">5</span>)</span><br><span class="line">    ss.set_sensor_status(<span class="string">&#x27;lidar&#x27;</span>, <span class="literal">True</span>)  <span class="comment"># 激活激光雷达传感器</span></span><br><span class="line">    rospy.sleep(<span class="number">5</span>)</span><br><span class="line">    ss.set_sensor_status(<span class="string">&#x27;camera&#x27;</span>, <span class="literal">False</span>)  <span class="comment"># 停用相机传感器</span></span><br><span class="line"></span><br><span class="line">    rospy.spin()</span><br></pre></td></tr></table></figure>
+<h3 id="2-根据任务需求动态订阅"><a href="#2-根据任务需求动态订阅" class="headerlink" title="2. 根据任务需求动态订阅"></a>2. 根据任务需求动态订阅</h3><p>假设你的机器人需要在执行不同任务时订阅不同的话题。例如，执行导航任务时订阅地图数据，执行抓取任务时订阅物体检测数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TaskSubscriber</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.current_task = <span class="literal">None</span></span><br><span class="line">        <span class="variable language_">self</span>.sub = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 创建一个定时器，定期检查当前任务并更新订阅</span></span><br><span class="line">        rospy.Timer(rospy.Duration(<span class="number">1</span>), <span class="variable language_">self</span>.check_task)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">check_task</span>(<span class="params">self, event</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.current_task == <span class="string">&#x27;navigation&#x27;</span> <span class="keyword">and</span> <span class="variable language_">self</span>.sub <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="variable language_">self</span>.sub = rospy.Subscriber(<span class="string">&#x27;/map_data&#x27;</span>, String, <span class="variable language_">self</span>.callback)</span><br><span class="line">            rospy.loginfo(<span class="string">&quot;Subscribed to /map_data for navigation task&quot;</span>)</span><br><span class="line">        <span class="keyword">elif</span> <span class="variable language_">self</span>.current_task == <span class="string">&#x27;grasping&#x27;</span> <span class="keyword">and</span> <span class="variable language_">self</span>.sub <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="variable language_">self</span>.sub = rospy.Subscriber(<span class="string">&#x27;/object_detection&#x27;</span>, String, <span class="variable language_">self</span>.callback)</span><br><span class="line">            rospy.loginfo(<span class="string">&quot;Subscribed to /object_detection for grasping task&quot;</span>)</span><br><span class="line">        <span class="keyword">elif</span> <span class="variable language_">self</span>.current_task <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">and</span> <span class="variable language_">self</span>.sub <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="variable language_">self</span>.sub.unregister()</span><br><span class="line">            <span class="variable language_">self</span>.sub = <span class="literal">None</span></span><br><span class="line">            rospy.loginfo(<span class="string">&quot;Unsubscribed from current topic&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">callback</span>(<span class="params">self, msg</span>):</span><br><span class="line">        rospy.loginfo(<span class="string">&quot;Received message: %s&quot;</span>, msg.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_task</span>(<span class="params">self, task</span>):</span><br><span class="line">        <span class="variable language_">self</span>.current_task = task</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    rospy.init_node(<span class="string">&#x27;task_subscriber&#x27;</span>)</span><br><span class="line">    ts = TaskSubscriber()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 示例：在运行时动态改变任务</span></span><br><span class="line">    rospy.sleep(<span class="number">5</span>)</span><br><span class="line">    ts.set_task(<span class="string">&#x27;navigation&#x27;</span>)  <span class="comment"># 设置为导航任务</span></span><br><span class="line">    rospy.sleep(<span class="number">5</span>)</span><br><span class="line">    ts.set_task(<span class="string">&#x27;grasping&#x27;</span>)  <span class="comment"># 设置为抓取任务</span></span><br><span class="line">    rospy.sleep(<span class="number">5</span>)</span><br><span class="line">    ts.set_task(<span class="literal">None</span>)  <span class="comment"># 停止当前任务</span></span><br><span class="line"></span><br><span class="line">    rospy.spin()</span><br></pre></td></tr></table></figure>
+<h3 id="3-根据系统负载动态订阅"><a href="#3-根据系统负载动态订阅" class="headerlink" title="3. 根据系统负载动态订阅"></a>3. 根据系统负载动态订阅</h3><p>假设你希望根据系统的负载情况动态调整订阅的话题数量，以避免过载。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> psutil</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LoadAwareSubscriber</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.max_load = <span class="number">50</span>  <span class="comment"># 最大允许的系统负载百分比</span></span><br><span class="line">        <span class="variable language_">self</span>.subs = []</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 创建一个定时器，定期检查系统负载并更新订阅</span></span><br><span class="line">        rospy.Timer(rospy.Duration(<span class="number">1</span>), <span class="variable language_">self</span>.check_load)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">check_load</span>(<span class="params">self, event</span>):</span><br><span class="line">        current_load = psutil.cpu_percent(interval=<span class="number">1</span>)</span><br><span class="line">        rospy.loginfo(<span class="string">&quot;Current CPU load: %f%%&quot;</span>, current_load)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> current_load &lt; <span class="variable language_">self</span>.max_load <span class="keyword">and</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.subs) &lt; <span class="number">5</span>:</span><br><span class="line">            <span class="comment"># 如果系统负载低于阈值且订阅数量未达上限，则增加订阅</span></span><br><span class="line">            topic_name = <span class="string">&quot;/topic_&#123;&#125;&quot;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(<span class="variable language_">self</span>.subs) + <span class="number">1</span>)</span><br><span class="line">            sub = rospy.Subscriber(topic_name, String, <span class="variable language_">self</span>.callback)</span><br><span class="line">            <span class="variable language_">self</span>.subs.append(sub)</span><br><span class="line">            rospy.loginfo(<span class="string">&quot;Subscribed to %s&quot;</span>, topic_name)</span><br><span class="line">        <span class="keyword">elif</span> current_load &gt;= <span class="variable language_">self</span>.max_load <span class="keyword">and</span> <span class="variable language_">self</span>.subs:</span><br><span class="line">            <span class="comment"># 如果系统负载高于阈值且有订阅者，则减少订阅</span></span><br><span class="line">            sub = <span class="variable language_">self</span>.subs.pop()</span><br><span class="line">            sub.unregister()</span><br><span class="line">            rospy.loginfo(<span class="string">&quot;Unsubscribed from a topic to reduce load&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">callback</span>(<span class="params">self, msg</span>):</span><br><span class="line">        rospy.loginfo(<span class="string">&quot;Received message: %s&quot;</span>, msg.data)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    rospy.init_node(<span class="string">&#x27;load_aware_subscriber&#x27;</span>)</span><br><span class="line">    las = LoadAwareSubscriber()</span><br><span class="line">    rospy.spin()</span><br></pre></td></tr></table></figure>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/ros/">ros</a></div><div class="post-share"><div class="addtoany"><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_button_wechat"></a><a class="a2a_button_email"></a><a class="a2a_button_copy_link"></a><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a></div></div><script async="async" src="https://static.addtoany.com/menu/page.js"></script></div></div><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"/><div class="post-reward"><button class="tip-button reward-button"><span class="tip-button__text">赞助</span><div class="coin-wrapper"><div class="coin"><div class="coin__middle"></div><div class="coin__back"></div><div class="coin__front"></div></div></div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" target="_blank"><img class="post-qr-code-img" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li></ul></div></button></div><audio id="coinAudio" src="https://npm.elemecdn.com/akilar-candyassets@1.0.36/audio/aowu.m4a"></audio><script defer="defer" src="/js/coin.js"></script><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/the-mathematical-principle-of-gravity-estimation-1yuxns.html" title="重力估计数学原理与姿态解算误差分析"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">重力估计数学原理与姿态解算误差分析</div></div><div class="info-2"><div class="info-item-1">本文详细讲解了姿态解算中重力方向误差的计算原理，通过手机旋转的实例说明了重力向量在坐标系间的转换过程。</div></div></div></a><a class="pagination-related" href="/post/docker-zeg79c.html" title="docker"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">docker</div></div><div class="info-2"><div class="info-item-1">docker docker镜像站​[1] 维护性非常好，点赞！  docker安装12sudo usermod -aG sudo $USER # 添加用户到sudo权限newgrp docker # 运行命令使更改生效 tar -zxvf 文件名.tar.gz   解压文件  docker info爆错 ERROR: permission denied while trying to connect to the Docker daemon socket at 将当前用户加入 docker 用户组：sudo usermod -aG docker $USER 刷新用户组（部分系统有效）：  newgrp docker Docker search超时  Docker 的三个核心抽象层级详解1. Images（镜像） - 构建层定义：只读的模板，包含创建容器所需的全部文件和配置，类似面向对象编程中的”类”概念 关键特性：  由 Dockerfile 构建而成 内容不可变（immutable）  常用命令123456docker build -t imageName .  #...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/post/rosload-zookeq.html" title="ROS"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-18</div><div class="info-item-2">ROS</div></div><div class="info-2"><div class="info-item-1">ROS B站​视频​[1] 文档​[2] move_base1 在rviz中可视化三维检测框2  ROS介绍环境部署：要求：ros和ubuntu版本具有一一对应的关系，安装前要注意，建议入坑ros2，但是我的这篇暂时以ros1教程为主，考虑到之前的一些技术积累都是建立在这个上的。 安装建议使用鱼香ros​[3] 1wget http://fishros.com/install -O fishros &amp;&amp; . fishros 可以安装Terminator实现多终端显示，类似tmux的窗格 ROS的文件系统 整个项目由catkin_make进行管理【基于CMake进行二次开发】，详情可见后续补充​[4]，后面会对每一部分文件进行说明。 ROS常用终端命令这里以使用终端创建一个工作空间为例学习工作空间的相关命令： 12345mkdir -p ws_learn/src # -p：允许递归创建cd ws_learn # 此时终端的输出编译结果catkin_makecd srccatkin_create_pkg hello_world roscpp #...</div></div></div></a><a class="pagination-related" href="/post/ros2-z19uq9s.html" title="ROS2"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-19</div><div class="info-item-2">ROS2</div></div><div class="info-2"><div class="info-item-1">ROS2 动手学ROS2  ROS1与ROS2核心差异全面解析ROS2采用去中心化的DDS通信架构，取代了ROS1中心化的Master机制 本文将从架构设计、通信机制、实时性能、跨平台兼容性、安全性和开发工具链等多个维度，深入分析ROS1与ROS2的关键差异，帮助开发者根据项目需求做出更合理的选择。 架构设计与通信机制差异当ROS1 Master崩溃时，整个系统将无法正常工作，导致单点故障。虽然存在类似自动重启master节点，心跳检测等方案，但是在需要高可靠性的工业场景中存在明显缺陷。ROS2采用去中心化的分布式架构，基于工业级标准DDS（Data Distribution Service）实现节点间直接通信。ROS2系统中不存在单一中心节点，各节点能够独立运行并直接与其他节点通信，即使部分节点失效，系统其余部分仍能正常工作。 通信机制：ROS1使用自定义的TCPROS/UDPROS协议，节点间通信需要通过ROS...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">lovedream-ms</div><div class="author-info-description">别急着赶路，去感受路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lovedream-ms"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lovedream-ms" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/2179417385@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我们读书是为了成为提灯人去照亮黑暗，而不是为了自己有灯而沾沾自喜还要去吹灭别人的蜡烛</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ROS%E5%8A%A8%E6%80%81%E8%AE%A2%E9%98%85%E4%B8%8E%E5%8F%96%E6%B6%88%E8%AF%9D%E9%A2%98%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-text">ROS动态订阅与取消话题的方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%A0%B9%E6%8D%AE%E4%BC%A0%E6%84%9F%E5%99%A8%E7%8A%B6%E6%80%81%E5%8A%A8%E6%80%81%E8%AE%A2%E9%98%85"><span class="toc-text">1. 根据传感器状态动态订阅</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%A0%B9%E6%8D%AE%E4%BB%BB%E5%8A%A1%E9%9C%80%E6%B1%82%E5%8A%A8%E6%80%81%E8%AE%A2%E9%98%85"><span class="toc-text">2. 根据任务需求动态订阅</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%A0%B9%E6%8D%AE%E7%B3%BB%E7%BB%9F%E8%B4%9F%E8%BD%BD%E5%8A%A8%E6%80%81%E8%AE%A2%E9%98%85"><span class="toc-text">3. 根据系统负载动态订阅</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习的数学原理"/></a><div class="content"><a class="title" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理">强化学习的数学原理</a><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/data-structure-zbgbam.html" title="数据结构"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/data-structure-zbgbam.html" title="数据结构">数据结构</a><time datetime="2025-09-27T14:04:28.000Z" title="更新于 2025-09-27 22:04:28">2025-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2024 - 2025 By lovedream-ms</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b1</a></span></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  /* 使用 link_color 作为社交图标的颜色 */
+  .social-links i {
+    color: rgba(0, 159, 183, 1);
+  }
+  .social-link {
+    /* 使用 link_color 作为链接默认颜色 */
+    color: rgba(0, 159, 183, 1);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    /* 使用 blockquote_background_color 作为链接背景色，保持风格统一 */
+    background: rgba(0, 159, 183, 0.1);
+  }
+  .social-link:hover {
+    /* 鼠标悬停时，图标颜色变为白色以保证对比度 */
+    color: #ffffff;
+    /* 使用 button_hover 作为链接悬停背景色 */
+    background: #F7C67F;
+    transform: translateY(-3px) scale(1.2);
+    /* 阴影颜色与悬停背景色匹配 */
+    box-shadow: 0 5px 15px rgba(247, 198, 127, 0.4);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  /* 版权信息使用 meta_color */
+  .copyright {
+    font-size: 1.1rem; 
+    color: #778899;
+    font-weight: 400;
+  }
+  /* 标语使用 main 主色调，突出显示 */
+  .tagline {
+    font-size: 0.8rem;
+    color: #8ADBB4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* 访客统计信息使用 meta_color */
+  .visitor-count {
+    font-size: 0.75rem;
+    color: #778899;
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <div class="social-links">
+    <a href="https://github.com/lovedream-ms" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://blog.csdn.net/2303_76343222" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="CSDN" title="CSDN">
+      <i class="fas fa-code"></i>
+    </a>
+    <a href="https://space.bilibili.com/1397568600" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="bilibili" title="bilibili">
+      <i class="fab fa-bilibili"></i>
+    </a>
+  </div>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-up"></i><span class="scroll-percent"></span></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://commit-manger.vercel.app/',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: true,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script async src="/js/costom.js"></script><script async src="/js/fps.js"></script><script async src="/js/coin.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>

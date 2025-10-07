@@ -1,0 +1,432 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>强化学习的数学原理 | Homeの主页のPage</title><meta name="author" content="lovedream-ms"><meta name="copyright" content="lovedream-ms"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="强化学习的数学原理历史发展脉络如何分析一个状态值好还是不好，使用贝尔曼公式​$\mathrm{v\pi&#x3D;r\pi+\gamma P\pi v\pi}$ $v(s) &#x3D; \mathbb{E}[r{t+1} + \gamma v(s{t+1}) \mid s_t&#x3D;s]$   每一个贝尔曼公式对应一个策略，贝尔曼最优公式对应最优策略。使用不动点原理，得到了求解性  v^*(s) &#x3D; \max_a \ma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="强化学习的数学原理">
+<meta property="og:url" content="https://blog.lovedream.icu/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html">
+<meta property="og:site_name" content="Homeの主页のPage">
+<meta property="og:description" content="强化学习的数学原理历史发展脉络如何分析一个状态值好还是不好，使用贝尔曼公式​$\mathrm{v\pi&#x3D;r\pi+\gamma P\pi v\pi}$ $v(s) &#x3D; \mathbb{E}[r{t+1} + \gamma v(s{t+1}) \mid s_t&#x3D;s]$   每一个贝尔曼公式对应一个策略，贝尔曼最优公式对应最优策略。使用不动点原理，得到了求解性  v^*(s) &#x3D; \max_a \ma">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg">
+<meta property="article:published_time" content="2025-09-22T14:08:59.000Z">
+<meta property="article:modified_time" content="2025-10-07T05:28:09.000Z">
+<meta property="article:author" content="lovedream-ms">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "强化学习的数学原理",
+  "url": "https://blog.lovedream.icu/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html",
+  "image": "https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg",
+  "datePublished": "2025-09-22T14:08:59.000Z",
+  "dateModified": "2025-10-07T05:28:09.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "lovedream-ms",
+      "url": "https://blog.lovedream.icu/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250429153115.png"><link rel="canonical" href="https://blog.lovedream.icu/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1B1B1B')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: true,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '强化学习的数学原理',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/bilibili.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/oneImageFlow.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fps.css" media="defer" onload="this.media='all'"><span id="fps"></span><link rel="stylesheet" href="/css/selfCard/selfCard.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/selfCard/cardStatus.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/page.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/pageTitle.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/toc.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fontWeight.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Homeの主页のPage</span></a><a class="nav-page-title" href="/"><span class="site-name">强化学习的数学原理</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">强化学习的数学原理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span class="waline-pageview-count" data-path="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html#post-comment"><span class="waline-comment-count" data-path="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="强化学习的数学原理"><a href="#强化学习的数学原理" class="headerlink" title="强化学习的数学原理"></a>强化学习的数学原理</h1><h2 id="历史发展脉络"><a href="#历史发展脉络" class="headerlink" title="历史发展脉络"></a>历史发展脉络</h2><p>如何分析一个状态值好还是不好，使用贝尔曼公式​$\mathrm{v<em>\pi=r</em>\pi+\gamma P<em>\pi v</em>\pi}$ $v(s) = \mathbb{E}[r<em>{t+1} + \gamma v(s</em>{t+1}) \mid s_t=s]$  </p>
+<p>每一个贝尔曼公式对应一个策略，贝尔曼最优公式对应最优策略。使用不动点原理，得到了求解性</p>
+<script type="math/tex; mode=display">
+v^*(s) = \max_a \mathbb{E}[r_{t+1} + \gamma v^*(s_{t+1}) \mid s_t=s, a_t=a]</script><p>值迭代和策略迭代做出策略评价，得到值以后即可改进策略。需要模型</p>
+<p>第五章的Gap是如何解决model-free learning：用<strong>采样</strong>代替<strong>期望，使用数据替代模型<br>蒙特卡洛：MC Basic MC Exploring Starts MC e-greedy</strong></p>
+<p>第六章的Gap是从non-incremental到incremental</p>
+<p>如何估计一个随机变量的$E_{(x)}$,non-incremental方法就是一次性采样10000次，计算平均；incremental方法就是预设一个估计值，不断更新。RM算法、SGD算法</p>
+<p>第七章时序差分方法，使用TD的方法学习state values，思路推广到Sarsa，使用TD的思想计算action values，Q-learning是使用TD方法学习计算optimal action values，也是一个off-policy。</p>
+<p>强化学习有两个policy，一个叫做behavior policy（生成经验数据），另一个叫做target policy（目标策略），两者相同即为on-policy，不同即为off-policy，off的好处是可以使用之前别的policy生成的数据去优化学习。</p>
+<p>第八章的Gap前面的全都是基于表格形式，每一个状态值都存在表格中，如果状态是连续的，就不太适合。引入函数表示</p>
+<script type="math/tex; mode=display">
+\mathbf{\min_wJ(w)=\mathbb{E}[v_\pi(S)-\hat{v}(S,w)]}</script><p>这个思想可以和Sarsa，Q-learning，Deep Q-learning结合</p>
+<p>第九章的Gap是从value-based到policy-based，构建出公式求导，REINFORCE经典的策略梯度方法</p>
+<script type="math/tex; mode=display">
+\theta_{t+1} = \theta_t + \alpha \nabla_{\theta} \ln \pi(a_t | s_t, \theta_t) q_t(s_t, a_t)</script><p>第十章的Gap是结合policy-based和value-based，介绍Actor-Critic Methods，上述的计算公式也就是Actor，每次求actor需要知道$q_t(s_t, a_t)$，最简单的算法也就是QAC，A2C，Off-policy AC（使用importance sampling）,DPG</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>以网格世界为例讲解，机器人的目标是进入目标区域。</p>
+<p><em>State</em>: 对于这个网格世界有9钟可能的位置，因此可能有九个状态 </p>
+<p><em>State space</em>：就是状态的集合$S={s<em>i}</em>{i=1}^{9}$  </p>
+<p><em>Action</em>：For each state, there are five possible actions：$a_1,…,a_5$  </p>
+<p><em>Action space of a state</em>：动作的集合$A(s<em>i)={a_i}</em>{i=1}^{5}$  </p>
+<blockquote>
+<p>action space和状态$s_i$是依赖的</p>
+</blockquote>
+<p><em>state transition</em>：$s<em>{1}\xrightarrow{a</em>{2}}s_{2}$机器人从一个状态采取一个行动切换到另一个状态</p>
+<p>在这个案例中，我们定义一些forbidden area，我们选取第一种情况，希望观察到更加有意思的情况。</p>
+<p>综上我们可以写出一个Tabular representation：</p>
+<p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250922225001901.png" alt="image"></p>
+<p>表格的形式看起来比较直观，但是只能表示确定的情况， 如果可能多个状态的可能性，是无法表达的。</p>
+<p>一般情况下，我们使用<em>State transition probability</em>：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ & p(s_2|s_1,a_2)=1 \\
+ & p(s_i|s_1,a_2)=0\quad\forall i\neq2
+\end{aligned}</script><p>上面公式的意思是，我当前的状态是$s_1$,采取的动作是$a_2$,下一个时刻跳转到$S_i$的概率是多少。</p>
+<p><em>Policy</em> tells the agent what actions to take at a state.</p>
+<p>$\pi(a_1|s_1)=0$，意思是在状态$s_1$下采取动作$a_1$的概率，最终每一个状态的概率和为1。</p>
+<p><em>reward</em>  is one of unique concepts of RL.是一个标量</p>
+<p>在我们的游戏中，碰到边界会给与一个$r_{bound}$=-1，遇到禁止区域、到达目标点</p>
+<p>同样可以获得一个Tabular representation</p>
+<p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250922233355263.png" alt="image"></p>
+<p>面对表格的局限性，引入更加一般化的方法：</p>
+<script type="math/tex; mode=display">
+p(r=-1|s_1,a_1)=1\mathrm{~and~}p(r\neq-1|s_1,a_1)=0</script><p> 上述公式表示的含义是，在状态$s_1$我们选择$a_1$得到的奖励是1 </p>
+<p> A <em>trajectory</em>  is a state-action-reward chain.</p>
+<script type="math/tex; mode=display">
+s_1\xrightarrow{a_2}s_2\xrightarrow{a_3}s_5\xrightarrow{a_3}s_8\xrightarrow{a_2}s_9</script><p>return在轨迹无穷长的任务下会发散，无法在持续性任务中表示任务的奖励。于是引入<em>discounted return</em> <em>,</em> 使用$\mathbf{\gamma}$参数计算奖励</p>
+<ol>
+<li>计算结果是一个有限的值，随着回合的增加奖励系数逐次次方</li>
+<li>让模型拥有了对短时奖励和长时奖励的理解。</li>
+</ol>
+<p>一个结果的<em>trajectory</em>被称为一个episode(or a trial)</p>
+<p>根据任务是否可结束分为episodic tasks和continuing tasks。在实际解决问题时，通过将episodic tasks转换为continuing tasks，有如下两种方法：</p>
+<ol>
+<li>将目标状态的动作空间修改为原地踏步，奖励修改为0</li>
+<li>将目标状态看作是一般状态，去进行搜索，可以实现更加一般化的算法</li>
+</ol>
+<p>MDP(Markov decision process)=Markov + decision + process</p>
+<ul>
+<li><p>Markov：马尔可夫性质：</p>
+<ul>
+<li>状态转移和之前的历史状态无关</li>
+<li>奖励获取和之前的历史状态无关</li>
+</ul>
+</li>
+<li>decision：状态转移</li>
+<li><p>process：进程</p>
+<ul>
+<li>描述集合：状态、动作、奖励</li>
+<li>可能性描述：$\mathbf{p(s’| s,a)}$和$\mathbf{p(r| s,a)}$</li>
+</ul>
+</li>
+</ul>
+<h2 id="贝尔曼公式"><a href="#贝尔曼公式" class="headerlink" title="贝尔曼公式"></a>贝尔曼公式</h2><p>讲解return的重要性和如何计算</p>
+<p>The returns rely on each otherBootstrapping!</p>
+<p>假设一个场景</p>
+<p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20251007132754533.png" alt="image">​</p>
+<p>‍</p>
+<ul>
+<li>[ ] <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1sd4y167NS?t=323.1&amp;p=3">www.bilibili.com/video/BV1sd4y167NS?t=323.1&amp;p=3</a></li>
+</ul>
+<p>‍</p>
+</article><div class="tag_share"><div class="post-share"><div class="addtoany"><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_button_wechat"></a><a class="a2a_button_email"></a><a class="a2a_button_copy_link"></a><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a></div></div><script async="async" src="https://static.addtoany.com/menu/page.js"></script></div></div><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"/><div class="post-reward"><button class="tip-button reward-button"><span class="tip-button__text">赞助</span><div class="coin-wrapper"><div class="coin"><div class="coin__middle"></div><div class="coin__back"></div><div class="coin__front"></div></div></div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" target="_blank"><img class="post-qr-code-img" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li></ul></div></button></div><audio id="coinAudio" src="https://npm.elemecdn.com/akilar-candyassets@1.0.36/audio/aowu.m4a"></audio><script defer="defer" src="/js/coin.js"></script><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/implementation-of-copy-operators-1jbvte.html" title="复制运算符的实现"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">复制运算符的实现</div></div><div class="info-2"><div class="info-item-1">复制运算符的实现使用CPP实现一个类的赋值运算符需要考虑关注一下几点：  是否把返回值的类型声明为该类型的引用，并在函数结束前返回实例自身的引用（即*this)。  只有返回一个引用，才可以允许连续赋值。否则如果函数的返回值是void，应用该赋值运算符将不能做连续赋值。  是否把传入的参数的类型声明为常量引用。  如果传入的参数不是引用而是实例，那么从形参到实参会调用一次复制构造函数。把参数声明为引用可以避免这样的无谓消耗，能提高代码的效率。同时，我们在赋值运算符函数内不会改变传入的实例的状态，因此应该为传入的引用参数加上const关键字。  是否释放实例自身已有的内存。  如果我们忘记在分配新内存之前释放自身已有的空间，程序将出现内存泄露。  是否判断传入的参数和当前的实例（this）是不是同一个实例 。 ...</div></div></div></a><a class="pagination-related" href="/post/mineru-pdf2markdown-tb5b8.html" title="mineru PDF2MarkDown"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">mineru PDF2MarkDown</div></div><div class="info-2"><div class="info-item-1">mineru PDF2MarkDown这篇博客是对mineru2.0部署过程中可配置参数的解析 1234$ docker compose -f compose.yaml --profile gradio up -d$ docker logs mineru-gradio$ docker stop mineru-gradio$ docker start mineru-gradio tp_size参数设置tp_size参数报错 12345File &quot;/sgl-workspace/sglang/python/sglang/srt/models/qwen2.py&quot;, line 201, in initself.self_attn = Qwen2Attention(File &quot;/sgl-workspace/sglang/python/sglang/srt/models/qwen2.py&quot;, line 116, in initassert self.total_num_heads % tp_size ==...</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">lovedream-ms</div><div class="author-info-description">别急着赶路，去感受路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lovedream-ms"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lovedream-ms" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/2179417385@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我们读书是为了成为提灯人去照亮黑暗，而不是为了自己有灯而沾沾自喜还要去吹灭别人的蜡烛</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9A%84%E6%95%B0%E5%AD%A6%E5%8E%9F%E7%90%86"><span class="toc-text">强化学习的数学原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%86%E5%8F%B2%E5%8F%91%E5%B1%95%E8%84%89%E7%BB%9C"><span class="toc-text">历史发展脉络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B4%9D%E5%B0%94%E6%9B%BC%E5%85%AC%E5%BC%8F"><span class="toc-text">贝尔曼公式</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习的数学原理"/></a><div class="content"><a class="title" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理">强化学习的数学原理</a><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/data-structure-zbgbam.html" title="数据结构"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/data-structure-zbgbam.html" title="数据结构">数据结构</a><time datetime="2025-09-27T14:04:28.000Z" title="更新于 2025-09-27 22:04:28">2025-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2024 - 2025 By lovedream-ms</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b1</a></span></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  /* 使用 link_color 作为社交图标的颜色 */
+  .social-links i {
+    color: rgba(0, 159, 183, 1);
+  }
+  .social-link {
+    /* 使用 link_color 作为链接默认颜色 */
+    color: rgba(0, 159, 183, 1);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    /* 使用 blockquote_background_color 作为链接背景色，保持风格统一 */
+    background: rgba(0, 159, 183, 0.1);
+  }
+  .social-link:hover {
+    /* 鼠标悬停时，图标颜色变为白色以保证对比度 */
+    color: #ffffff;
+    /* 使用 button_hover 作为链接悬停背景色 */
+    background: #F7C67F;
+    transform: translateY(-3px) scale(1.2);
+    /* 阴影颜色与悬停背景色匹配 */
+    box-shadow: 0 5px 15px rgba(247, 198, 127, 0.4);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  /* 版权信息使用 meta_color */
+  .copyright {
+    font-size: 1.1rem; 
+    color: #778899;
+    font-weight: 400;
+  }
+  /* 标语使用 main 主色调，突出显示 */
+  .tagline {
+    font-size: 0.8rem;
+    color: #8ADBB4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* 访客统计信息使用 meta_color */
+  .visitor-count {
+    font-size: 0.75rem;
+    color: #778899;
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <div class="social-links">
+    <a href="https://github.com/lovedream-ms" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://blog.csdn.net/2303_76343222" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="CSDN" title="CSDN">
+      <i class="fas fa-code"></i>
+    </a>
+    <a href="https://space.bilibili.com/1397568600" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="bilibili" title="bilibili">
+      <i class="fab fa-bilibili"></i>
+    </a>
+  </div>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-up"></i><span class="scroll-percent"></span></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://commit-manger.vercel.app/',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: true,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script async src="/js/costom.js"></script><script async src="/js/fps.js"></script><script async src="/js/coin.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>猴子补丁 | Homeの主页のPage</title><meta name="author" content="lovedream-ms"><meta name="copyright" content="lovedream-ms"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="猴子补丁作为一名算法工程师或数据科学家，我们每天都在与数据打交道。其中，文件路径处理是我们最常遇见也最容易忽视的“坑”之一，尤其是当路径中包含非英文字符（如中文）时。 今天，我就遇到了一个经典的“灵异事件”，它不仅让我找到了问题的根源，更让我对一些优秀开源库的设计哲学有了更深的理解。 “灵异事件”：两份雷同代码，一个崩溃一个安然无恙我正在为某个数据集编写图像预处理脚本，主要任务是读取图片，进行缩放">
+<meta property="og:type" content="article">
+<meta property="og:title" content="猴子补丁">
+<meta property="og:url" content="https://blog.lovedream.icu/post/digging-deep-into-ultralytics-how-to-elegantly-solve-opencv-chinese-path-problems-with-one-line-of-import-fa8dc.html">
+<meta property="og:site_name" content="Homeの主页のPage">
+<meta property="og:description" content="猴子补丁作为一名算法工程师或数据科学家，我们每天都在与数据打交道。其中，文件路径处理是我们最常遇见也最容易忽视的“坑”之一，尤其是当路径中包含非英文字符（如中文）时。 今天，我就遇到了一个经典的“灵异事件”，它不仅让我找到了问题的根源，更让我对一些优秀开源库的设计哲学有了更深的理解。 “灵异事件”：两份雷同代码，一个崩溃一个安然无恙我正在为某个数据集编写图像预处理脚本，主要任务是读取图片，进行缩放">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg">
+<meta property="article:published_time" content="2025-06-30T14:08:54.000Z">
+<meta property="article:modified_time" content="2025-07-26T15:26:37.000Z">
+<meta property="article:author" content="lovedream-ms">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "猴子补丁",
+  "url": "https://blog.lovedream.icu/post/digging-deep-into-ultralytics-how-to-elegantly-solve-opencv-chinese-path-problems-with-one-line-of-import-fa8dc.html",
+  "image": "https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg",
+  "datePublished": "2025-06-30T14:08:54.000Z",
+  "dateModified": "2025-07-26T15:26:37.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "lovedream-ms",
+      "url": "https://blog.lovedream.icu/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250429153115.png"><link rel="canonical" href="https://blog.lovedream.icu/post/digging-deep-into-ultralytics-how-to-elegantly-solve-opencv-chinese-path-problems-with-one-line-of-import-fa8dc.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1B1B1B')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: true,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '猴子补丁',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/bilibili.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/oneImageFlow.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fps.css" media="defer" onload="this.media='all'"><span id="fps"></span><link rel="stylesheet" href="/css/selfCard/selfCard.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/selfCard/cardStatus.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/page.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/pageTitle.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/toc.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fontWeight.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Homeの主页のPage</span></a><a class="nav-page-title" href="/"><span class="site-name">猴子补丁</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">猴子补丁</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2025-07-26T15:26:37.000Z" title="更新于 2025-07-26 23:26:37">2025-07-26</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">2.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span class="waline-pageview-count" data-path="/post/digging-deep-into-ultralytics-how-to-elegantly-solve-opencv-chinese-path-problems-with-one-line-of-import-fa8dc.html"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/post/digging-deep-into-ultralytics-how-to-elegantly-solve-opencv-chinese-path-problems-with-one-line-of-import-fa8dc.html#post-comment"><span class="waline-comment-count" data-path="/post/digging-deep-into-ultralytics-how-to-elegantly-solve-opencv-chinese-path-problems-with-one-line-of-import-fa8dc.html"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="猴子补丁"><a href="#猴子补丁" class="headerlink" title="猴子补丁"></a>猴子补丁</h1><p>作为一名算法工程师或数据科学家，我们每天都在与数据打交道。其中，文件路径处理是我们最常遇见也最容易忽视的“坑”之一，尤其是当路径中包含非英文字符（如中文）时。</p>
+<p>今天，我就遇到了一个经典的“灵异事件”，它不仅让我找到了问题的根源，更让我对一些优秀开源库的设计哲学有了更深的理解。</p>
+<h3 id="“灵异事件”：两份雷同代码，一个崩溃一个安然无恙"><a href="#“灵异事件”：两份雷同代码，一个崩溃一个安然无恙" class="headerlink" title="“灵异事件”：两份雷同代码，一个崩溃一个安然无恙"></a>“灵异事件”：两份雷同代码，一个崩溃一个安然无恙</h3><p>我正在为某个数据集编写图像预处理脚本，主要任务是读取图片，进行缩放，然后进行下一步处理。代码逻辑非常直接，核心代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">process_images</span>(<span class="params">image_folder</span>):</span><br><span class="line">    <span class="keyword">for</span> img_name <span class="keyword">in</span> os.listdir(image_folder):</span><br><span class="line">        img_path = os.path.join(image_folder, img_name)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 读取图像</span></span><br><span class="line">        image = cv2.imread(img_path)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 这里会出问题！</span></span><br><span class="line">        image = cv2.resize(image, (<span class="number">640</span>, <span class="number">360</span>)) </span><br><span class="line">        </span><br><span class="line">        <span class="comment"># ... 后续处理 ...</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;处理完成: <span class="subst">&#123;img_path&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 图片存放在一个包含中文的路径下</span></span><br><span class="line">images_folder = <span class="string">&quot;E:/数据集/工业检测/场景一&quot;</span></span><br><span class="line">process_images(images_folder)</span><br></pre></td></tr></table></figure>
+<p>然而，当我满怀信心地运行时，一个鲜红的错误中断了程序：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ C:/Users/YourUser/anaconda3/envs/my_env/python.exe e:/path/to/my_script.py</span><br><span class="line">[ WARN:0@0.498] global loadsave.cpp:241 cv::findDecoder imread_(<span class="string">&#x27;E:/????/????/???/scene1.png&#x27;</span>): can<span class="string">&#x27;t open/read file: check file path/integrity</span></span><br><span class="line"><span class="string">Traceback (most recent call last):</span></span><br><span class="line"><span class="string">  File &quot;e:/path/to/my_script.py&quot;, line 17, in &lt;module&gt;</span></span><br><span class="line"><span class="string">    process_images(images_folder)  </span></span><br><span class="line"><span class="string">  File &quot;e:/path/to/my_script.py&quot;, line 10, in process_images</span></span><br><span class="line"><span class="string">    image = cv2.resize(image, (640, 360))</span></span><br><span class="line"><span class="string">cv2.error: OpenCV(4.10.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\resize.cpp:4152: error: (-215:Assertion failed) !ssize.empty() in function &#x27;</span>cv::resize<span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>报错信息非常明确：<code>!ssize.empty()</code> 断言失败。有经验的开发者一眼就能看出，这是因为 <code>cv2.resize</code> 函数接收到了一个空对象。往上追溯，问题出在 <code>cv2.imread(img_path)</code> 这一行。由于路径中包含中文，OpenCV 没能正确读取图片，<strong>静默地返回了一个</strong> <strong>​<code>None</code>​</strong>。当 <code>cv2.resize(None, ...)</code> 被调用时，程序自然就崩溃了。</p>
+<p>最直接的解决方案？当然是把路径中的中文全改成英文，简单粗暴，但治标不治本，而且显得很不专业。</p>
+<p>但诡异的事情发生了。在我项目的另一个角落，有一份用于可视化的代码，它同样处理这些中文路径下的图片，却运行得好好的。两份代码唯一的区别是，那份能运行的代码多了一行看似不相关的 <code>import</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 正常运行的代码片段</span></span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">from</span> ultralytics.utils.plotting <span class="keyword">import</span> Annotator, colors <span class="comment"># 多了这一行！</span></span><br><span class="line"></span><br><span class="line">img_path = <span class="string">&quot;E:/数据集/工业检测/场景一/test.jpg&quot;</span></span><br><span class="line">img = cv2.imread(img_path)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在这里，img 不再是 None！</span></span><br><span class="line"><span class="built_in">print</span>(img <span class="keyword">is</span> <span class="literal">None</span>)  <span class="comment"># False</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ... 后续操作一切正常 ...</span></span><br></pre></td></tr></table></figure>
+<p>难道 <code>ultralytics</code> 库有某种“魔力”？</p>
+<h3 id="顺藤摸瓜：揭开-ultralytics-的“魔法”面纱"><a href="#顺藤摸瓜：揭开-ultralytics-的“魔法”面纱" class="headerlink" title="顺藤摸瓜：揭开 ultralytics 的“魔法”面纱"></a>顺藤摸瓜：揭开 <code>ultralytics</code> 的“魔法”面纱</h3><p>好奇心驱使我必须一探究竟。为什么仅仅 <code>import</code> 了一个绘图工具类，就能影响 <code>cv2</code> 的全局行为？我决定深入 <code>ultralytics</code> 的源码一探究竟。</p>
+<ol>
+<li>我首先跳转到 <code>ultralytics.utils.plotting</code> 文件，但里面并没有发现什么特别之处，都是些绘图相关的辅助函数。</li>
+<li>接着，我把目光投向了它的上一级 <code>__init__.py</code> 文件，即 <code>ultralytics/utils/__init__.py</code>。真相瞬间浮出水面：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ultralytics/utils/__init__.py 部分源码</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ... (省略其他导入)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Apply monkey patches</span></span><br><span class="line"><span class="keyword">from</span> ultralytics.utils.patches <span class="keyword">import</span> imread, imshow, imwrite, torch_load, torch_save</span><br><span class="line"></span><br><span class="line">torch.load = torch_load</span><br><span class="line">torch.save = torch_save</span><br><span class="line"><span class="keyword">if</span> WINDOWS:</span><br><span class="line">    <span class="comment"># Apply cv2 patches for non-ASCII and non-UTF characters in image paths</span></span><br><span class="line">    cv2.imread, cv2.imwrite, cv2.imshow = imread, imwrite, imshow</span><br></pre></td></tr></table></figure>
+<p>原来如此！<code>ultralytics</code> 在其 <code>utils</code> 模块被导入时，执行了一段被称为  <strong>“猴子补丁”（Monkey Patching）</strong>  的代码。它会判断当前操作系统是否为 Windows，如果是，就用自己实现的 <code>imread</code>, <code>imwrite</code>, <code>imshow</code> 函数，悄无声息地替换掉了 <code>cv2</code> 库中原生的同名函数。</p>
+<p>这个补丁专门解决了 OpenCV 在 Windows 平台上处理非 ASCII/UTF-8 字符路径时的兼容性问题。这是一种极其优雅且对用户透明的设计：<strong>你只需照常使用</strong> <strong>​<code>cv2.imread</code>​</strong>​ <strong>，而底层的麻烦，</strong>​<strong>​<code>ultralytics</code>​</strong> <strong>已经替你摆平了。</strong></p>
+<h3 id="拓展思考：我们能从中借鉴什么？"><a href="#拓展思考：我们能从中借鉴什么？" class="headerlink" title="拓展思考：我们能从中借鉴什么？"></a>拓展思考：我们能从中借鉴什么？</h3><p>这次排错经历不仅解决了一个具体问题，更带来了三个层面的启发，我们可以在日常开发中灵活运用。</p>
+<h4 id="1-善用“前人栽树”：优秀库的“隐性福利”"><a href="#1-善用“前人栽树”：优秀库的“隐性福利”" class="headerlink" title="1. 善用“前人栽树”：优秀库的“隐性福利”"></a>1. 善用“前人栽树”：优秀库的“隐性福利”</h4><p>大型、成熟的开源项目（如 <code>ultralytics</code>, <code>transformers</code> 等）不仅仅是功能代码的集合。它们通常包含大量为了提升用户体验、解决跨平台兼容性、修复依赖库 bug 而设计的“补丁”和“脚手架”。</p>
+<p><strong>借鉴点</strong>：当你在使用某个领域的权威库时，如果遇到一些环境相关（而非逻辑相关）的奇怪问题，可以尝试查看该库的 <code>__init__.py</code> 或 <code>patches</code>之类的模块。也许你遇到的问题，早已被它“顺手”解决了。你需要的，仅仅是一个正确的 <code>import</code>。</p>
+<h4 id="2-“猴子补丁”：一把强大的双刃剑"><a href="#2-“猴子补丁”：一把强大的双刃剑" class="headerlink" title="2. “猴子补丁”：一把强大的双刃剑"></a>2. “猴子补丁”：一把强大的双刃剑</h4><p>“猴子补丁”是在运行时动态修改模块、类或函数行为的一种技术。<code>ultralytics</code> 的做法是其经典应用。</p>
+<p><strong>我们何时可以考虑使用它？</strong></p>
+<ul>
+<li><strong>修复第三方库的 Bug</strong>：当你使用的某个库存在一个已知 Bug，但官方迟迟没有发布修复版本时，你可以自己写一个补丁函数，在程序启动时替换掉有问题的部分。</li>
+<li><strong>添加平台特定功能</strong>：正如 <code>ultralytics</code> 所做，针对特定操作系统（如 Windows）的顽疾，应用特殊的解决方案，同时保持代码在其他平台上的原生性。</li>
+<li><strong>调试与日志</strong>：你可以用补丁来包裹一个现有函数，在不修改原函数代码的情况下，加入额外的日志输出、性能监控或参数检查。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 示例：为 requests 库的 get 方法添加日志</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存原始的 get 方法</span></span><br><span class="line">original_get = requests.get</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">patched_get</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;发起请求: <span class="subst">&#123;args&#125;</span>, <span class="subst">&#123;kwargs&#125;</span>&quot;</span>)</span><br><span class="line">    start_time = time.time()</span><br><span class="line">    response = original_get(*args, **kwargs) <span class="comment"># 调用原始方法</span></span><br><span class="line">    duration = time.time() - start_time</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;请求完成，耗时: <span class="subst">&#123;duration:<span class="number">.2</span>f&#125;</span>s, 状态码: <span class="subst">&#123;response.status_code&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> response</span><br><span class="line"></span><br><span class="line"><span class="comment"># 应用猴子补丁</span></span><br><span class="line">requests.get = patched_get</span><br><span class="line"></span><br><span class="line"><span class="comment"># 之后所有调用 requests.get 的地方都会带有日志</span></span><br><span class="line">requests.get(<span class="string">&quot;https://www.google.com&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p> <strong>⚠️注意</strong>：猴子补丁是一把双刃剑。它会使代码行为变得不那么直观，增加调试难度，且可能与库的未来版本不兼容。<strong>使用时务必添加详尽的注释，并将其视为最后的手段，而非首选方案。</strong></p>
+<h4 id="3-知其所以然：打造自己的“终极解决方案”"><a href="#3-知其所以然：打造自己的“终极解决方案”" class="headerlink" title="3. 知其所以然：打造自己的“终极解决方案”"></a>3. 知其所以然：打造自己的“终极解决方案”</h4><p>​<code>ultralytics</code> 的补丁虽好，但我们不能总依赖它。理解问题根源，才能写出更健壮、更独立的代码。</p>
+<p>OpenCV 中文路径问题的标准解法，其实是绕过 <code>cv2.imread</code>，改用能正确处理宽字符路径的方式先将文件读入内存，再进行解码。</p>
+<p><strong>终极解决方案代码</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">imread_zh</span>(<span class="params">file_path: <span class="built_in">str</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    一个可以正确读取包含中文字符路径的 cv2.imread 替代方案。</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 使用 numpy 从文件读取，可以正确处理各种编码的路径</span></span><br><span class="line">        image_data = np.fromfile(file_path, dtype=np.uint8)</span><br><span class="line">        <span class="comment"># 从内存缓冲区解码成图像</span></span><br><span class="line">        image = cv2.imdecode(image_data, cv2.IMREAD_COLOR)</span><br><span class="line">        <span class="keyword">if</span> image <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">raise</span> IOError(<span class="string">f&quot;无法解码图像，文件可能已损坏或格式不支持: <span class="subst">&#123;file_path&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> image</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;读取文件时出错: <span class="subst">&#123;file_path&#125;</span>, 错误: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ---- 使用方法 ----</span></span><br><span class="line">img_path = <span class="string">&quot;E:/数据集/工业检测/场景一/test.jpg&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 不再使用 cv2.imread</span></span><br><span class="line"><span class="comment"># image = cv2.imread(img_path) </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用我们自制的函数</span></span><br><span class="line">image = imread_zh(img_path)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> image <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    cv2.imshow(<span class="string">&quot;Image&quot;</span>, image)</span><br><span class="line">    cv2.waitKey(<span class="number">0</span>)</span><br><span class="line">    cv2.destroyAllWindows()</span><br></pre></td></tr></table></figure>
+<p>将这个 <code>imread_zh</code> 函数封装到你的个人工具库 <code>utils.py</code> 中，从此一劳永逸，再也无需担心 OpenCV 的中文路径问题，也不必非要引入一个庞大的库来解决这个小问题。</p>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>一次看似简单的代码报错，最终引领我们深入探索了一个优秀开源库的内部设计，并学习到了猴子补丁等实用技巧。这提醒我们，作为开发者，不仅要满足于“让代码跑起来”，更要怀有好奇心，去探究“它为什么能这样跑”。</p>
+<p>下一次，当你再遇到“灵异事件”时，不妨也顺着网线，去源码里抓出那只调皮的“猴子”吧！</p>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/python/">python</a></div><div class="post-share"><div class="addtoany"><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_button_wechat"></a><a class="a2a_button_email"></a><a class="a2a_button_copy_link"></a><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a></div></div><script async="async" src="https://static.addtoany.com/menu/page.js"></script></div></div><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"/><div class="post-reward"><button class="tip-button reward-button"><span class="tip-button__text">赞助</span><div class="coin-wrapper"><div class="coin"><div class="coin__middle"></div><div class="coin__back"></div><div class="coin__front"></div></div></div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" target="_blank"><img class="post-qr-code-img" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li></ul></div></button></div><audio id="coinAudio" src="https://npm.elemecdn.com/akilar-candyassets@1.0.36/audio/aowu.m4a"></audio><script defer="defer" src="/js/coin.js"></script><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/script-writing-experience-2qew5s.html" title="Bash脚本编写经验"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Bash脚本编写经验</div></div><div class="info-2"><div class="info-item-1">脚本书写经验 参考链接：GPT-SoVITS/install.sh at main · RVC-Boss/GPT-SoVITS Wiki：github.com/dylanaraps/pure-bash-bible 中文版  1234567891011121314151617181920212223242526#!/bin/bash# ==============================================#  脚本模板                              配置部分# ==============================================SCRIPT_DIR=&quot;$(cd &quot;$(dirname &quot;$&#123;BASH_SOURCE[0]&#125;&quot;)&quot; &amp;&gt;/dev/null &amp;&amp; pwd)&quot;# ==============================================# 颜色定义部分#...</div></div></div></a><a class="pagination-related" href="/post/ros2-z19uq9s.html" title="ROS2"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">ROS2</div></div><div class="info-2"><div class="info-item-1">ROS2 动手学ROS2  ROS1与ROS2核心差异全面解析ROS2采用去中心化的DDS通信架构，取代了ROS1中心化的Master机制 本文将从架构设计、通信机制、实时性能、跨平台兼容性、安全性和开发工具链等多个维度，深入分析ROS1与ROS2的关键差异，帮助开发者根据项目需求做出更合理的选择。 架构设计与通信机制差异当ROS1 Master崩溃时，整个系统将无法正常工作，导致单点故障。虽然存在类似自动重启master节点，心跳检测等方案，但是在需要高可靠性的工业场景中存在明显缺陷。ROS2采用去中心化的分布式架构，基于工业级标准DDS（Data Distribution Service）实现节点间直接通信。ROS2系统中不存在单一中心节点，各节点能够独立运行并直接与其他节点通信，即使部分节点失效，系统其余部分仍能正常工作。 通信机制：ROS1使用自定义的TCPROS/UDPROS协议，节点间通信需要通过ROS...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/post/why-does-python-claim-to-be-interpreted-but-need-to-be-compiled-the-truth-about-pyc-files-z21roco.html" title="为什么 Python 号称解释型，却需要“编译”？.pyc 文件的真相"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-09-07</div><div class="info-item-2">为什么 Python 号称解释型，却需要“编译”？.pyc 文件的真相</div></div><div class="info-2"><div class="info-item-1">为什么 Python 号称解释型，却需要“编译”？.pyc 文件的真相“相信每个 Python 开发者都见过那个神秘的 pycache 文件夹和其中躺着的 .pyc 文件。我们通常知道它和“编译”、“缓存”有关，删掉似乎也没什么大碍。但你是否曾停下来想过：  为什么 Python 这门“解释型”语言需要一个“编译”步骤？ 这个小小的缓存文件，是如何支撑起大型项目秒级启动的？ 最新的 Python 3.11+ 的革命性性能提升，背后竟也有它的功劳？   如果你对这些问题感到好奇，那么这篇文章将为你揭开 .pyc 文件的神秘面纱。它远非一个简单的缓存，而是贯穿 Python 性能分析、优化和应用分发的“隐形功臣”。让我们一起从 What, Why, How 三个角度，重新认识这位最熟悉的陌生人。”  基本内容介绍第一印象：.pyc 文件究竟是什么？当 Python 程序运行时，解释器首先会将 .py 源代码文件编译成一种中间形式（预制菜），称为字节码（bytecode） 。.pyc 文件（“py”代表 Python，“c”代表...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">lovedream-ms</div><div class="author-info-description">别急着赶路，去感受路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lovedream-ms"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lovedream-ms" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/2179417385@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我们读书是为了成为提灯人去照亮黑暗，而不是为了自己有灯而沾沾自喜还要去吹灭别人的蜡烛</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8C%B4%E5%AD%90%E8%A1%A5%E4%B8%81"><span class="toc-text">猴子补丁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%80%9C%E7%81%B5%E5%BC%82%E4%BA%8B%E4%BB%B6%E2%80%9D%EF%BC%9A%E4%B8%A4%E4%BB%BD%E9%9B%B7%E5%90%8C%E4%BB%A3%E7%A0%81%EF%BC%8C%E4%B8%80%E4%B8%AA%E5%B4%A9%E6%BA%83%E4%B8%80%E4%B8%AA%E5%AE%89%E7%84%B6%E6%97%A0%E6%81%99"><span class="toc-text">“灵异事件”：两份雷同代码，一个崩溃一个安然无恙</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%BA%E8%97%A4%E6%91%B8%E7%93%9C%EF%BC%9A%E6%8F%AD%E5%BC%80-ultralytics-%E7%9A%84%E2%80%9C%E9%AD%94%E6%B3%95%E2%80%9D%E9%9D%A2%E7%BA%B1"><span class="toc-text">顺藤摸瓜：揭开 ultralytics 的“魔法”面纱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%93%E5%B1%95%E6%80%9D%E8%80%83%EF%BC%9A%E6%88%91%E4%BB%AC%E8%83%BD%E4%BB%8E%E4%B8%AD%E5%80%9F%E9%89%B4%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">拓展思考：我们能从中借鉴什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%96%84%E7%94%A8%E2%80%9C%E5%89%8D%E4%BA%BA%E6%A0%BD%E6%A0%91%E2%80%9D%EF%BC%9A%E4%BC%98%E7%A7%80%E5%BA%93%E7%9A%84%E2%80%9C%E9%9A%90%E6%80%A7%E7%A6%8F%E5%88%A9%E2%80%9D"><span class="toc-text">1. 善用“前人栽树”：优秀库的“隐性福利”</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E2%80%9C%E7%8C%B4%E5%AD%90%E8%A1%A5%E4%B8%81%E2%80%9D%EF%BC%9A%E4%B8%80%E6%8A%8A%E5%BC%BA%E5%A4%A7%E7%9A%84%E5%8F%8C%E5%88%83%E5%89%91"><span class="toc-text">2. “猴子补丁”：一把强大的双刃剑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%9F%A5%E5%85%B6%E6%89%80%E4%BB%A5%E7%84%B6%EF%BC%9A%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84%E2%80%9C%E7%BB%88%E6%9E%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E2%80%9D"><span class="toc-text">3. 知其所以然：打造自己的“终极解决方案”</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-text">结语</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习的数学原理"/></a><div class="content"><a class="title" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理">强化学习的数学原理</a><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/data-structure-zbgbam.html" title="数据结构"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/data-structure-zbgbam.html" title="数据结构">数据结构</a><time datetime="2025-09-27T14:04:28.000Z" title="更新于 2025-09-27 22:04:28">2025-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2024 - 2025 By lovedream-ms</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b1</a></span></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  /* 使用 link_color 作为社交图标的颜色 */
+  .social-links i {
+    color: rgba(0, 159, 183, 1);
+  }
+  .social-link {
+    /* 使用 link_color 作为链接默认颜色 */
+    color: rgba(0, 159, 183, 1);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    /* 使用 blockquote_background_color 作为链接背景色，保持风格统一 */
+    background: rgba(0, 159, 183, 0.1);
+  }
+  .social-link:hover {
+    /* 鼠标悬停时，图标颜色变为白色以保证对比度 */
+    color: #ffffff;
+    /* 使用 button_hover 作为链接悬停背景色 */
+    background: #F7C67F;
+    transform: translateY(-3px) scale(1.2);
+    /* 阴影颜色与悬停背景色匹配 */
+    box-shadow: 0 5px 15px rgba(247, 198, 127, 0.4);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  /* 版权信息使用 meta_color */
+  .copyright {
+    font-size: 1.1rem; 
+    color: #778899;
+    font-weight: 400;
+  }
+  /* 标语使用 main 主色调，突出显示 */
+  .tagline {
+    font-size: 0.8rem;
+    color: #8ADBB4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* 访客统计信息使用 meta_color */
+  .visitor-count {
+    font-size: 0.75rem;
+    color: #778899;
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <div class="social-links">
+    <a href="https://github.com/lovedream-ms" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://blog.csdn.net/2303_76343222" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="CSDN" title="CSDN">
+      <i class="fas fa-code"></i>
+    </a>
+    <a href="https://space.bilibili.com/1397568600" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="bilibili" title="bilibili">
+      <i class="fab fa-bilibili"></i>
+    </a>
+  </div>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-up"></i><span class="scroll-percent"></span></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://commit-manger.vercel.app/',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: true,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script async src="/js/costom.js"></script><script async src="/js/fps.js"></script><script async src="/js/coin.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>

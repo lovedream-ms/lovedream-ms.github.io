@@ -1,0 +1,468 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ROS2 | Homeの主页のPage</title><meta name="author" content="lovedream-ms"><meta name="copyright" content="lovedream-ms"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="ROS2与ROS1核心差异解析：架构设计、实时性能、跨平台性、安全性、工具链 ROS2在可靠性、实时性和安全性方面实现重大突破，更适合工业级应用场景，但需权衡其较陡峭的学习曲线。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROS2">
+<meta property="og:url" content="https://blog.lovedream.icu/post/ros2-z19uq9s.html">
+<meta property="og:site_name" content="Homeの主页のPage">
+<meta property="og:description" content="ROS2与ROS1核心差异解析：架构设计、实时性能、跨平台性、安全性、工具链 ROS2在可靠性、实时性和安全性方面实现重大突破，更适合工业级应用场景，但需权衡其较陡峭的学习曲线。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg">
+<meta property="article:published_time" content="2025-05-19T06:26:51.000Z">
+<meta property="article:modified_time" content="2025-05-19T07:02:20.000Z">
+<meta property="article:author" content="lovedream-ms">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="ros">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ROS2",
+  "url": "https://blog.lovedream.icu/post/ros2-z19uq9s.html",
+  "image": "https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg",
+  "datePublished": "2025-05-19T06:26:51.000Z",
+  "dateModified": "2025-05-19T07:02:20.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "lovedream-ms",
+      "url": "https://blog.lovedream.icu/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250429153115.png"><link rel="canonical" href="https://blog.lovedream.icu/post/ros2-z19uq9s.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1B1B1B')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: true,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ROS2',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/bilibili.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/oneImageFlow.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fps.css" media="defer" onload="this.media='all'"><span id="fps"></span><link rel="stylesheet" href="/css/selfCard/selfCard.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/selfCard/cardStatus.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/page.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/pageTitle.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/toc.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fontWeight.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Homeの主页のPage</span></a><a class="nav-page-title" href="/"><span class="site-name">ROS2</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">ROS2</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2025-05-19T07:02:20.000Z" title="更新于 2025-05-19 15:02:20">2025-05-19</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>13分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span class="waline-pageview-count" data-path="/post/ros2-z19uq9s.html"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/post/ros2-z19uq9s.html#post-comment"><span class="waline-comment-count" data-path="/post/ros2-z19uq9s.html"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="ROS2"><a href="#ROS2" class="headerlink" title="ROS2"></a>ROS2</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://fishros.com/d2lros2/#/">动手学ROS2</a></p>
+</blockquote>
+<h2 id="ROS1与ROS2核心差异全面解析"><a href="#ROS1与ROS2核心差异全面解析" class="headerlink" title="ROS1与ROS2核心差异全面解析"></a>ROS1与ROS2核心差异全面解析</h2><p><strong>ROS2采用去中心化的DDS通信架构，取代了ROS1中心化的Master机制</strong></p>
+<p>本文将从架构设计、通信机制、实时性能、跨平台兼容性、安全性和开发工具链等多个维度，深入分析ROS1与ROS2的关键差异，帮助开发者根据项目需求做出更合理的选择。</p>
+<h3 id="架构设计与通信机制差异"><a href="#架构设计与通信机制差异" class="headerlink" title="架构设计与通信机制差异"></a>架构设计与通信机制差异</h3><p><strong>当ROS1 Master崩溃时，整个系统将无法正常工作，导致单点故障</strong>。虽然存在类似自动重启master节点，心跳检测等方案，但是在需要高可靠性的工业场景中存在明显缺陷。ROS2采用<strong>去中心化的分布式架构</strong>，基于工业级标准DDS（Data Distribution Service）实现节点间直接通信。<strong>ROS2系统中不存在单一中心节点，各节点能够独立运行并直接与其他节点通信</strong>，即使部分节点失效，系统其余部分仍能正常工作。</p>
+<p>通信机制：<br>ROS1使用自定义的TCPROS/UDPROS协议，节点间通信需要通过ROS Master建立连接<br>ROS2则基于DDS标准，支持自动节点发现、多播和单播混合通信模式，以及动态网络配置<br><span data-type="text" style="color: var(--b3-font-color12);">DDS协议</span>提供更高效的消息序列化和传输机制，减少了通信开销和延迟</p>
+<p>ROS1的中间件是ROS组织自己基于TCP机制建立的，刚开始用起来还可以，但随着现在传感器的升级，数据量越来越大，原先的数据拷贝机制就不再适了，主要是对系统的开销大大增大。ROS2除了将进程间通信<strong>intra-process</strong>自己来做之外,其他部分的通信就使用DDS来实现，ROS2将DDS服务接口进行了一层抽象，保证了上层应用层调用接口的统一性。通过P2P节点发现协议，很方便的完成了连接和通信。</p>
+<p>自动节点发现实现的具体方案如下：</p>
+<p><strong>阶段一：参与者发现（Participant Discovery）- 使用多播（Multicast）</strong></p>
+<ul>
+<li>当一个ROS2节点（即一个DDS参与者）启动时，它会向网络中一个<strong>预先定义好的多播地址和端口</strong>发送“Hello, I’m here!”的宣告信息。</li>
+<li>这个信息包里包含了它自己的身份信息、网络地址（IP和端口）等。</li>
+<li>网络中所有其他已经存在的节点都在监听这个多播地址。当它们收到这个宣告时，就知道一个新的伙伴加入了网络。</li>
+<li>同时，这些老节点也会通过<strong>单播（Unicast）</strong>  向新节点回应：“Welcome, I’m here too! This is my address.”</li>
+<li>这样一来，新节点就知道了网络中所有其他成员，老成员也知道了新成员的存在。整个过程完全是自动的，去中心化的。</li>
+</ul>
+<p><strong>阶段二：端点发现（Endpoint Discovery）- 同样使用多播/单播</strong></p>
+<ul>
+<li>在彼此知道对方存在后，每个节点会进一步广播（多播）它自己身上有哪些“端点”，即它有哪些发布者和订阅者，以及这些发布/订阅的主题名（Topic Name）和数据类型。</li>
+<li>当一个节点发现另一个节点发布的某个主题正是自己想要订阅的，或者另一个节点订阅的主题正是自己想要发布的，它们之间就会​<strong>建立匹配</strong>。</li>
+<li>一旦匹配成功，它们就会交换用于后续数据传输的<strong>单播</strong>地址和端口。</li>
+</ul>
+<p><strong>动态网络配置</strong>是以上所有机制带来的自然结果。因为整个系统是去中心化的，并且依赖持续的发现和“心跳”机制。</p>
+<ul>
+<li>​<strong>节点加入（Node Joins）</strong> ：如自动发现所述，新节点启动后会自动广播自己，并无缝融入现有网络。</li>
+<li><p>​<strong>节点离开（Node Leaves）</strong> ：</p>
+<ul>
+<li>​<strong>正常关闭</strong>：节点关闭前，会发送一个“Goodbye”的多播消息，通知网络中的其他成员“我要下线了”。其他节点收到后会清理与它相关的连接信息。</li>
+<li>​<strong>异常崩溃</strong>：DDS参与者之间会定期发送“我还活着”的心跳信号。如果一个节点在一定时间内没有收到另一个节点的心跳，就会判定对方已经掉线，并自动断开与它的连接。</li>
+</ul>
+</li>
+</ul>
+<h3 id="实时性与性能对比"><a href="#实时性与性能对比" class="headerlink" title="实时性与性能对比"></a>实时性与性能对比</h3><p>在ROS1中，所有节点都在单线程中运行回调函数，高负载时容易阻塞，导致通信延迟和系统不稳定。<strong>虽然ROS1可以通过外部实时操作系统（RTOS）来提升实时性能，但这增加了系统复杂性和开发难度</strong>。</p>
+<p><strong>ROS2支持软实时和硬实时场景，能够满足不同应用的实时性需求</strong>。通过配置QoS（Quality of Service）参数，开发者可以控制消息的可靠性、时延和带宽等特性，确保关键数据的及时传输。</p>
+<p>ROS2引入了多线程执行器（Multi-threaded Executor），<strong>允许节点在多个线程中运行，提高了系统并发性能和资源利用率</strong>。这使得ROS2在处理高频率传感器数据、复杂控制算法等场景时表现更佳。</p>
+<p>ROS2的通信延迟和抖动控制得到了优化，ROS2能够在网络不稳定或带宽受限的情况下保持可靠通信。<strong>实测数据显示，在相同硬件条件下，ROS2的通信延迟比ROS1降低了约40%，且抖动更小。</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>实时性指标</th>
+<th>ROS1</th>
+<th>ROS2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>节点通信方式</td>
+<td>中心化（依赖ROS Master）</td>
+<td>去中心化（节点直接通信）</td>
+</tr>
+<tr>
+<td>线程模型</td>
+<td>单线程执行</td>
+<td>支持多线程执行器</td>
+</tr>
+<tr>
+<td>通信延迟</td>
+<td>较高（约100-200ms）</td>
+<td>较低（约60-120ms）</td>
+</tr>
+<tr>
+<td>抖动控制</td>
+<td>较弱，易受系统负载影响</td>
+<td>较强，通过QoS机制优化</td>
+</tr>
+<tr>
+<td>实时性支持</td>
+<td>需依赖外部RTOS</td>
+<td>原生支持软硬实时场景</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="跨平台支持与硬件兼容性"><a href="#跨平台支持与硬件兼容性" class="headerlink" title="跨平台支持与硬件兼容性"></a>跨平台支持与硬件兼容性</h3><p>ROS1主要面向Linux环境开发，对Windows和macOS的支持有限且不稳定。<br>ROS2<strong>全面支持Linux、Windows和macOS三大主流操作系统</strong></p>
+<p><strong>ROS1通常需要依赖PC或嵌入式Linux设备，<br>ROS2通过DDS中间件实现了与多种硬件架构的兼容</strong>，</p>
+<h3 id="安全性与质量服务（QoS）管理"><a href="#安全性与质量服务（QoS）管理" class="headerlink" title="安全性与质量服务（QoS）管理"></a>安全性与质量服务（QoS）管理</h3><p>在ROS1中，所有节点都可以访问参数服务器，且通信内容明文传输，容易受到网络攻击和数据泄露风险。<br>ROS2通过集成DDS-Security标准，提供了原生的<strong>安全通信机制，包括消息加密、节点身份验证和访问控制策略</strong>。</p>
+<p>QoS机制允许开发者配置通信的<strong>可靠性、时延、带宽</strong>等参数，以适应不同网络环境和应用需求。在网络不稳定的情况下，可以配置QoS为”可靠”模式，确保消息不丢失；在实时性要求高的场景中，可以配置QoS为”低延迟”模式，优化消息传输速度。这种灵活的通信配置能力使ROS2能够在更复杂的网络环境中保持稳定运行。</p>
+<h3 id="开发工具链与生态系统"><a href="#开发工具链与生态系统" class="headerlink" title="开发工具链与生态系统"></a>开发工具链与生态系统</h3><p>ROS1使用catkin编译系统和roslaunch启动文件管理节点。<br>ROS2引入了更现代的ament和colcon编译系统，显著提高了编译速度和依赖管理能力，支持并行构建，大大缩短了开发周期。</p>
+<p>工具链：</p>
+<ul>
+<li><strong>RViz2</strong>：ROS2的可视化工具，在ROS1 RViz基础上进行了性能优化和功能增强，支持更复杂的3D场景渲染。</li>
+<li><strong>rqt</strong>：ROS2的图形化工具框架，与ROS1版本兼容但功能更丰富，支持插件化扩展。</li>
+<li><strong>Ignition</strong>：ROS2的新一代仿真工具，相比Gazebo提供了更精确的物理模拟和更灵活的场景配置。</li>
+</ul>
+<h2 id="基础篇—学会用ROS2"><a href="#基础篇—学会用ROS2" class="headerlink" title="基础篇—学会用ROS2"></a>基础篇—学会用ROS2</h2><p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250519152015212.png" alt="image" title="ROS2架构概述"></p>
+<h3 id="ROS-DOMAIN-ID"><a href="#ROS-DOMAIN-ID" class="headerlink" title="ROS_DOMAIN_ID"></a>ROS_DOMAIN_ID</h3><p>同一域上的ROS 2节点可以自由地相互发现并发送消息，而不同域上的ROS 2节点则不能。所有ROS 2节点默认使用域ID为0。为了避免在同一网络上运行ROS 2的不同计算机组之间互相干扰，应为每组设置不同的域ID。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ros2 pkg executables turtlesim</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看包含turtlesim的包</span></span><br></pre></td></tr></table></figure>
+<p><strong>情况说明</strong><br>使用wsl-22.04运行海龟程序，键盘控制无法生效<br>开启一个终端运行rqt，刷新node graph，可以使用关闭以后无法使用<br>ros2 node list等指令无法使用</p>
+<p>​<code>ros2 daemon stop</code>​</p>
+<p>​<code>ros2 daemon start</code>​</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> rclpy</span><br><span class="line"><span class="keyword">from</span> rclpy.node <span class="keyword">import</span> Node</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    rclpy.init()</span><br><span class="line">    node = Node(<span class="string">&quot;python_node&quot;</span>)</span><br><span class="line">    node.get_logger().info(<span class="string">&quot;你好&quot;</span>)</span><br><span class="line">    rclpy.spin(node)</span><br><span class="line">    rclpy.shutdown()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+<p>日志的format需要设置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> RCUTILS_CONSOLE_OUTPUT_FORMAT=[&#123;<span class="keyword">function</span> name&#125;:&#123;line number&#125;]:&#123;message&#125;</span><br></pre></td></tr></table></figure>
+<p>cpp的CMakeLists.txt文件修改</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ament_target_dependencies(cpp_node rclcpp)</span><br><span class="line"><span class="keyword">install</span>(TARGETS cpp_node</span><br><span class="line">    DESTINATION lib/<span class="variable">$&#123;PROJECT NAME&#125;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>单个编译：colcon build —packages-select demo_cpp_pkg</p>
+<p>std::make shared std::string(“This is a str.”)智能指针</p>
+<p>函数包装器：lamda，</p>
+<p>launch文件的三种组件：action</p>
+<p>action中包含多种内容，info，timer</p>
+<p>ros2 daemon start</p>
+<p>urdf使用合计</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> launch <span class="keyword">import</span> LaunchDescription</span><br><span class="line"><span class="keyword">from</span> launch_ros.actions <span class="keyword">import</span> Node</span><br><span class="line"><span class="keyword">from</span> launch_ros.substitutions <span class="keyword">import</span> FindPackageShare</span><br><span class="line"><span class="keyword">from</span> launch.actions <span class="keyword">import</span> LogInfo</span><br><span class="line"><span class="keyword">from</span> launch.substitutions <span class="keyword">import</span> LaunchConfiguration</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_launch_description</span>():</span><br><span class="line">    <span class="comment"># 找到功能包的分享目录</span></span><br><span class="line">    pkg_share = FindPackageShare(<span class="string">&#x27;three_arm_description&#x27;</span>).find(<span class="string">&#x27;three_arm_description&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 加载URDF文件路径</span></span><br><span class="line">    urdf_file_path = os.path.join(pkg_share, <span class="string">&#x27;urdf/three_arm.urdf&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 输出日志，显示URDF文件路径</span></span><br><span class="line">    log_launch = LogInfo(msg=<span class="string">f&quot;Loading URDF file from: <span class="subst">&#123;urdf_file_path&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(urdf_file_path, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> infp:</span><br><span class="line">        robot_description = infp.read()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 定义节点</span></span><br><span class="line">    nodes = [</span><br><span class="line">        <span class="comment"># 发布机器人描述</span></span><br><span class="line">        Node(</span><br><span class="line">            package=<span class="string">&#x27;robot_state_publisher&#x27;</span>,</span><br><span class="line">            executable=<span class="string">&#x27;robot_state_publisher&#x27;</span>,</span><br><span class="line">            name=<span class="string">&#x27;robot_state_publisher&#x27;</span>,</span><br><span class="line">            parameters=[&#123;<span class="string">&#x27;robot_description&#x27;</span>: robot_description&#125;]</span><br><span class="line">        ),</span><br><span class="line">        Node(</span><br><span class="line">            package=<span class="string">&#x27;joint_state_publisher_gui&#x27;</span>,</span><br><span class="line">            executable=<span class="string">&#x27;joint_state_publisher_gui&#x27;</span>,</span><br><span class="line">            name=<span class="string">&#x27;joint_state_publisher_gui&#x27;</span>,</span><br><span class="line">        ),</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 启动RViz可视化</span></span><br><span class="line">        Node(</span><br><span class="line">            package=<span class="string">&#x27;rviz2&#x27;</span>,</span><br><span class="line">            executable=<span class="string">&#x27;rviz2&#x27;</span>,</span><br><span class="line">            name=<span class="string">&#x27;rviz2&#x27;</span>,</span><br><span class="line">            arguments=[<span class="string">&#x27;-d&#x27;</span>, os.path.join(pkg_share, <span class="string">&#x27;rviz/three_arm.rviz&#x27;</span>)]</span><br><span class="line">        )</span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> LaunchDescription([</span><br><span class="line">        log_launch,  <span class="comment"># 添加日志动作到LaunchDescription</span></span><br><span class="line">        *nodes</span><br><span class="line">    ])</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">robot</span> <span class="attr">name</span>=<span class="string">&quot;four_wheel_robot&quot;</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 材质定义 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">material</span> <span class="attr">name</span>=<span class="string">&quot;orange&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">color</span> <span class="attr">rgba</span>=<span class="string">&quot;1 0.5 0 1&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">material</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 基座 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">name</span>=<span class="string">&quot;base_link&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">visual</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">box</span> <span class="attr">size</span>=<span class="string">&quot;0.6 0.4 0.2&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">material</span> <span class="attr">name</span>=<span class="string">&quot;orange&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">visual</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">collision</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">box</span> <span class="attr">size</span>=<span class="string">&quot;0.6 0.4 0.2&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">collision</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">link</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 前左轮 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">name</span>=<span class="string">&quot;front_left_wheel&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">visual</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">cylinder</span> <span class="attr">radius</span>=<span class="string">&quot;0.1&quot;</span> <span class="attr">length</span>=<span class="string">&quot;0.05&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">origin</span> <span class="attr">rpy</span>=<span class="string">&quot;1.57 0 0&quot;</span> <span class="attr">xyz</span>=<span class="string">&quot;0 0 0&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">material</span> <span class="attr">name</span>=<span class="string">&quot;orange&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">visual</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">collision</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">cylinder</span> <span class="attr">radius</span>=<span class="string">&quot;0.1&quot;</span> <span class="attr">length</span>=<span class="string">&quot;0.05&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">collision</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">link</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 前右轮 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">name</span>=<span class="string">&quot;front_right_wheel&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">visual</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">cylinder</span> <span class="attr">radius</span>=<span class="string">&quot;0.1&quot;</span> <span class="attr">length</span>=<span class="string">&quot;0.05&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">origin</span> <span class="attr">rpy</span>=<span class="string">&quot;1.57 0 0&quot;</span> <span class="attr">xyz</span>=<span class="string">&quot;0 0 0&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">material</span> <span class="attr">name</span>=<span class="string">&quot;orange&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">visual</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">collision</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">cylinder</span> <span class="attr">radius</span>=<span class="string">&quot;0.1&quot;</span> <span class="attr">length</span>=<span class="string">&quot;0.05&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">collision</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">link</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 后左轮 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">name</span>=<span class="string">&quot;back_left_wheel&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">visual</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">cylinder</span> <span class="attr">radius</span>=<span class="string">&quot;0.1&quot;</span> <span class="attr">length</span>=<span class="string">&quot;0.05&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">origin</span> <span class="attr">rpy</span>=<span class="string">&quot;1.57 0 0&quot;</span> <span class="attr">xyz</span>=<span class="string">&quot;0 0 0&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">material</span> <span class="attr">name</span>=<span class="string">&quot;orange&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">visual</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">collision</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">cylinder</span> <span class="attr">radius</span>=<span class="string">&quot;0.1&quot;</span> <span class="attr">length</span>=<span class="string">&quot;0.05&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">collision</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">link</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 后右轮 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">name</span>=<span class="string">&quot;back_right_wheel&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">visual</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">cylinder</span> <span class="attr">radius</span>=<span class="string">&quot;0.1&quot;</span> <span class="attr">length</span>=<span class="string">&quot;0.05&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">origin</span> <span class="attr">rpy</span>=<span class="string">&quot;1.57 0 0&quot;</span> <span class="attr">xyz</span>=<span class="string">&quot;0 0 0&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">material</span> <span class="attr">name</span>=<span class="string">&quot;orange&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">visual</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">collision</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geometry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">cylinder</span> <span class="attr">radius</span>=<span class="string">&quot;0.1&quot;</span> <span class="attr">length</span>=<span class="string">&quot;0.05&quot;</span>/&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">geometry</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">collision</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">link</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 前左轮关节 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">joint</span> <span class="attr">name</span>=<span class="string">&quot;front_left_wheel_joint&quot;</span> <span class="attr">type</span>=<span class="string">&quot;continuous&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span> <span class="attr">link</span>=<span class="string">&quot;base_link&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">child</span> <span class="attr">link</span>=<span class="string">&quot;front_left_wheel&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">origin</span> <span class="attr">xyz</span>=<span class="string">&quot;-0.2 -0.15 -0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">axis</span> <span class="attr">xyz</span>=<span class="string">&quot;0 1 0&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">joint</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 前右轮关节 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">joint</span> <span class="attr">name</span>=<span class="string">&quot;front_right_wheel_joint&quot;</span> <span class="attr">type</span>=<span class="string">&quot;continuous&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span> <span class="attr">link</span>=<span class="string">&quot;base_link&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">child</span> <span class="attr">link</span>=<span class="string">&quot;front_right_wheel&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">origin</span> <span class="attr">xyz</span>=<span class="string">&quot;-0.2 0.15 -0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">axis</span> <span class="attr">xyz</span>=<span class="string">&quot;0 1 0&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">joint</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 后左轮关节 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">joint</span> <span class="attr">name</span>=<span class="string">&quot;back_left_wheel_joint&quot;</span> <span class="attr">type</span>=<span class="string">&quot;continuous&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span> <span class="attr">link</span>=<span class="string">&quot;base_link&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">child</span> <span class="attr">link</span>=<span class="string">&quot;back_left_wheel&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">origin</span> <span class="attr">xyz</span>=<span class="string">&quot;0.2 -0.15 -0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">axis</span> <span class="attr">xyz</span>=<span class="string">&quot;0 1 0&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">joint</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 后右轮关节 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">joint</span> <span class="attr">name</span>=<span class="string">&quot;back_right_wheel_joint&quot;</span> <span class="attr">type</span>=<span class="string">&quot;continuous&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span> <span class="attr">link</span>=<span class="string">&quot;base_link&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">child</span> <span class="attr">link</span>=<span class="string">&quot;back_right_wheel&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">origin</span> <span class="attr">xyz</span>=<span class="string">&quot;0.2 0.15 -0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">axis</span> <span class="attr">xyz</span>=<span class="string">&quot;0 1 0&quot;</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">joint</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">robot</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">install</span>(</span><br><span class="line">  DIRECTORY launch meshes src urdf rviz</span><br><span class="line">  DESTINATION share/<span class="variable">$&#123;PROJECT_NAME&#125;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://fishros.com/d2lros2/#/humble/chapt2/basic/1.%E4%BD%BF%E7%94%A8gcc%E7%BC%96%E8%AF%91ROS2%E8%8A%82%E7%82%B9">使用gcc编译ROS2节点</a></p>
+<h3 id="ros2-pkg​"><a href="#ros2-pkg​" class="headerlink" title="ros2 pkg​"></a>ros2 pkg​</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">usage: ros2 pkg [-h] Call `ros2 pkg &lt;command&gt; -h` for more detailed usage. ...</span><br><span class="line"></span><br><span class="line">Various package related sub-commands</span><br><span class="line"></span><br><span class="line">options:</span><br><span class="line">  -h, --help            show this help message and exit</span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line">  create       Create a new ROS 2 package</span><br><span class="line">  executables  列出包内的可执行文件</span><br><span class="line">  list         列出所有已安装的 ROS2 包</span><br><span class="line">  prefix       输出包的安装路径</span><br><span class="line">  xml          输出包的 package.xml 内容</span><br><span class="line">  Call `ros2 pkg &lt;command&gt; -h` for more detailed usage.</span><br></pre></td></tr></table></figure>
+<p>查看版本：ros2 pkg xml turtlesim | xmllint —xpath ‘//version/text()’ -</p>
+<h3 id="colcon"><a href="#colcon" class="headerlink" title="colcon"></a>colcon</h3><p>​<code>colcon build --packages-select YOUR_PKG_NAME</code>​</p>
+<p>允许通过更改src下的部分文件来改变install（重要）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">colcon build --symlink-install</span><br></pre></td></tr></table></figure>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/ros/">ros</a><a class="post-meta__tags" href="/tags/linux/">linux</a></div><div class="post-share"><div class="addtoany"><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_button_wechat"></a><a class="a2a_button_email"></a><a class="a2a_button_copy_link"></a><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a></div></div><script async="async" src="https://static.addtoany.com/menu/page.js"></script></div></div><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"/><div class="post-reward"><button class="tip-button reward-button"><span class="tip-button__text">赞助</span><div class="coin-wrapper"><div class="coin"><div class="coin__middle"></div><div class="coin__back"></div><div class="coin__front"></div></div></div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" target="_blank"><img class="post-qr-code-img" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li></ul></div></button></div><audio id="coinAudio" src="https://npm.elemecdn.com/akilar-candyassets@1.0.36/audio/aowu.m4a"></audio><script defer="defer" src="/js/coin.js"></script><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/digging-deep-into-ultralytics-how-to-elegantly-solve-opencv-chinese-path-problems-with-one-line-of-import-fa8dc.html" title="猴子补丁"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">猴子补丁</div></div><div class="info-2"><div class="info-item-1">猴子补丁作为一名算法工程师或数据科学家，我们每天都在与数据打交道。其中，文件路径处理是我们最常遇见也最容易忽视的“坑”之一，尤其是当路径中包含非英文字符（如中文）时。 今天，我就遇到了一个经典的“灵异事件”，它不仅让我找到了问题的根源，更让我对一些优秀开源库的设计哲学有了更深的理解。 “灵异事件”：两份雷同代码，一个崩溃一个安然无恙我正在为某个数据集编写图像预处理脚本，主要任务是读取图片，进行缩放，然后进行下一步处理。代码逻辑非常直接，核心代码如下： 12345678910111213141516171819import cv2import osdef process_images(image_folder):    for img_name in os.listdir(image_folder):        img_path = os.path.join(image_folder, img_name)                # 读取图像        image = cv2.imread(img_path)                # 这里会出问题！    ...</div></div></div></a><a class="pagination-related" href="/post/ethercat-z92yfj.html" title="EtherCAT"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-1.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">EtherCAT</div></div><div class="info-2"><div class="info-item-1">EtherCATEtherCAT作为一种基于以太网的实时工业通信协议，自2003年由德国倍福公司开发并推出以来，凭借其卓越的实时性、高带宽利用率和灵活的网络拓扑结构，已成为工业自动化领域的主流通信标准之一。2007年，EtherCAT正式被国际电工委员会(IEC)采纳为工业以太网标准(IEC...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/post/rosload-zookeq.html" title="ROS"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-18</div><div class="info-item-2">ROS</div></div><div class="info-2"><div class="info-item-1">ROS B站​视频​[1] 文档​[2] move_base1 在rviz中可视化三维检测框2  ROS介绍环境部署：要求：ros和ubuntu版本具有一一对应的关系，安装前要注意，建议入坑ros2，但是我的这篇暂时以ros1教程为主，考虑到之前的一些技术积累都是建立在这个上的。 安装建议使用鱼香ros​[3] 1wget http://fishros.com/install -O fishros &amp;&amp; . fishros 可以安装Terminator实现多终端显示，类似tmux的窗格 ROS的文件系统 整个项目由catkin_make进行管理【基于CMake进行二次开发】，详情可见后续补充​[4]，后面会对每一部分文件进行说明。 ROS常用终端命令这里以使用终端创建一个工作空间为例学习工作空间的相关命令： 12345mkdir -p ws_learn/src # -p：允许递归创建cd ws_learn # 此时终端的输出编译结果catkin_makecd srccatkin_create_pkg hello_world roscpp #...</div></div></div></a><a class="pagination-related" href="/post/can-bus-protocol-1hdfpv.html" title="CAN总线协议"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-19</div><div class="info-item-2">CAN总线协议</div></div><div class="info-2"><div class="info-item-1">CAN总线协议CAN总线基本概念与发展历程CAN总线全称为控制器局域网络（Controller Area Network），最初由德国博世公司于1986年为汽车电子系统设计。与传统点对点通信方式相比，CAN总线采用广播式通信，允许多个设备共享同一通信线路，显著减少了线束复杂度。 CAN总线物理层与电气特性CAN总线物理层是协议实现的基础，决定了信号如何在物理介质上传输。CAN总线采用双绞线传输差分信号，通过CAN_H和CAN_L两根线上的电压差表示逻辑状态，这种设计显著增强了抗电磁干扰能力。 信号电平定义CAN总线定义了两种逻辑状态：显性（Dominant）和隐性（Recessive）。显性电平对应逻辑0，隐性电平对应逻辑1。具体电压范围如下：     总线类型 显性电平（CAN_H/CAN_L） 隐性电平（CAN_H/CAN_L）     高速CAN（ISO 11898-2） 3.5V（CAN_H）/1.5V（CAN_L） 2.5V（CAN_H）/2.5V（CAN_L）   低速CAN（ISO...</div></div></div></a><a class="pagination-related" href="/post/dynamic-subscription-and-unsubscribe-topics-ros-ros-z1spdsu.html" title="ROS动态订阅与取消话题的方法"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-02</div><div class="info-item-2">ROS动态订阅与取消话题的方法</div></div><div class="info-2"><div class="info-item-1">本文介绍了在ROS中实现动态订阅和取消订阅话题的两种实用方法
+</div></div></div></a><a class="pagination-related" href="/post/linux-device-driver-model-zkepct.html" title="Linux设备驱动模型"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-16</div><div class="info-item-2">Linux设备驱动模型</div></div><div class="info-2"><div class="info-item-1">Linux设备驱动模型Linux设备驱动模型是内核中管理和组织硬件设备的核心框架，它通过抽象化硬件，为驱动程序提供统一接口，简化了设备识别、驱动匹配和系统管理的复杂性。该模型基于总线、设备、驱动和类四大核心组件构建，通过sysfs文件系统向用户空间公开设备信息。理解设备驱动模型对嵌入式Linux和驱动开发至关重要，它使得内核能够高效地识别硬件、加载匹配的驱动程序，并提供统一的设备访问接口。 两个视角：四大核心组件+文件系统视角 设备驱动模型的基本架构Linux设备驱动模型的核心是总线、设备、驱动和类四个组件。总线是连接设备和驱动的桥梁，负责管理和协调设备与驱动的匹配过程。设备代表物理硬件单元，驱动是控制设备的软件模块，而类则对功能相似的设备进行逻辑归类，提供统一接口。 设备驱动模型初步解析​  CSDN:深入理解 Linux 设备模型与 sysfs 文件系统全景图解-CSDN博客 知乎：Linux驱动——设备模型 - 知乎  总线（Bus）数据结构：struct bus_type 12345struct bus_type hello_bus_type =...</div></div></div></a><a class="pagination-related" href="/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html" title="进程通信：系统协作的核心机制"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-18</div><div class="info-item-2">进程通信：系统协作的核心机制</div></div><div class="info-2"><div class="info-item-1">进程通信：系统协作的核心机制进程通信本质上是通过操作系统内核作为中介，实现不同进程间的数据交换与协同操作。 进程通信的基本原理操作系统通过虚拟内存机制为每个进程提供独立的地址空间，这种隔离设计确保了进程的独立性和安全性。然而，这种隔离也带来了信息共享的障碍。进程通信的核心在于利用操作系统提供的机制，让不同进程能够访问同一共享资源或交换信息。 进程通信的分类与特点进程通信根据信息传递量的大小和效率高低，通常分为低级通信和高级通信两大类。 低级通信主要传递控制信息，如状态和整数值。这类通信方式简单直接，但信息量小，效率相对较低。典型的低级通信方式包括信号(Signals) 和信号量 (Semaphores)...</div></div></div></a><a class="pagination-related" href="/post/script-writing-experience-2qew5s.html" title="Bash脚本编写经验"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-07-28</div><div class="info-item-2">Bash脚本编写经验</div></div><div class="info-2"><div class="info-item-1">脚本书写经验 参考链接：GPT-SoVITS/install.sh at main · RVC-Boss/GPT-SoVITS Wiki：github.com/dylanaraps/pure-bash-bible 中文版  1234567891011121314151617181920212223242526#!/bin/bash# ==============================================#  脚本模板                              配置部分# ==============================================SCRIPT_DIR=&quot;$(cd &quot;$(dirname &quot;$&#123;BASH_SOURCE[0]&#125;&quot;)&quot; &amp;&gt;/dev/null &amp;&amp; pwd)&quot;# ==============================================# 颜色定义部分#...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">lovedream-ms</div><div class="author-info-description">别急着赶路，去感受路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lovedream-ms"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lovedream-ms" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/2179417385@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我们读书是为了成为提灯人去照亮黑暗，而不是为了自己有灯而沾沾自喜还要去吹灭别人的蜡烛</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ROS2"><span class="toc-text">ROS2</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ROS1%E4%B8%8EROS2%E6%A0%B8%E5%BF%83%E5%B7%AE%E5%BC%82%E5%85%A8%E9%9D%A2%E8%A7%A3%E6%9E%90"><span class="toc-text">ROS1与ROS2核心差异全面解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6%E5%B7%AE%E5%BC%82"><span class="toc-text">架构设计与通信机制差异</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E6%97%B6%E6%80%A7%E4%B8%8E%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="toc-text">实时性与性能对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E6%94%AF%E6%8C%81%E4%B8%8E%E7%A1%AC%E4%BB%B6%E5%85%BC%E5%AE%B9%E6%80%A7"><span class="toc-text">跨平台支持与硬件兼容性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%80%A7%E4%B8%8E%E8%B4%A8%E9%87%8F%E6%9C%8D%E5%8A%A1%EF%BC%88QoS%EF%BC%89%E7%AE%A1%E7%90%86"><span class="toc-text">安全性与质量服务（QoS）管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E9%93%BE%E4%B8%8E%E7%94%9F%E6%80%81%E7%B3%BB%E7%BB%9F"><span class="toc-text">开发工具链与生态系统</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%AF%87%E2%80%94%E5%AD%A6%E4%BC%9A%E7%94%A8ROS2"><span class="toc-text">基础篇—学会用ROS2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ROS-DOMAIN-ID"><span class="toc-text">ROS_DOMAIN_ID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ros2-pkg%E2%80%8B"><span class="toc-text">ros2 pkg​</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#colcon"><span class="toc-text">colcon</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习的数学原理"/></a><div class="content"><a class="title" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理">强化学习的数学原理</a><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/data-structure-zbgbam.html" title="数据结构"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/data-structure-zbgbam.html" title="数据结构">数据结构</a><time datetime="2025-09-27T14:04:28.000Z" title="更新于 2025-09-27 22:04:28">2025-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2024 - 2025 By lovedream-ms</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b1</a></span></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  /* 使用 link_color 作为社交图标的颜色 */
+  .social-links i {
+    color: rgba(0, 159, 183, 1);
+  }
+  .social-link {
+    /* 使用 link_color 作为链接默认颜色 */
+    color: rgba(0, 159, 183, 1);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    /* 使用 blockquote_background_color 作为链接背景色，保持风格统一 */
+    background: rgba(0, 159, 183, 0.1);
+  }
+  .social-link:hover {
+    /* 鼠标悬停时，图标颜色变为白色以保证对比度 */
+    color: #ffffff;
+    /* 使用 button_hover 作为链接悬停背景色 */
+    background: #F7C67F;
+    transform: translateY(-3px) scale(1.2);
+    /* 阴影颜色与悬停背景色匹配 */
+    box-shadow: 0 5px 15px rgba(247, 198, 127, 0.4);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  /* 版权信息使用 meta_color */
+  .copyright {
+    font-size: 1.1rem; 
+    color: #778899;
+    font-weight: 400;
+  }
+  /* 标语使用 main 主色调，突出显示 */
+  .tagline {
+    font-size: 0.8rem;
+    color: #8ADBB4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* 访客统计信息使用 meta_color */
+  .visitor-count {
+    font-size: 0.75rem;
+    color: #778899;
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <div class="social-links">
+    <a href="https://github.com/lovedream-ms" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://blog.csdn.net/2303_76343222" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="CSDN" title="CSDN">
+      <i class="fas fa-code"></i>
+    </a>
+    <a href="https://space.bilibili.com/1397568600" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="bilibili" title="bilibili">
+      <i class="fab fa-bilibili"></i>
+    </a>
+  </div>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-up"></i><span class="scroll-percent"></span></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://commit-manger.vercel.app/',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: true,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script async src="/js/costom.js"></script><script async src="/js/fps.js"></script><script async src="/js/coin.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>

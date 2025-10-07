@@ -1,0 +1,35 @@
+span[custom-footnote] {
+    /* 保持您原有的基础样式 */
+    color: rgb(67, 135, 244) !important;
+    font-size: 0.75em;
+    vertical-align: super;
+    line-height: 1;
+    margin: 0 1px;
+    padding: 0 2px;
+    position: relative;
+    top: -0.5em;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    
+    /* 添加过渡效果 */
+    transition: all 200ms ease-out !important;
+    background-color: transparent !important;
+}
+
+/* 悬停效果 - 类似您提供的块引用样式 */
+span[custom-footnote]:hover {
+    background-color: rgb(67, 135, 244) !important;
+    box-shadow: -0.1em 0 0 0.2em rgb(67, 135, 244), 
+                0.1em 0 0 0.2em rgb(67, 135, 244) !important;
+    border-radius: 0.1em !important;
+    color: white !important;
+    text-decoration: none !important;
+    z-index: 1;
+}
+
+/* 可选：如果希望悬停时数字稍微变大 */
+span[custom-footnote]:hover {
+    font-size: 0.85em;
+    top: -0.6em;
+}

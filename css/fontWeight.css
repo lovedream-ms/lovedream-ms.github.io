@@ -1,0 +1,22 @@
+div .recent-post-info {
+    .article-title {
+        font-size: 18px;
+        font-weight: 900;
+    }
+    .content {
+        font-size: 14px;
+        font-weight: 700;
+    }
+}
+
+.announcement_content {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.post-content {
+    p {
+        font-size: 16px;
+        font-weight: 700;
+    }
+}

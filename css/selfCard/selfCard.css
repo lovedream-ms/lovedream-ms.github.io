@@ -1,0 +1,87 @@
+/* 侧边栏个人信息卡片动态渐变色 - 修改为透明 */
+#aside-content > .card-widget.card-info {
+  /* 使用 rgba() 或带有透明度的 hex 值来设置颜色，实现透明效果 */
+  /* rgba(r, g, b, alpha)，alpha 值范围 0（完全透明）到 1（完全不透明） */
+  /* 这里我们将透明度设置为 0.5 (50%)，你可以根据需要调整 */
+  background: linear-gradient(
+    -45deg,
+    rgba(232, 216, 185, 0.5), /* 浅色并添加透明度 */
+    rgba(236, 206, 197, 0.5),
+    rgba(163, 233, 235, 0.5),
+    rgba(189, 189, 240, 0.5),
+    rgba(238, 193, 234, 0.5)
+  );
+  box-shadow: 0 0 5px rgb(66, 68, 68); /* 阴影保留 */
+  position: relative; /* 定位保留 */
+  background-size: 400% 400%; /* 背景尺寸放大，保留，这是动画的关键 */
+
+  /* 保留动画属性，使渐变保持动态效果 */
+  -webkit-animation: Gradient 10s ease infinite;
+  -moz-animation: Gradient 10s ease infinite;
+  animation: Gradient 10s ease infinite !important; /* 保留 !important 以确保优先级 */
+}
+
+/* 原有的关键帧动画定义，保留，它控制背景的移动方式 */
+@-webkit-keyframes Gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+@-moz-keyframes Gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+@keyframes Gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 黑夜模式适配 - 修改为使用透明的深色渐变动画 */
+/* 这样在黑夜模式下也能保留动态渐变效果，并与深色背景协调 */
+[data-theme="dark"] #aside-content > .card-widget.card-info {
+  background: linear-gradient(
+    -45deg, /* 渐变方向可以根据需要调整 */
+    rgba(44, 62, 80, 0.7), /* 使用深色调并添加透明度，这里设置为 0.7 (70%) */
+    rgba(52, 73, 94, 0.7),
+    rgba(26, 42, 58, 0.7),
+    rgba(74, 107, 137, 0.7),
+    rgba(59, 83, 106, 0.7)
+  );
+  background-size: 400% 400%; /* 保留背景尺寸，保持动画效果 */
+
+  /* 确保动画在黑夜模式下依然生效 */
+  /* 如果上面的主规则定义了 animation 且没有被其他规则覆盖，这里可以不重复写 */
+  /* 但为了确保明确，重复写一遍动画属性是安全的 */
+  -webkit-animation: Gradient 10s ease infinite;
+  -moz-animation: Gradient 10s ease infinite;
+  animation: Gradient 10s ease infinite !important; /* 可以使用相同的或不同的动画名/参数 */
+
+  /* 注意：原黑夜模式的 box-shadow 如果需要与透明背景更协调，也可以考虑调整透明度 */
+  /* box-shadow: 0 0 5px rgba(66, 68, 68, 0.7); */
+}
+
+/* 个人信息Follow me按钮样式 - 保留不变 */
+#aside-content > .card-widget.card-info > #card-info-btn {
+  background-color: #3eb8be; /* 按钮背景色 */
+  border-radius: 8px; /* 按钮圆角 */
+}

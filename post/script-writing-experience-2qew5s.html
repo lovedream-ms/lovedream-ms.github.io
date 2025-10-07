@@ -1,0 +1,410 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Bash脚本编写经验 | Homeの主页のPage</title><meta name="author" content="lovedream-ms"><meta name="copyright" content="lovedream-ms"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="脚本书写经验 参考链接：GPT-SoVITS&#x2F;install.sh at main · RVC-Boss&#x2F;GPT-SoVITS Wiki：github.com&#x2F;dylanaraps&#x2F;pure-bash-bible 中文版  1234567891011121314151617181920212223242526#!&#x2F;bin&#x2F;bash# &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bash脚本编写经验">
+<meta property="og:url" content="https://blog.lovedream.icu/post/script-writing-experience-2qew5s.html">
+<meta property="og:site_name" content="Homeの主页のPage">
+<meta property="og:description" content="脚本书写经验 参考链接：GPT-SoVITS&#x2F;install.sh at main · RVC-Boss&#x2F;GPT-SoVITS Wiki：github.com&#x2F;dylanaraps&#x2F;pure-bash-bible 中文版  1234567891011121314151617181920212223242526#!&#x2F;bin&#x2F;bash# &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg">
+<meta property="article:published_time" content="2025-07-23T00:11:42.000Z">
+<meta property="article:modified_time" content="2025-07-28T02:47:52.000Z">
+<meta property="article:author" content="lovedream-ms">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="bash">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bash脚本编写经验",
+  "url": "https://blog.lovedream.icu/post/script-writing-experience-2qew5s.html",
+  "image": "https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg",
+  "datePublished": "2025-07-23T00:11:42.000Z",
+  "dateModified": "2025-07-28T02:47:52.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "lovedream-ms",
+      "url": "https://blog.lovedream.icu/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250429153115.png"><link rel="canonical" href="https://blog.lovedream.icu/post/script-writing-experience-2qew5s.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1B1B1B')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: true,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Bash脚本编写经验',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/bilibili.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/oneImageFlow.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fps.css" media="defer" onload="this.media='all'"><span id="fps"></span><link rel="stylesheet" href="/css/selfCard/selfCard.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/selfCard/cardStatus.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/page.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/pageTitle.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/toc.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fontWeight.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Homeの主页のPage</span></a><a class="nav-page-title" href="/"><span class="site-name">Bash脚本编写经验</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Bash脚本编写经验</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2025-07-28T02:47:52.000Z" title="更新于 2025-07-28 10:47:52">2025-07-28</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>9分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span class="waline-pageview-count" data-path="/post/script-writing-experience-2qew5s.html"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/post/script-writing-experience-2qew5s.html#post-comment"><span class="waline-comment-count" data-path="/post/script-writing-experience-2qew5s.html"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="脚本书写经验"><a href="#脚本书写经验" class="headerlink" title="脚本书写经验"></a>脚本书写经验</h1><blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://github.com/RVC-Boss/GPT-SoVITS/blob/main/install.sh#L64">GPT-SoVITS/install.sh at main · RVC-Boss/GPT-SoVITS</a></p>
+<p>Wiki：<a target="_blank" rel="noopener" href="https://github.com/dylanaraps/pure-bash-bible">github.com/dylanaraps/pure-bash-bible</a> <a target="_blank" rel="noopener" href="https://yonglun.me/bash-bible/">中文版</a></p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="comment">#  脚本模板                              配置部分</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line">SCRIPT_DIR=<span class="string">&quot;<span class="subst">$(cd <span class="string">&quot;<span class="subst">$(dirname <span class="string">&quot;<span class="variable">$&#123;BASH_SOURCE[0]&#125;</span>&quot;</span>)</span>&quot;</span> &amp;&gt;/dev/null &amp;&amp; pwd)</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="comment"># 颜色定义部分</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line">RESET=<span class="string">&quot;\033[0m&quot;</span></span><br><span class="line">BOLD=<span class="string">&quot;\033[1m&quot;</span></span><br><span class="line"><span class="comment"># ...其他颜色定义</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="comment"># 函数定义部分</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">run_conda_quiet</span></span>() &#123;</span><br><span class="line">    <span class="comment"># 函数实现</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="comment"># 主逻辑部分</span></span><br><span class="line"><span class="comment"># ==============================================</span></span><br><span class="line"><span class="keyword">if</span> ! <span class="built_in">command</span> -v conda &amp;&gt;/dev/null; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span>Conda Not Found&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p>要点讲解：<br>​<code>&amp;&gt;/dev/null</code> 将命令的输出（包括错误输出）重定向到空设备，不显示任何信息<br>$(…) 会创建一个子 Shell，在子 Shell 中 cd 会切换目录，但子 Shell 结束后不会影响父 Shell（主脚本）的当前目录。</p>
+<h2 id="错误处理机制"><a href="#错误处理机制" class="headerlink" title="错误处理机制"></a>错误处理机制</h2><h3 id="错误捕获与处理"><a href="#错误捕获与处理" class="headerlink" title="错误捕获与处理"></a>错误捕获与处理</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 错误处理函数</span></span><br><span class="line"><span class="function"><span class="title">on_error</span></span>() &#123;</span><br><span class="line">    <span class="built_in">local</span> lineno=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> cmd=<span class="string">&quot;<span class="variable">$2</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> code=<span class="string">&quot;<span class="variable">$3</span>&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span><span class="variable">$&#123;BOLD&#125;</span>Command \&quot;<span class="variable">$&#123;cmd&#125;</span>\&quot; Failed<span class="variable">$&#123;RESET&#125;</span> at <span class="variable">$&#123;BOLD&#125;</span>Line <span class="variable">$&#123;lineno&#125;</span><span class="variable">$&#123;RESET&#125;</span> with Exit Code <span class="variable">$&#123;BOLD&#125;</span><span class="variable">$&#123;code&#125;</span><span class="variable">$&#123;RESET&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span><span class="variable">$&#123;BOLD&#125;</span>Call Stack:<span class="variable">$&#123;RESET&#125;</span>&quot;</span></span><br><span class="line">    <span class="keyword">for</span> ((i = <span class="variable">$&#123;#FUNCNAME[@]&#125;</span> - <span class="number">1</span>; i &gt;= <span class="number">1</span>; i--)); <span class="keyword">do</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;  in <span class="variable">$&#123;BOLD&#125;</span><span class="variable">$&#123;FUNCNAME[i]&#125;</span>()<span class="variable">$&#123;RESET&#125;</span> at <span class="variable">$&#123;BASH_SOURCE[i]&#125;</span>:<span class="variable">$&#123;BOLD&#125;</span><span class="variable">$&#123;BASH_LINENO[i - 1]&#125;</span><span class="variable">$&#123;RESET&#125;</span>&quot;</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">    <span class="built_in">exit</span> <span class="string">&quot;<span class="variable">$code</span>&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置错误捕获</span></span><br><span class="line"><span class="built_in">trap</span> <span class="string">&#x27;on_error $LINENO &quot;$BASH_COMMAND&quot; $?&#x27;</span> ERR</span><br><span class="line"><span class="built_in">set</span> -eE</span><br><span class="line"><span class="built_in">set</span> -o errtrace</span><br></pre></td></tr></table></figure>
+<p>具体实践</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 这里插入上面的错误处理函数和设置</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">inner</span></span>() &#123;<span class="literal">false</span>&#125;# 命令会失败</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">outer</span></span>() &#123;inner&#125;</span><br><span class="line">outer</span><br><span class="line"><span class="comment"># 输出示例</span></span><br><span class="line">Command <span class="string">&quot;false&quot;</span> Failed at Line 10 with Exit Code 1</span><br><span class="line">Call Stack:</span><br><span class="line">  <span class="keyword">in</span> inner() at script.sh:10</span><br><span class="line">  <span class="keyword">in</span> outer() at script.sh:14</span><br><span class="line">  <span class="keyword">in</span> main() at script.sh:17</span><br></pre></td></tr></table></figure>
+<p>要点讲解：<br>​<strong>​<code>trap</code>​</strong> 用于捕获信号或事件，这里捕获 <code>ERR</code> 事件（命令返回非零状态码时触发）</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>​<code>$&#123;FUNCNAME[@]&#125;</code>​</th>
+<th>Bash 内置数组，存储调用栈中的函数名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>​<code>$&#123;BASH_SOURCE[@]&#125;</code>​</td>
+<td>Bash 内置数组，存储调用栈中的脚本文件名</td>
+</tr>
+<tr>
+<td>​<code>$&#123;BASH_LINENO[@]&#125;</code>​</td>
+<td>Bash 内置数组，存储调用栈中的行号</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="用户交互设计"><a href="#用户交互设计" class="headerlink" title="用户交互设计"></a>用户交互设计</h2><h3 id="彩色输出"><a href="#彩色输出" class="headerlink" title="彩色输出"></a>彩色输出</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 颜色定义</span></span><br><span class="line">RESET=<span class="string">&quot;\033[0m&quot;</span></span><br><span class="line">BOLD=<span class="string">&quot;\033[1m&quot;</span># 需要手动使用RESET</span><br><span class="line">ERROR=<span class="string">&quot;\033[1;31m[ERROR]: <span class="variable">$RESET</span>&quot;</span></span><br><span class="line">WARNING=<span class="string">&quot;\033[1;33m[WARNING]: <span class="variable">$RESET</span>&quot;</span></span><br><span class="line">INFO=<span class="string">&quot;\033[1;32m[INFO]: <span class="variable">$RESET</span>&quot;</span></span><br><span class="line">SUCCESS=<span class="string">&quot;\033[1;34m[SUCCESS]: <span class="variable">$RESET</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span><span class="variable">$&#123;BOLD&#125;</span>Command \&quot;<span class="variable">$&#123;cmd&#125;</span>\&quot; Failed<span class="variable">$&#123;RESET&#125;</span> at <span class="variable">$&#123;BOLD&#125;</span>Line <span class="variable">$&#123;lineno&#125;</span><span class="variable">$&#123;RESET&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+<h3 id="帮助信息"><a href="#帮助信息" class="headerlink" title="帮助信息"></a>帮助信息</h3><p>​<code>$#</code>表示传递给脚本的参数个数</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">print_help</span></span>() &#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Usage: bash install.sh [OPTIONS]&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Options:&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  --device   CU126|CU128|ROCM|MPS|CPU    Specify the Device (REQUIRED)&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  --source   HF|HF-Mirror|ModelScope     Specify the model source (REQUIRED)&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  --download-uvr5                        Enable downloading the UVR5 model&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  -h, --help                             Show this help message and exit&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Examples:&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  bash install.sh --device CU128 --source HF --download-uvr5&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;  bash install.sh --device MPS --source ModelScope&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在parse参数时使用如下结构</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [[ <span class="variable">$#</span> -eq 0 ]]; <span class="keyword">then</span></span><br><span class="line">    print_help</span><br><span class="line">    <span class="built_in">exit</span> 0</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Parse arguments</span></span><br><span class="line"><span class="keyword">while</span> [[ <span class="variable">$#</span> -gt 0 ]]; <span class="keyword">do</span></span><br><span class="line">    <span class="keyword">case</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">    --<span class="built_in">source</span>)</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;<span class="variable">$2</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">        HF)</span><br><span class="line">            USE_HF=<span class="literal">true</span></span><br><span class="line">            ;;</span><br><span class="line">        HF-Mirror)</span><br><span class="line">            USE_HF_MIRROR=<span class="literal">true</span></span><br><span class="line">            ;;</span><br><span class="line">        ModelScope)</span><br><span class="line">            USE_MODELSCOPE=<span class="literal">true</span></span><br><span class="line">            ;;</span><br><span class="line">        *)</span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span>Error: Invalid Download Source: <span class="variable">$2</span>&quot;</span></span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span>Choose From: [HF, HF-Mirror, ModelScope]&quot;</span></span><br><span class="line">            <span class="built_in">exit</span> 1</span><br><span class="line">            ;;</span><br><span class="line">        <span class="keyword">esac</span></span><br><span class="line">        <span class="built_in">shift</span> 2</span><br><span class="line">        ;;</span><br><span class="line">    --device)</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;<span class="variable">$2</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">        CU126)</span><br><span class="line">            CUDA=126</span><br><span class="line">            USE_CUDA=<span class="literal">true</span></span><br><span class="line">            ;;</span><br><span class="line">        CU128)</span><br><span class="line">            CUDA=128</span><br><span class="line">            USE_CUDA=<span class="literal">true</span></span><br><span class="line">            ;;</span><br><span class="line">        ROCM)</span><br><span class="line">            USE_ROCM=<span class="literal">true</span></span><br><span class="line">            ;;</span><br><span class="line">        MPS)</span><br><span class="line">            USE_CPU=<span class="literal">true</span></span><br><span class="line">            ;;</span><br><span class="line">        CPU)</span><br><span class="line">            USE_CPU=<span class="literal">true</span></span><br><span class="line">            ;;</span><br><span class="line">        *)</span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span>Error: Invalid Device: <span class="variable">$2</span>&quot;</span></span><br><span class="line">            <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span>Choose From: [CU126, CU128, ROCM, MPS, CPU]&quot;</span></span><br><span class="line">            <span class="built_in">exit</span> 1</span><br><span class="line">            ;;</span><br><span class="line">        <span class="keyword">esac</span></span><br><span class="line">        <span class="built_in">shift</span> 2</span><br><span class="line">        ;;</span><br><span class="line">    --download-uvr5)</span><br><span class="line">        DOWNLOAD_UVR5=<span class="literal">true</span></span><br><span class="line">        <span class="built_in">shift</span></span><br><span class="line">        ;;</span><br><span class="line">    -h | --<span class="built_in">help</span>)</span><br><span class="line">        print_help</span><br><span class="line">        <span class="built_in">exit</span> 0</span><br><span class="line">        ;;</span><br><span class="line">    *)</span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span>Unknown Argument: <span class="variable">$1</span>&quot;</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">        print_help</span><br><span class="line">        <span class="built_in">exit</span> 1</span><br><span class="line">        ;;</span><br><span class="line">    <span class="keyword">esac</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<p>比较运算符：<br>​<code>-eq</code> <code>-ne</code> <code>-lt</code> <code>-le</code> <code>-ge</code>分别是equal，not equal，less than，less than or equal，greater than or equal</p>
+<h2 id="健壮性设计"><a href="#健壮性设计" class="headerlink" title="健壮性设计"></a>健壮性设计</h2><h3 id="静默执行与输出捕获"><a href="#静默执行与输出捕获" class="headerlink" title="静默执行与输出捕获"></a>静默执行与输出捕获</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">run_wget_quiet</span></span>() &#123;</span><br><span class="line">    <span class="keyword">if</span> wget --tries=25 --<span class="built_in">wait</span>=5 --read-timeout=40 -q --show-progress <span class="string">&quot;<span class="variable">$@</span>&quot;</span> 2&gt;&amp;1; <span class="keyword">then</span></span><br><span class="line">        tput cuu1 &amp;&amp; tput el</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span> Wget failed&quot;</span></span><br><span class="line">        <span class="built_in">exit</span> 1</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​<code>2&gt;&amp;1</code>：将标准错误重定向到标准输出<br>​<code>tput cuu1</code>：光标上移一行（cursor up 1）<br>​<code>tput el</code>：清除到行尾（erase to end of line）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 非静默安装</span></span><br><span class="line"><span class="function"><span class="title">run_conda_verbose</span></span>() &#123;</span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>开始安装以下包: <span class="variable">$@</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>正在运行 conda install --yes -c conda-forge <span class="variable">$@</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">local</span> start_time=$(<span class="built_in">date</span> +%s)</span><br><span class="line">    conda install --<span class="built_in">yes</span> -c conda-forge <span class="string">&quot;<span class="variable">$@</span>&quot;</span> 2&gt;&amp;1 | <span class="built_in">tee</span> -a install.log</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [ <span class="variable">$&#123;PIPESTATUS[0]&#125;</span> -ne 0 ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span>安装失败: <span class="variable">$@</span>&quot;</span></span><br><span class="line">        <span class="built_in">exit</span> 1</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">local</span> end_time=$(<span class="built_in">date</span> +%s)</span><br><span class="line">    <span class="built_in">local</span> duration=$((end_time - start_time))</span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;SUCCESS&#125;</span>安装完成: <span class="variable">$@</span> (耗时 <span class="variable">$&#123;duration&#125;</span>秒)&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="回退机制"><a href="#回退机制" class="headerlink" title="回退机制"></a>回退机制</h3><p>检查硬件/软件依赖<br>提供优雅的降级方案<br>明确通知用户降级决定<br>继续执行而非直接失败</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$USE_CUDA</span>&quot;</span> = <span class="literal">true</span> ] &amp;&amp; [ <span class="string">&quot;<span class="variable">$WORKFLOW</span>&quot;</span> = <span class="literal">false</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>Checking For Nvidia Driver Installation...&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">command</span> -v nvidia-smi &amp;&gt;/dev/null; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>Nvidia Driver Founded&quot;</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;WARNING&#125;</span>Nvidia Driver Not Found, Fallback to CPU&quot;</span></span><br><span class="line">        USE_CUDA=<span class="literal">false</span></span><br><span class="line">        USE_CPU=<span class="literal">true</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h2 id="跨平台支持"><a href="#跨平台支持" class="headerlink" title="跨平台支持"></a>跨平台支持</h2><h3 id="架构检测uname-m"><a href="#架构检测uname-m" class="headerlink" title="架构检测uname -m"></a>架构检测uname -m</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="subst">$(uname -m)</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">x86_64 | amd64) SYSROOT_PKG=<span class="string">&quot;sysroot_linux-64&gt;=2.28&quot;</span> ;;</span><br><span class="line">aarch64 | arm64) SYSROOT_PKG=<span class="string">&quot;sysroot_linux-aarch64&gt;=2.28&quot;</span> ;;</span><br><span class="line">ppc64le) SYSROOT_PKG=<span class="string">&quot;sysroot_linux-ppc64le&gt;=2.28&quot;</span> ;;</span><br><span class="line">*)</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Unsupported architecture: <span class="subst">$(uname -m)</span>&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line">    ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+<h3 id="macOS-特殊处理"><a href="#macOS-特殊处理" class="headerlink" title="macOS 特殊处理"></a>macOS 特殊处理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="subst">$(uname)</span>&quot;</span> = <span class="string">&quot;Darwin&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">if</span> ! xcode-select -p &amp;&gt;/dev/null; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>Installing Xcode Command Line Tools...&quot;</span></span><br><span class="line">        xcode-select --install</span><br><span class="line">        <span class="comment"># ...等待安装完成</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h2 id="下载和安装管理"><a href="#下载和安装管理" class="headerlink" title="下载和安装管理"></a>下载和安装管理</h2><h3 id="多下载源支持"><a href="#多下载源支持" class="headerlink" title="多下载源支持"></a>多下载源支持</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$USE_HF</span>&quot;</span> = <span class="string">&quot;true&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    PRETRINED_URL=<span class="string">&quot;https://huggingface.co/XXXXRT/GPT-SoVITS-Pretrained/resolve/main/pretrained_models.zip&quot;</span></span><br><span class="line"><span class="keyword">elif</span> [ <span class="string">&quot;<span class="variable">$USE_HF_MIRROR</span>&quot;</span> = <span class="string">&quot;true&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    PRETRINED_URL=<span class="string">&quot;https://hf-mirror.com/XXXXRT/GPT-SoVITS-Pretrained/resolve/main/pretrained_models.zip&quot;</span></span><br><span class="line"><span class="keyword">elif</span> [ <span class="string">&quot;<span class="variable">$USE_MODELSCOPE</span>&quot;</span> = <span class="string">&quot;true&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    PRETRINED_URL=<span class="string">&quot;https://www.modelscope.cn/models/XXXXRT/GPT-SoVITS-Pretrained/resolve/master/pretrained_models.zip&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h3 id="文件存在性检查"><a href="#文件存在性检查" class="headerlink" title="文件存在性检查"></a>文件存在性检查</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ ! -d <span class="string">&quot;GPT_SoVITS/pretrained_models/sv&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>Downloading Pretrained Models...&quot;</span></span><br><span class="line">    <span class="built_in">rm</span> -rf pretrained_models.zip</span><br><span class="line">    run_wget_quiet <span class="string">&quot;<span class="variable">$PRETRINED_URL</span>&quot;</span></span><br><span class="line">    <span class="comment"># ...下载和解压</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>Pretrained Model Exists&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>Skip Downloading Pretrained Models&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p>文件测试运算符<br>-d：检查目录是否存在<br>-f：检查普通文件是否存在<br>-e：检查文件是否存在（不限类型）<br>!：反转测试结果</p>
+<h2 id="环境管理"><a href="#环境管理" class="headerlink" title="环境管理"></a>环境管理</h2><h3 id="Conda-环境管理"><a href="#Conda-环境管理" class="headerlink" title="Conda 环境管理"></a>Conda 环境管理</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ! <span class="built_in">command</span> -v conda &amp;&gt;/dev/null; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;ERROR&#125;</span>Conda Not Found&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>Installing FFmpeg &amp; CMake...&quot;</span></span><br><span class="line">run_conda_quiet ffmpeg cmake make</span><br></pre></td></tr></table></figure>
+<p><strong>最佳实践</strong>：<br>检查必要工具是否存在；使用静默安装减少输出；明确每个安装步骤；组合相关包一起安装</p>
+<h3 id="7-2-路径处理"><a href="#7-2-路径处理" class="headerlink" title="7.2 路径处理"></a>7.2 路径处理</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SCRIPT_DIR=<span class="string">&quot;<span class="subst">$(cd <span class="string">&quot;<span class="subst">$(dirname <span class="string">&quot;<span class="variable">$&#123;BASH_SOURCE[0]&#125;</span>&quot;</span>)</span>&quot;</span> &amp;&gt;/dev/null &amp;&amp; pwd)</span>&quot;</span></span><br><span class="line"><span class="built_in">cd</span> <span class="string">&quot;<span class="variable">$SCRIPT_DIR</span>&quot;</span> || <span class="built_in">exit</span> 1</span><br><span class="line"></span><br><span class="line">PY_PREFIX=$(python -c <span class="string">&quot;import sys; print(sys.prefix)&quot;</span>)</span><br><span class="line">PYOPENJTALK_PREFIX=$(python -c <span class="string">&quot;import os, pyopenjtalk; print(os.path.dirname(pyopenjtalk.__file__))&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>最佳实践</strong>：<br>获取脚本所在目录作为基准路径；确保在正确目录执行操作；动态获取Python相关路径；处理cd可能失败的情况</p>
+<h2 id="其他实用技巧"><a href="#其他实用技巧" class="headerlink" title="其他实用技巧"></a>其他实用技巧</h2><h3 id="版本检测"><a href="#版本检测" class="headerlink" title="版本检测"></a>版本检测</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gcc_major_version=$(<span class="built_in">command</span> -v gcc &gt;/dev/null 2&gt;&amp;1 &amp;&amp; gcc -dumpversion | <span class="built_in">cut</span> -d. -f1 || <span class="built_in">echo</span> 0)</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$gcc_major_version</span>&quot;</span> -lt 11 ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;INFO&#125;</span>Installing GCC &amp; G++...&quot;</span></span><br><span class="line">    run_conda_quiet gcc=11 gxx=11</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p><strong>最佳实践</strong>：检测已安装版本；提取主版本号进行比较；处理命令不存在的情况(|| echo 0)；根据需要安装合适版本</p>
+<h3 id="sudo命令的选择"><a href="#sudo命令的选择" class="headerlink" title="sudo命令的选择"></a>sudo命令的选择</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SUDO=<span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$UID</span> -ne 0 ];<span class="keyword">then</span></span><br><span class="line">    SUDO=<span class="string">&#x27;sudo&#x27;</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="variable">$SUDO</span> apt install python3-distro python3-yaml -y</span><br><span class="line"><span class="variable">$SUDO</span> python3 /tmp/fishinstall/install.py</span><br><span class="line"><span class="variable">$SUDO</span> <span class="built_in">rm</span> -rf /tmp/fishinstall/</span><br></pre></td></tr></table></figure>
+<p>要点讲解：$UID root用户是0，普通用户从1000开始</p>
+<h3 id="OTA"><a href="#OTA" class="headerlink" title="OTA"></a>OTA</h3><p>​<code>curl -s -F &quot;file=@/tmp/fishros_install.log&quot; http://103.226.124.73:5000/upload &gt; /tmp/fishros_upload 2&gt;&amp;1</code>​</p>
+<p>上传日志</p>
+<h2 id="脚本书写实践"><a href="#脚本书写实践" class="headerlink" title="脚本书写实践"></a>脚本书写实践</h2><p>‍</p>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/bash/">bash</a></div><div class="post-share"><div class="addtoany"><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_button_wechat"></a><a class="a2a_button_email"></a><a class="a2a_button_copy_link"></a><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a></div></div><script async="async" src="https://static.addtoany.com/menu/page.js"></script></div></div><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"/><div class="post-reward"><button class="tip-button reward-button"><span class="tip-button__text">赞助</span><div class="coin-wrapper"><div class="coin"><div class="coin__middle"></div><div class="coin__back"></div><div class="coin__front"></div></div></div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" target="_blank"><img class="post-qr-code-img" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li></ul></div></button></div><audio id="coinAudio" src="https://npm.elemecdn.com/akilar-candyassets@1.0.36/audio/aowu.m4a"></audio><script defer="defer" src="/js/coin.js"></script><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/corpusgpt3-language-models-are-fewshot-learners-gpt3-z2s9x1w.html" title="corpusGPT3:Language Models are Few-Shot Learners GPT3"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">corpusGPT3:Language Models are Few-Shot Learners GPT3</div></div><div class="info-2"><div class="info-item-1">corpusGPT3:Language Models are Few-Shot Learners GPT3第一步：建立宏观认知——这篇论文解决了什么问题？这篇论文提出了一个革命性的观点：只要语言模型足够大，就可以在没有额外训练或微调的情况下，仅通过少量示例（Few-Shot）甚至零示例（Zero-Shot）来完成各种NLP任务。 这一发现颠覆了当时主流的“预训练+微调（Pre-training and Fine-tuning）”范式。在GPT-3之前，模型通常需要针对每个特定任务（如情感分析、机器翻译）准备大量的标注数据进行微调。而GPT-3表明，“大力出奇迹”是可行的——通过极大地增加模型参数量和训练数据量，模型能够“学会学习”，具备了更强的泛化能力。 核心概念：​情境学习  (In-context...</div></div></div></a><a class="pagination-related" href="/post/digging-deep-into-ultralytics-how-to-elegantly-solve-opencv-chinese-path-problems-with-one-line-of-import-fa8dc.html" title="猴子补丁"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">猴子补丁</div></div><div class="info-2"><div class="info-item-1">猴子补丁作为一名算法工程师或数据科学家，我们每天都在与数据打交道。其中，文件路径处理是我们最常遇见也最容易忽视的“坑”之一，尤其是当路径中包含非英文字符（如中文）时。 今天，我就遇到了一个经典的“灵异事件”，它不仅让我找到了问题的根源，更让我对一些优秀开源库的设计哲学有了更深的理解。 “灵异事件”：两份雷同代码，一个崩溃一个安然无恙我正在为某个数据集编写图像预处理脚本，主要任务是读取图片，进行缩放，然后进行下一步处理。代码逻辑非常直接，核心代码如下： 12345678910111213141516171819import cv2import osdef process_images(image_folder):    for img_name in os.listdir(image_folder):        img_path = os.path.join(image_folder, img_name)                # 读取图像        image = cv2.imread(img_path)                # 这里会出问题！    ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/post/linux-device-driver-model-zkepct.html" title="Linux设备驱动模型"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-16</div><div class="info-item-2">Linux设备驱动模型</div></div><div class="info-2"><div class="info-item-1">Linux设备驱动模型Linux设备驱动模型是内核中管理和组织硬件设备的核心框架，它通过抽象化硬件，为驱动程序提供统一接口，简化了设备识别、驱动匹配和系统管理的复杂性。该模型基于总线、设备、驱动和类四大核心组件构建，通过sysfs文件系统向用户空间公开设备信息。理解设备驱动模型对嵌入式Linux和驱动开发至关重要，它使得内核能够高效地识别硬件、加载匹配的驱动程序，并提供统一的设备访问接口。 两个视角：四大核心组件+文件系统视角 设备驱动模型的基本架构Linux设备驱动模型的核心是总线、设备、驱动和类四个组件。总线是连接设备和驱动的桥梁，负责管理和协调设备与驱动的匹配过程。设备代表物理硬件单元，驱动是控制设备的软件模块，而类则对功能相似的设备进行逻辑归类，提供统一接口。 设备驱动模型初步解析​  CSDN:深入理解 Linux 设备模型与 sysfs 文件系统全景图解-CSDN博客 知乎：Linux驱动——设备模型 - 知乎  总线（Bus）数据结构：struct bus_type 12345struct bus_type hello_bus_type =...</div></div></div></a><a class="pagination-related" href="/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html" title="进程通信：系统协作的核心机制"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-18</div><div class="info-item-2">进程通信：系统协作的核心机制</div></div><div class="info-2"><div class="info-item-1">进程通信：系统协作的核心机制进程通信本质上是通过操作系统内核作为中介，实现不同进程间的数据交换与协同操作。 进程通信的基本原理操作系统通过虚拟内存机制为每个进程提供独立的地址空间，这种隔离设计确保了进程的独立性和安全性。然而，这种隔离也带来了信息共享的障碍。进程通信的核心在于利用操作系统提供的机制，让不同进程能够访问同一共享资源或交换信息。 进程通信的分类与特点进程通信根据信息传递量的大小和效率高低，通常分为低级通信和高级通信两大类。 低级通信主要传递控制信息，如状态和整数值。这类通信方式简单直接，但信息量小，效率相对较低。典型的低级通信方式包括信号(Signals) 和信号量 (Semaphores)...</div></div></div></a><a class="pagination-related" href="/post/rosload-zookeq.html" title="ROS"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-18</div><div class="info-item-2">ROS</div></div><div class="info-2"><div class="info-item-1">ROS B站​视频​[1] 文档​[2] move_base1 在rviz中可视化三维检测框2  ROS介绍环境部署：要求：ros和ubuntu版本具有一一对应的关系，安装前要注意，建议入坑ros2，但是我的这篇暂时以ros1教程为主，考虑到之前的一些技术积累都是建立在这个上的。 安装建议使用鱼香ros​[3] 1wget http://fishros.com/install -O fishros &amp;&amp; . fishros 可以安装Terminator实现多终端显示，类似tmux的窗格 ROS的文件系统 整个项目由catkin_make进行管理【基于CMake进行二次开发】，详情可见后续补充​[4]，后面会对每一部分文件进行说明。 ROS常用终端命令这里以使用终端创建一个工作空间为例学习工作空间的相关命令： 12345mkdir -p ws_learn/src # -p：允许递归创建cd ws_learn # 此时终端的输出编译结果catkin_makecd srccatkin_create_pkg hello_world roscpp #...</div></div></div></a><a class="pagination-related" href="/post/ros2-z19uq9s.html" title="ROS2"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-19</div><div class="info-item-2">ROS2</div></div><div class="info-2"><div class="info-item-1">ROS2 动手学ROS2  ROS1与ROS2核心差异全面解析ROS2采用去中心化的DDS通信架构，取代了ROS1中心化的Master机制 本文将从架构设计、通信机制、实时性能、跨平台兼容性、安全性和开发工具链等多个维度，深入分析ROS1与ROS2的关键差异，帮助开发者根据项目需求做出更合理的选择。 架构设计与通信机制差异当ROS1 Master崩溃时，整个系统将无法正常工作，导致单点故障。虽然存在类似自动重启master节点，心跳检测等方案，但是在需要高可靠性的工业场景中存在明显缺陷。ROS2采用去中心化的分布式架构，基于工业级标准DDS（Data Distribution Service）实现节点间直接通信。ROS2系统中不存在单一中心节点，各节点能够独立运行并直接与其他节点通信，即使部分节点失效，系统其余部分仍能正常工作。 通信机制：ROS1使用自定义的TCPROS/UDPROS协议，节点间通信需要通过ROS...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">lovedream-ms</div><div class="author-info-description">别急着赶路，去感受路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lovedream-ms"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lovedream-ms" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/2179417385@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我们读书是为了成为提灯人去照亮黑暗，而不是为了自己有灯而沾沾自喜还要去吹灭别人的蜡烛</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%84%9A%E6%9C%AC%E4%B9%A6%E5%86%99%E7%BB%8F%E9%AA%8C"><span class="toc-text">脚本书写经验</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6"><span class="toc-text">错误处理机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E6%8D%95%E8%8E%B7%E4%B8%8E%E5%A4%84%E7%90%86"><span class="toc-text">错误捕获与处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%BA%A4%E4%BA%92%E8%AE%BE%E8%AE%A1"><span class="toc-text">用户交互设计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%A9%E8%89%B2%E8%BE%93%E5%87%BA"><span class="toc-text">彩色输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%AE%E5%8A%A9%E4%BF%A1%E6%81%AF"><span class="toc-text">帮助信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%81%A5%E5%A3%AE%E6%80%A7%E8%AE%BE%E8%AE%A1"><span class="toc-text">健壮性设计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E9%BB%98%E6%89%A7%E8%A1%8C%E4%B8%8E%E8%BE%93%E5%87%BA%E6%8D%95%E8%8E%B7"><span class="toc-text">静默执行与输出捕获</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E9%80%80%E6%9C%BA%E5%88%B6"><span class="toc-text">回退机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E6%94%AF%E6%8C%81"><span class="toc-text">跨平台支持</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E6%A3%80%E6%B5%8Buname-m"><span class="toc-text">架构检测uname -m</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#macOS-%E7%89%B9%E6%AE%8A%E5%A4%84%E7%90%86"><span class="toc-text">macOS 特殊处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E5%92%8C%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86"><span class="toc-text">下载和安装管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E4%B8%8B%E8%BD%BD%E6%BA%90%E6%94%AF%E6%8C%81"><span class="toc-text">多下载源支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8%E6%80%A7%E6%A3%80%E6%9F%A5"><span class="toc-text">文件存在性检查</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E7%AE%A1%E7%90%86"><span class="toc-text">环境管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Conda-%E7%8E%AF%E5%A2%83%E7%AE%A1%E7%90%86"><span class="toc-text">Conda 环境管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E8%B7%AF%E5%BE%84%E5%A4%84%E7%90%86"><span class="toc-text">7.2 路径处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E5%AE%9E%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="toc-text">其他实用技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%88%E6%9C%AC%E6%A3%80%E6%B5%8B"><span class="toc-text">版本检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sudo%E5%91%BD%E4%BB%A4%E7%9A%84%E9%80%89%E6%8B%A9"><span class="toc-text">sudo命令的选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OTA"><span class="toc-text">OTA</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%84%9A%E6%9C%AC%E4%B9%A6%E5%86%99%E5%AE%9E%E8%B7%B5"><span class="toc-text">脚本书写实践</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习的数学原理"/></a><div class="content"><a class="title" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理">强化学习的数学原理</a><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/data-structure-zbgbam.html" title="数据结构"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/data-structure-zbgbam.html" title="数据结构">数据结构</a><time datetime="2025-09-27T14:04:28.000Z" title="更新于 2025-09-27 22:04:28">2025-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2024 - 2025 By lovedream-ms</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b1</a></span></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  /* 使用 link_color 作为社交图标的颜色 */
+  .social-links i {
+    color: rgba(0, 159, 183, 1);
+  }
+  .social-link {
+    /* 使用 link_color 作为链接默认颜色 */
+    color: rgba(0, 159, 183, 1);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    /* 使用 blockquote_background_color 作为链接背景色，保持风格统一 */
+    background: rgba(0, 159, 183, 0.1);
+  }
+  .social-link:hover {
+    /* 鼠标悬停时，图标颜色变为白色以保证对比度 */
+    color: #ffffff;
+    /* 使用 button_hover 作为链接悬停背景色 */
+    background: #F7C67F;
+    transform: translateY(-3px) scale(1.2);
+    /* 阴影颜色与悬停背景色匹配 */
+    box-shadow: 0 5px 15px rgba(247, 198, 127, 0.4);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  /* 版权信息使用 meta_color */
+  .copyright {
+    font-size: 1.1rem; 
+    color: #778899;
+    font-weight: 400;
+  }
+  /* 标语使用 main 主色调，突出显示 */
+  .tagline {
+    font-size: 0.8rem;
+    color: #8ADBB4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* 访客统计信息使用 meta_color */
+  .visitor-count {
+    font-size: 0.75rem;
+    color: #778899;
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <div class="social-links">
+    <a href="https://github.com/lovedream-ms" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://blog.csdn.net/2303_76343222" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="CSDN" title="CSDN">
+      <i class="fas fa-code"></i>
+    </a>
+    <a href="https://space.bilibili.com/1397568600" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="bilibili" title="bilibili">
+      <i class="fab fa-bilibili"></i>
+    </a>
+  </div>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-up"></i><span class="scroll-percent"></span></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://commit-manger.vercel.app/',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: true,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script async src="/js/costom.js"></script><script async src="/js/fps.js"></script><script async src="/js/coin.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>

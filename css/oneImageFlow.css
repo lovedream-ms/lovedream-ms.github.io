@@ -1,0 +1,26 @@
+/* 一图流 */
+/* 页脚与头图透明 */
+#footer {
+  background: rgba(255, 255, 255, 0.2); /* 半透明白色背景 */
+  backdrop-filter: blur(10px);         /* 模糊背景元素 */
+  -webkit-backdrop-filter: blur(10px); /* Safari 兼容 */
+}
+#page-header {
+  background: transparent !important;
+}
+  
+/* 白天模式遮罩透明 */
+#footer::before {
+  background: transparent !important;
+}
+#page-header::before {
+  background: transparent !important;
+}
+  
+/* 夜间模式遮罩透明 */
+[data-theme="dark"] #footer::before {
+  background: transparent !important;
+}
+[data-theme="dark"] #page-header::before {
+  background: transparent !important;
+}

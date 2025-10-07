@@ -1,0 +1,858 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ROS | Homeの主页のPage</title><meta name="author" content="lovedream-ms"><meta name="copyright" content="lovedream-ms"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="ROS B站​视频​[1] 文档​[2] move_base1 在rviz中可视化三维检测框2  ROS介绍环境部署：要求：ros和ubuntu版本具有一一对应的关系，安装前要注意，建议入坑ros2，但是我的这篇暂时以ros1教程为主，考虑到之前的一些技术积累都是建立在这个上的。 安装建议使用鱼香ros​[3] 1wget http:&#x2F;&#x2F;fishros.com&#x2F;install -O fishros">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROS">
+<meta property="og:url" content="https://blog.lovedream.icu/post/rosload-zookeq.html">
+<meta property="og:site_name" content="Homeの主页のPage">
+<meta property="og:description" content="ROS B站​视频​[1] 文档​[2] move_base1 在rviz中可视化三维检测框2  ROS介绍环境部署：要求：ros和ubuntu版本具有一一对应的关系，安装前要注意，建议入坑ros2，但是我的这篇暂时以ros1教程为主，考虑到之前的一些技术积累都是建立在这个上的。 安装建议使用鱼香ros​[3] 1wget http:&#x2F;&#x2F;fishros.com&#x2F;install -O fishros">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg">
+<meta property="article:published_time" content="2025-05-18T12:37:19.000Z">
+<meta property="article:modified_time" content="2025-05-18T12:21:15.000Z">
+<meta property="article:author" content="lovedream-ms">
+<meta property="article:tag" content="ros">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ROS",
+  "url": "https://blog.lovedream.icu/post/rosload-zookeq.html",
+  "image": "https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg",
+  "datePublished": "2025-05-18T12:37:19.000Z",
+  "dateModified": "2025-05-18T12:21:15.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "lovedream-ms",
+      "url": "https://blog.lovedream.icu/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250429153115.png"><link rel="canonical" href="https://blog.lovedream.icu/post/rosload-zookeq.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1B1B1B')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: true,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ROS',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/bilibili.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/oneImageFlow.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fps.css" media="defer" onload="this.media='all'"><span id="fps"></span><link rel="stylesheet" href="/css/selfCard/selfCard.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/selfCard/cardStatus.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/page.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/pageTitle.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/toc.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fontWeight.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Homeの主页のPage</span></a><a class="nav-page-title" href="/"><span class="site-name">ROS</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">ROS</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2025-05-18T12:21:15.000Z" title="更新于 2025-05-18 20:21:15">2025-05-18</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">10.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>45分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span class="waline-pageview-count" data-path="/post/rosload-zookeq.html"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/post/rosload-zookeq.html#post-comment"><span class="waline-comment-count" data-path="/post/rosload-zookeq.html"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="ROS"><a href="#ROS" class="headerlink" title="ROS"></a>ROS</h1><blockquote>
+<p>B站​视频​<a href="#20250511161325-kdj5yju">[1]</a></p>
+<p>文档​<a href="#20250511161338-rch3wot">[2]</a></p>
+<p>move_base<sup><a href="#fn_1" id="reffn_1">1</a></sup></p>
+<p>在rviz中可视化三维检测框<sup><a href="#fn_2" id="reffn_2">2</a></sup></p>
+</blockquote>
+<h2 id="ROS介绍"><a href="#ROS介绍" class="headerlink" title="ROS介绍"></a>ROS介绍</h2><p>环境部署：<br>要求：ros和ubuntu版本具有一一对应的关系，安装前要注意，建议入坑ros2，但是我的这篇暂时以ros1教程为主，考虑到之前的一些技术积累都是建立在这个上的。</p>
+<p>安装建议使用鱼香ros​<a href="#20250507171135-s5fu15p">[3]</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://fishros.com/install -O fishros &amp;&amp; . fishros</span><br></pre></td></tr></table></figure>
+<p>可以安装Terminator实现多终端显示，类似tmux的窗格</p>
+<h3 id="ROS的文件系统"><a href="#ROS的文件系统" class="headerlink" title="ROS的文件系统"></a>ROS的文件系统</h3><p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250508230921554.png" alt="image"></p>
+<p>整个项目由catkin_make进行管理【基于CMake进行二次开发】，详情可见后续补充​<a href="#20250508231558-smjg3hg">[4]</a>，后面会对每一部分文件进行说明。</p>
+<h3 id="ROS常用终端命令"><a href="#ROS常用终端命令" class="headerlink" title="ROS常用终端命令"></a>ROS常用终端命令</h3><p>这里以使用终端创建一个工作空间为例学习工作空间的相关命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ws_learn/src <span class="comment"># -p：允许递归创建</span></span><br><span class="line"><span class="built_in">cd</span> ws_learn <span class="comment"># 此时终端的输出编译结果</span></span><br><span class="line">catkin_make</span><br><span class="line"><span class="built_in">cd</span> src</span><br><span class="line">catkin_create_pkg hello_world roscpp <span class="comment"># 创建一个名称为hello_world的功能包</span></span><br></pre></td></tr></table></figure>
+<p>此时查看文件树在ws_learn/src路径会生成名为hello_world的package</p>
+<p>现在你可以开始畅玩ros了，下面是ros所有终端命令按照常用程度进行排序</p>
+<h4 id="rostopic"><a href="#rostopic" class="headerlink" title="rostopic"></a>rostopic</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">rostopic is a command-line tool <span class="keyword">for</span> printing information about ROS Topics.</span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line">        rostopic bw     显示某个话题使用的带宽</span><br><span class="line">        rostopic delay  显示的是从消息头中的时间戳到当前时间的延迟</span><br><span class="line">        rostopic <span class="built_in">echo</span>   将话题上的消息打印到屏幕上</span><br><span class="line">        rostopic find   根据消息类型查找话题</span><br><span class="line">        rostopic hz     显示某个话题的发布频率（每秒发布多少次） </span><br><span class="line">        rostopic info   打印关于活动话题的信息</span><br><span class="line">        rostopic list   列出当前所有活跃的话题</span><br><span class="line">        rostopic pub    允许用户向指定的话题发布数据</span><br><span class="line">        rostopic <span class="built_in">type</span>   打印指定话题或字段的消息类型</span><br><span class="line"></span><br><span class="line">Type rostopic &lt;<span class="built_in">command</span>&gt; -h <span class="keyword">for</span> more detailed usage, e.g. <span class="string">&#x27;rostopic echo -h&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>由于rostopic pub这个命令非常常用所以单独，把它的help打印显示出来</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Usage: rostopic pub /topic <span class="built_in">type</span> [args...]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">  -h, --<span class="built_in">help</span>            show this <span class="built_in">help</span> message and <span class="built_in">exit</span></span><br><span class="line">  -v                    <span class="built_in">print</span> verbose output</span><br><span class="line">  -r RATE, --rate=RATE  publishing rate (hz).  For -f and stdin input, this</span><br><span class="line">                        defaults to 10.  Otherwise it is not <span class="built_in">set</span>.</span><br><span class="line">  -1, --once            publish one message and <span class="built_in">exit</span></span><br><span class="line">  -f FILE, --file=FILE  <span class="built_in">read</span> args from YAML file (Bagy)</span><br><span class="line">  -l, --latch           <span class="built_in">enable</span> latching <span class="keyword">for</span> -f, -r and piped input.  This</span><br><span class="line">                        latches the first message.</span><br><span class="line">  -s, --substitute-keywords</span><br><span class="line">                        When publishing with a rate, performs keyword (<span class="string">&#x27;now&#x27;</span></span><br><span class="line">                        or <span class="string">&#x27;auto&#x27;</span>) substitution <span class="keyword">for</span> each message</span><br><span class="line">  --use-rostime         use rostime <span class="keyword">for</span> <span class="keyword">time</span> stamps, <span class="keyword">else</span> walltime is used</span><br></pre></td></tr></table></figure>
+<p>重要的参数介绍如下：</p>
+<p>-r RATE, —rate\=RATE：设置发布频率（赫兹）。对于从文件或标准输入读取的情况，默认为10Hz。如果未设置，则不会自动循环发布。</p>
+<p>-f FILE, —file\=FILE：从YAML文件读取参数值。这允许你定义一个包含消息数据的文件，并通过rostopic pub命令将这些数据作为消息发布出去</p>
+<p>-s, —substitute-keywords：当与发布频率一起使用时，对每个消息执行关键词替换（如’now’或’auto’）。这对于需要动态生成时间戳或其他基于当前时间的信息的消息很有用。</p>
+<p>​<code>rostopic delay /cmd_vel</code>​ 测量延迟</p>
+<h4 id="rosnode"><a href="#rosnode" class="headerlink" title="rosnode"></a>rosnode</h4><p>用于与ROS节点（Nodes）进行交互</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">rosnode is a command-line tool <span class="keyword">for</span> printing information about ROS Nodes.</span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line">        rosnode ping    <span class="built_in">test</span> connectivity to node</span><br><span class="line">        rosnode list    list active nodes</span><br><span class="line">        rosnode info    <span class="built_in">print</span> information about node</span><br><span class="line">        rosnode machine list nodes running on a particular machine or list machines</span><br><span class="line">        rosnode <span class="built_in">kill</span>    <span class="built_in">kill</span> a running node</span><br><span class="line">        rosnode cleanup purge registration information of unreachable nodes</span><br><span class="line"></span><br><span class="line">Type rosnode &lt;<span class="built_in">command</span>&gt; -h <span class="keyword">for</span> more detailed usage, e.g. <span class="string">&#x27;rosnode ping -h&#x27;</span></span><br></pre></td></tr></table></figure>
+<h4 id="roscd-rosmv-roscp-rosls"><a href="#roscd-rosmv-roscp-rosls" class="headerlink" title="roscd rosmv roscp rosls"></a>roscd rosmv roscp rosls</h4><p>顾名思义，cd，移动，复制，查看</p>
+<h4 id="rosed-roscat"><a href="#rosed-roscat" class="headerlink" title="rosed roscat"></a>rosed <strong>roscat</strong></h4><p>ed：编辑<br>cat：显示文件内容</p>
+<h4 id="rosbag"><a href="#rosbag" class="headerlink" title="rosbag"></a>rosbag</h4><p>bag是一种ROS中的文件格式，用于存储ROS消息数据。rosbag命令可以记录、回放和处理bag。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">rosbag --<span class="built_in">help</span></span><br><span class="line">Usage: rosbag &lt;subcommand&gt; [options] [args]</span><br><span class="line"></span><br><span class="line">A bag is a file format <span class="keyword">in</span> ROS <span class="keyword">for</span> storing ROS message data. The rosbag <span class="built_in">command</span> can record, replay and manipulate bags.</span><br><span class="line"></span><br><span class="line">Available subcommands:</span><br><span class="line">   check        Determine whether a bag is playable <span class="keyword">in</span> the current system, or <span class="keyword">if</span> it can be migrated.</span><br><span class="line">   compress     Compress one or more bag files.</span><br><span class="line">   decompress   Decompress one or more bag files.</span><br><span class="line">   decrypt      Decrypt one or more bag files.</span><br><span class="line">   encrypt      Encrypt one or more bag files.</span><br><span class="line">   filter       Filter the contents of the bag.</span><br><span class="line">   fix          Repair the messages <span class="keyword">in</span> a bag file so that it can be played <span class="keyword">in</span> the current system.</span><br><span class="line">   <span class="built_in">help</span>  </span><br><span class="line">   info         Summarize the contents of one or more bag files.</span><br><span class="line">   play         Play back the contents of one or more bag files <span class="keyword">in</span> a time-synchronized fashion.</span><br><span class="line">   record       Record a bag file with the contents of specified topics.</span><br><span class="line">   reindex      Reindexes one or more bag files.</span><br><span class="line"></span><br><span class="line">For additional information, see http://wiki.ros.org/rosbag</span><br></pre></td></tr></table></figure>
+<p>根据以上的手册，我提供一个案例理解rosbag的使用</p>
+<p>记录传感器数据：rosbag record /scan -O lidar_data.    bag<br>回放并调试算法：rosbag play lidar_data.bag -l可以循环播放<br>查看数据相关信息：rosbag info lidar_data.bag</p>
+<h4 id="rosparam"><a href="#rosparam" class="headerlink" title="rosparam"></a>rosparam</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">rosparam is a command-line tool <span class="keyword">for</span> getting, setting, and deleting parameters from the ROS Parameter Server.</span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line">        rosparam <span class="built_in">set</span>    设置参数值</span><br><span class="line">        rosparam get    获取参数值</span><br><span class="line">        rosparam load   从YAML格式的文件中加载参数到参数服务器</span><br><span class="line">        rosparam dump   将参数服务器中的参数保存到一个文件中</span><br><span class="line">        rosparam delete 删除参数</span><br><span class="line">        rosparam list   列出所有参数</span><br></pre></td></tr></table></figure>
+<p>以下的ros命令使用较少大家可以不做学习</p>
+<h4 id="rosservice"><a href="#rosservice" class="headerlink" title="rosservice"></a>rosservice</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Commands:</span><br><span class="line">        rosservice args <span class="built_in">print</span> service arguments</span><br><span class="line">        rosservice call call the service with the provided args</span><br><span class="line">        rosservice find find services by service <span class="built_in">type</span></span><br><span class="line">        rosservice info <span class="built_in">print</span> information about service</span><br><span class="line">        rosservice list list active services</span><br><span class="line">        rosservice <span class="built_in">type</span> <span class="built_in">print</span> service <span class="built_in">type</span></span><br><span class="line">        rosservice uri  <span class="built_in">print</span> service ROSRPC uri</span><br><span class="line"></span><br><span class="line">Type rosservice &lt;<span class="built_in">command</span>&gt; -h <span class="keyword">for</span> more detailed usage, e.g. <span class="string">&#x27;rosservice call -h&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>这里待补充，涉及到很多具体应用时的使用</p>
+<h4 id="rosmsg"><a href="#rosmsg" class="headerlink" title="rosmsg"></a>rosmsg</h4><p>以文字的形式输出当前的节点，服务有哪些，建议使用rqt_graph作为上位替代</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">rosmsg --<span class="built_in">help</span></span><br><span class="line">rosmsg is a command-line tool <span class="keyword">for</span> displaying information about ROS Message types.</span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line">        rosmsg show     Show message description</span><br><span class="line">        rosmsg info     Alias <span class="keyword">for</span> rosmsg show</span><br><span class="line">        rosmsg list     List all messages</span><br><span class="line">        rosmsg md5      Display message <span class="built_in">md5sum</span></span><br><span class="line">        rosmsg package  List messages <span class="keyword">in</span> a package</span><br><span class="line">        rosmsg packages List packages that contain messages</span><br><span class="line"></span><br><span class="line">Type rosmsg &lt;<span class="built_in">command</span>&gt; -h <span class="keyword">for</span> more detailed usage</span><br></pre></td></tr></table></figure>
+<p><strong>查看所有消息类型：</strong> rosmsg list<br>查看消息类型的详细信息：rosmsg show [message type]<br>查找消息类型所在的包：rosmsg package [package name] rosmsg packages [message type]</p>
+<p>具体每种命令的使用使用rosmsg [command] -h获取细节</p>
+<h4 id="rossrv"><a href="#rossrv" class="headerlink" title="rossrv"></a>rossrv</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">rossrv is a command-line tool <span class="keyword">for</span> displaying information about ROS Service types.</span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line">        rossrv show     查看特定服务类型的定义</span><br><span class="line">        rossrv info     Alias <span class="keyword">for</span> rossrv show</span><br><span class="line">        rossrv list     列出所有服务类型</span><br><span class="line">        rossrv md5      Display service <span class="built_in">md5sum</span></span><br><span class="line">        rossrv package  查看pararm中packagename中的消息</span><br><span class="line">        rossrv packages 列出所有包含至少一个服务类型的ROS包</span><br><span class="line"></span><br><span class="line">Type rossrv &lt;<span class="built_in">command</span>&gt; -h <span class="keyword">for</span> more detailed usage</span><br></pre></td></tr></table></figure>
+<h4 id="rospack"><a href="#rospack" class="headerlink" title="rospack"></a>rospack</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">USAGE: rospack &lt;<span class="built_in">command</span>&gt; [options] [package]</span><br><span class="line">  Allowed commands:</span><br><span class="line">    <span class="built_in">help</span></span><br><span class="line">    cflags-only-I     [--deps-only] [package]</span><br><span class="line">    cflags-only-other [--deps-only] [package]</span><br><span class="line">    depends           [package] (<span class="built_in">alias</span>: deps)</span><br><span class="line">    depends-indent    [package] (<span class="built_in">alias</span>: deps-indent)</span><br><span class="line">    depends-manifests [package] (<span class="built_in">alias</span>: deps-manifests)</span><br><span class="line">    depends-msgsrv    [package] (<span class="built_in">alias</span>: deps-msgsrv)</span><br><span class="line">    depends-on        [package]</span><br><span class="line">    depends-on1       [package]</span><br><span class="line">    depends-why --target=&lt;target&gt; [package] (<span class="built_in">alias</span>: deps-why)</span><br><span class="line">    depends1          [package] (<span class="built_in">alias</span>: deps1)</span><br><span class="line">    <span class="built_in">export</span> [--deps-only] --lang=&lt;lang&gt; --attrib=&lt;attrib&gt; [package]</span><br><span class="line">    find [package]</span><br><span class="line">    langs</span><br><span class="line">    libs-only-L     [--deps-only] [package]</span><br><span class="line">    libs-only-l     [--deps-only] [package]</span><br><span class="line">    libs-only-other [--deps-only] [package]</span><br><span class="line">    list</span><br><span class="line">    list-duplicates</span><br><span class="line">    list-names</span><br><span class="line">    plugins --attrib=&lt;attrib&gt; [--top=&lt;toppkg&gt;] [package]</span><br><span class="line">    profile [--length=&lt;length&gt;] [--zombie-only]</span><br><span class="line">    rosdep  [package] (<span class="built_in">alias</span>: rosdeps)</span><br><span class="line">    rosdep0 [package] (<span class="built_in">alias</span>: rosdeps0)</span><br><span class="line">    vcs  [package]</span><br><span class="line">    vcs0 [package]</span><br><span class="line">  Extra options:</span><br><span class="line">    -q     Quiets error reports.</span><br><span class="line"></span><br><span class="line"> If [package] is omitted, the current working directory</span><br><span class="line"> is used (<span class="keyword">if</span> it contains a package.xml or manifest.xml).</span><br></pre></td></tr></table></figure>
+<p>rospack find ：查找指定包的路径<br>rospack depends 或 deps: 列出指定包的所有依赖项<br>rospack depends-indent: 以缩进形式显示指定包的所有依赖关系<br>rospack list：列出所有包</p>
+<p>常用的操作就是rospack找到包然后用roscd命令到达目录</p>
+<h4 id="rosclean"><a href="#rosclean" class="headerlink" title="rosclean"></a>rosclean</h4><p>清除日志文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">usage: rosclean [-h] &#123;check,purge&#125; ...</span><br><span class="line"></span><br><span class="line">positional arguments:</span><br><span class="line">  &#123;check,purge&#125;</span><br><span class="line">    check        查看日志占用</span><br><span class="line">    purge        清除日志</span><br><span class="line"></span><br><span class="line">optional arguments:</span><br><span class="line">  -h, --<span class="built_in">help</span>     show this <span class="built_in">help</span> message and <span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<p>这里的日志如果大于1G会在运行时报错：<br>Ubuntu ROS WARNING: disk usage in log directory [/home/XXX/.ros/log] is over 1GB.<br>遇到可以使用rosclean purge删除</p>
+<h4 id="rosgraph"><a href="#rosgraph" class="headerlink" title="rosgraph"></a>rosgraph</h4><p>以树状图的形式打印节点树，被rqt_graph替代</p>
+<h4 id="rosdep"><a href="#rosdep" class="headerlink" title="rosdep"></a>rosdep</h4><p>根据ROS包中的package.xml文件自动解析出该包所依赖的所有库、工具和其他资源，并为这些依赖关系找到相应的系统软件包。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line">rosdep --<span class="built_in">help</span></span><br><span class="line">Usage: rosdep [options] &lt;<span class="built_in">command</span>&gt; &lt;args&gt;</span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line"></span><br><span class="line">rosdep check &lt;stacks-and-packages&gt;...</span><br><span class="line">  check <span class="keyword">if</span> the dependencies of package(s) have been met.</span><br><span class="line"></span><br><span class="line">rosdep install &lt;stacks-and-packages&gt;...</span><br><span class="line">  download and install the dependencies of a given package or packages.</span><br><span class="line"></span><br><span class="line">rosdep db</span><br><span class="line">  generate the dependency database and <span class="built_in">print</span> it to the console.</span><br><span class="line"></span><br><span class="line">rosdep init</span><br><span class="line">  initialize rosdep sources <span class="keyword">in</span> /etc/ros/rosdep.  May require <span class="built_in">sudo</span>.</span><br><span class="line"></span><br><span class="line">rosdep keys &lt;stacks-and-packages&gt;...</span><br><span class="line">  list the rosdep keys that the packages depend on.</span><br><span class="line"></span><br><span class="line">rosdep resolve &lt;rosdeps&gt;</span><br><span class="line">  resolve &lt;rosdeps&gt; to system dependencies</span><br><span class="line"></span><br><span class="line">rosdep update</span><br><span class="line">  update the <span class="built_in">local</span> rosdep database based on the rosdep sources.</span><br><span class="line"></span><br><span class="line">rosdep what-needs &lt;rosdeps&gt;...</span><br><span class="line">  <span class="built_in">print</span> a list of packages that <span class="built_in">declare</span> a rosdep on (at least</span><br><span class="line">  one of) &lt;rosdeps&gt;</span><br><span class="line"></span><br><span class="line">rosdep where-defined &lt;rosdeps&gt;...</span><br><span class="line">  <span class="built_in">print</span> a list of yaml files that <span class="built_in">declare</span> a rosdep on (at least</span><br><span class="line">  one of) &lt;rosdeps&gt;</span><br><span class="line"></span><br><span class="line">rosdep fix-permissions</span><br><span class="line">  Recursively change the permissions of the user<span class="string">&#x27;s ros home directory.</span></span><br><span class="line"><span class="string">  May require sudo.  Can be useful to fix permissions after calling</span></span><br><span class="line"><span class="string">  &quot;rosdep update&quot; with sudo accidentally.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Options:</span></span><br><span class="line"><span class="string">  -h, --help            show this help message and exit</span></span><br><span class="line"><span class="string">  --os=OS_NAME:OS_VERSION</span></span><br><span class="line"><span class="string">                        Override OS name and version (colon-separated), e.g.</span></span><br><span class="line"><span class="string">                        ubuntu:lucid</span></span><br><span class="line"><span class="string">  -c SOURCES_CACHE_DIR, --sources-cache-dir=SOURCES_CACHE_DIR</span></span><br><span class="line"><span class="string">                        Override /home/qing/.ros/rosdep/sources.cache</span></span><br><span class="line"><span class="string">  -v, --verbose         verbose display</span></span><br><span class="line"><span class="string">  --version             print just the rosdep version, then exit</span></span><br><span class="line"><span class="string">  --all-versions        print rosdep version and version of installers, then</span></span><br><span class="line"><span class="string">                        exit</span></span><br><span class="line"><span class="string">  --reinstall           (re)install all dependencies, even if already</span></span><br><span class="line"><span class="string">                        installed</span></span><br><span class="line"><span class="string">  -y, --default-yes     Tell the package manager to default to y or fail when</span></span><br><span class="line"><span class="string">                        installing</span></span><br><span class="line"><span class="string">  -s, --simulate        Simulate install</span></span><br><span class="line"><span class="string">  -r                    Continue installing despite errors.</span></span><br><span class="line"><span class="string">  -q                    Quiet. Suppress output except for errors.</span></span><br><span class="line"><span class="string">  -a, --all             select all packages</span></span><br><span class="line"><span class="string">  -n                    Do not consider implicit/recursive dependencies.  Only</span></span><br><span class="line"><span class="string">                        valid with &#x27;</span>keys<span class="string">&#x27;, &#x27;</span>check<span class="string">&#x27;, and &#x27;</span>install<span class="string">&#x27; commands.</span></span><br><span class="line"><span class="string">  -i, --ignore-packages-from-source, --ignore-src</span></span><br><span class="line"><span class="string">                        Affects the &#x27;</span>check<span class="string">&#x27;, &#x27;</span>install<span class="string">&#x27;, and &#x27;</span>keys<span class="string">&#x27; verbs. If</span></span><br><span class="line"><span class="string">                        specified then rosdep will ignore keys that are found</span></span><br><span class="line"><span class="string">                        to be catkin or ament packages anywhere in the</span></span><br><span class="line"><span class="string">                        ROS_PACKAGE_PATH, AMENT_PREFIX_PATH or in any of the</span></span><br><span class="line"><span class="string">                        directories given by the --from-paths option.</span></span><br><span class="line"><span class="string">  --skip-keys=SKIP_KEYS</span></span><br><span class="line"><span class="string">                        Affects the &#x27;</span>check<span class="string">&#x27; and &#x27;</span>install<span class="string">&#x27; verbs. The specified</span></span><br><span class="line"><span class="string">                        rosdep keys will be ignored, i.e. not resolved and not</span></span><br><span class="line"><span class="string">                        installed. The option can be supplied multiple times.</span></span><br><span class="line"><span class="string">                        A space separated list of rosdep keys can also be</span></span><br><span class="line"><span class="string">                        passed as a string. A more permanent solution to</span></span><br><span class="line"><span class="string">                        locally ignore a rosdep key is creating a local rosdep</span></span><br><span class="line"><span class="string">                        rule with an empty list of packages (include it in</span></span><br><span class="line"><span class="string">                        /etc/ros/rosdep/sources.list.d/ before the defaults).</span></span><br><span class="line"><span class="string">  --filter-for-installers=FILTER_FOR_INSTALLERS</span></span><br><span class="line"><span class="string">                        Affects the &#x27;</span>db<span class="string">&#x27; verb. If supplied, the output of the</span></span><br><span class="line"><span class="string">                        &#x27;</span>db<span class="string">&#x27; command is filtered to only list packages whose</span></span><br><span class="line"><span class="string">                        installer is in the provided list. The option can be</span></span><br><span class="line"><span class="string">                        supplied multiple times. A space separated list of</span></span><br><span class="line"><span class="string">                        installers can also be passed as a string. Example:</span></span><br><span class="line"><span class="string">                        `--filter-for-installers &quot;apt pip&quot;`</span></span><br><span class="line"><span class="string">  --from-paths          Affects the &#x27;</span>check<span class="string">&#x27;, &#x27;</span>keys<span class="string">&#x27;, and &#x27;</span>install<span class="string">&#x27; verbs. If</span></span><br><span class="line"><span class="string">                        specified the arguments to those verbs will be</span></span><br><span class="line"><span class="string">                        considered paths to be searched, acting on all catkin</span></span><br><span class="line"><span class="string">                        packages found there in.</span></span><br><span class="line"><span class="string">  --rosdistro=ROS_DISTRO</span></span><br><span class="line"><span class="string">                        Explicitly sets the ROS distro to use, overriding the</span></span><br><span class="line"><span class="string">                        normal method of detecting the ROS distro using the</span></span><br><span class="line"><span class="string">                        ROS_DISTRO environment variable. When used with the</span></span><br><span class="line"><span class="string">                        &#x27;</span>update<span class="string">&#x27; verb, only the specified distro will be</span></span><br><span class="line"><span class="string">                        updated.</span></span><br><span class="line"><span class="string">  --as-root=INSTALLER_KEY:&lt;bool&gt;</span></span><br><span class="line"><span class="string">                        Override whether sudo is used for a specific</span></span><br><span class="line"><span class="string">                        installer, e.g. &#x27;</span>--as-root pip:<span class="literal">false</span><span class="string">&#x27; or &#x27;</span>--as-root</span><br><span class="line">                        <span class="string">&quot;pip:no homebrew:yes&quot;</span><span class="string">&#x27;. Can be specified multiple</span></span><br><span class="line"><span class="string">                        times.</span></span><br><span class="line"><span class="string">  --include-eol-distros</span></span><br><span class="line"><span class="string">                        Affects the &#x27;</span>update<span class="string">&#x27; verb. If specified end-of-life</span></span><br><span class="line"><span class="string">                        distros are being fetched too.</span></span><br><span class="line"><span class="string">  -t DEPENDENCY_TYPES, --dependency-types=DEPENDENCY_TYPES</span></span><br><span class="line"><span class="string">                        Dependency types to install, can be given multiple</span></span><br><span class="line"><span class="string">                        times. Choose from &#123;&#x27;</span>build<span class="string">&#x27;, &#x27;</span><span class="built_in">test</span><span class="string">&#x27;,</span></span><br><span class="line"><span class="string">                        &#x27;</span>buildtool_export<span class="string">&#x27;, &#x27;</span>doc<span class="string">&#x27;, &#x27;</span><span class="built_in">exec</span><span class="string">&#x27;, &#x27;</span>buildtool<span class="string">&#x27;,</span></span><br><span class="line"><span class="string">                        &#x27;</span>build_export<span class="string">&#x27;&#125;. Default: all except doc.</span></span><br></pre></td></tr></table></figure>
+<p>首次运行需要按照命令行提示运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> rosdep init</span><br></pre></td></tr></table></figure>
+<p>更新本地索引：rosdep update<br>查看某个包的依赖：rosdep what-needs rospy<br>安装依赖：rosdep install —from-paths /path/to/your/catkin_ws/src —ignore-src -r -y</p>
+<h4 id="rosversion"><a href="#rosversion" class="headerlink" title="rosversion"></a>rosversion</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ rosversion --<span class="built_in">help</span></span><br><span class="line">usage: rosversion [-h] [-s] [-d] [-a] [package]</span><br><span class="line"></span><br><span class="line">rosversion -d: Output the version of the given package</span><br><span class="line">rosversion package: Output the ROS distribution name</span><br><span class="line"></span><br><span class="line">positional arguments:</span><br><span class="line">  package             The ROS package name (e.g. <span class="string">&#x27;roscpp&#x27;</span>)</span><br><span class="line"></span><br><span class="line">optional arguments:</span><br><span class="line">  -h, --<span class="built_in">help</span>          show this <span class="built_in">help</span> message and <span class="built_in">exit</span></span><br><span class="line">  -s, --skip-newline  Skip trailing newline</span><br><span class="line">  -d, --distro        输出当前ROS发行版的名称</span><br><span class="line">  -a, --all           显示所有已安装ROS包的名字及其版本</span><br></pre></td></tr></table></figure>
+<h4 id="rosstack"><a href="#rosstack" class="headerlink" title="rosstack"></a>rosstack</h4><p>主要用于与ROS的软件包集合（即栈，stacks）进行交互，在ROS的新版本（如ROS 2）中，”stacks”的概念已经被弃用，不需要学习。</p>
+<h4 id="rostest"><a href="#rostest" class="headerlink" title="rostest"></a>rostest</h4><p>执行测试的命令行工具</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Usage: rostest [options] [package] &lt;filename&gt;</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">  -h, --<span class="built_in">help</span>            show this <span class="built_in">help</span> message and <span class="built_in">exit</span></span><br><span class="line">  -t, --text            使用标准输出而不是XML格式输出结果，直接在终端显示测试结果</span><br><span class="line">  --pkgdir=PKG_DIR      指定包目录，允许你在不位于包根目录的情况下运行测试</span><br><span class="line">  --package=PACKAGE     指定包名</span><br><span class="line">  --results-filename=RESULTS_FILENAME</span><br><span class="line">                        指定测试结果文件的名称</span><br><span class="line">  --results-base-dir=RESULTS_BASE_DIR</span><br><span class="line">                        指定测试结果的基础目录，测试结果文件会被创建在这个基础目录</span><br><span class="line">                        下的子文件夹中，该子文件夹以包目录命名</span><br><span class="line">  -r, --reuse-master    连接到现有的ROS主节点而不是启动一个新的ROS主节点</span><br><span class="line">  -c, --clear           当连接到现有ROS主节点时清除所有参数</span><br></pre></td></tr></table></figure>
+<p>运行测试：rostest -t my_tests my_testNode.test</p>
+<h4 id="rosunit"><a href="#rosunit" class="headerlink" title="rosunit"></a>rosunit</h4><p>主要用于执行基于 Python 的单元测试，通常与 Python 的 unittest 框架结合使用，以提供一种简便的方式来运行测试并查看结果。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Usage: rosunit [options] &lt;file&gt; [<span class="built_in">test</span> args...]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">  -h, --<span class="built_in">help</span>            show this <span class="built_in">help</span> message and <span class="built_in">exit</span></span><br><span class="line">  -t, --text            Run with stdout output instead of XML output</span><br><span class="line">  --time-limit=TIME_LIMIT</span><br><span class="line">                        Set <span class="keyword">time</span> <span class="built_in">limit</span> <span class="keyword">for</span> <span class="built_in">test</span></span><br><span class="line">  --name=TEST_NAME      Test name</span><br><span class="line">  --package=PACKAGE_NAME</span><br><span class="line">                        Package name (optional)</span><br></pre></td></tr></table></figure>
+<h4 id="roswtf"><a href="#roswtf" class="headerlink" title="roswtf"></a>roswtf</h4><p>检查你的ROS系统并尝试发现问题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Usage: roswtf [launch file]</span><br><span class="line"></span><br><span class="line">roswtf is a tool <span class="keyword">for</span> verifying a ROS installation and running system. Checks</span><br><span class="line">provided launchfile <span class="keyword">if</span> provided, <span class="keyword">else</span> current stack or package.</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">  -h, --<span class="built_in">help</span>    show this <span class="built_in">help</span> message and <span class="built_in">exit</span></span><br><span class="line">  --all         run roswtf against all packages</span><br><span class="line">  --no-plugins  <span class="built_in">disable</span> roswtf plugins</span><br><span class="line">  --offline     only run offline tests</span><br></pre></td></tr></table></figure>
+<h3 id="ROS常用可视化工具"><a href="#ROS常用可视化工具" class="headerlink" title="ROS常用可视化工具"></a>ROS常用可视化工具</h3><h4 id="rqt-console"><a href="#rqt-console" class="headerlink" title="rqt_console"></a>rqt_console</h4><p>查看日志输出的历史，并作分析</p>
+<p>设置日志输出格式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> ROSCONSOLE_FORMAT=<span class="string">&#x27;[$&#123;node&#125;] [$&#123;file&#125;:$&#123;line&#125;]: $&#123;message&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;ros/console.h&gt;</span></span></span><br><span class="line"><span class="built_in">ROS_DEBUG</span>(<span class="string">&quot;This is a debug message.&quot;</span>);</span><br><span class="line"><span class="built_in">ROS_INFO</span>(<span class="string">&quot;This is an info message.&quot;</span>);</span><br><span class="line"><span class="built_in">ROS_WARN</span>(<span class="string">&quot;This is a warning message.&quot;</span>);</span><br><span class="line"><span class="built_in">ROS_ERROR</span>(<span class="string">&quot;This is an error message.&quot;</span>);<span class="function">eil</span></span><br><span class="line"><span class="function"><span class="title">ROS_FATAL</span><span class="params">(<span class="string">&quot;This is a fatal error message.&quot;</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+<h4 id="rqt-plot"><a href="#rqt-plot" class="headerlink" title="rqt_plot"></a>rqt_plot</h4><h4 id="rqt-image-view"><a href="#rqt-image-view" class="headerlink" title="rqt_image_view"></a>rqt_image_view</h4><h4 id="rqt-graph"><a href="#rqt-graph" class="headerlink" title="rqt_graph"></a>rqt_graph</h4><p>JJIRViz</p>
+<p>tf view_frames</p>
+<p>rqt_image_view</p>
+<p><strong>rqt_rviz</strong></p>
+<h3 id="ROS通信机制"><a href="#ROS通信机制" class="headerlink" title="ROS通信机制"></a>ROS通信机制</h3><h4 id="话题通信"><a href="#话题通信" class="headerlink" title="话题通信"></a>话题通信</h4><p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250510192756.png" alt="image" title="话题通信框架图"></p>
+<blockquote>
+<p><strong>订阅时，第一条数据丢失</strong><br>原因：发送第一条数据时，publisher还未在roscore注册完毕<br>解决：休眠一段时间ros::Duration(3.0).sleep();延迟第一条数据发布</p>
+</blockquote>
+<p>在package.xml中添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;build_depend&gt;message_generation&lt;/build_depend&gt;</span><br><span class="line">&lt;exec_depend&gt;message_runtime&lt;/exec_depend&gt;</span><br></pre></td></tr></table></figure>
+<p>在CMakeLists.txt中修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">find_package(catkin REQUIRED COMPONENTS</span><br><span class="line">  roscpp</span><br><span class="line">  rospy</span><br><span class="line">  std msgs</span><br><span class="line">  message_generation</span><br><span class="line">)</span><br><span class="line">add_message_files(</span><br><span class="line">FILES</span><br><span class="line">Person.msg</span><br><span class="line">)</span><br><span class="line">generate_messages(</span><br><span class="line">DEPENDENCIES</span><br><span class="line">std_msgs</span><br><span class="line">)</span><br><span class="line">catkin_package(</span><br><span class="line">CATKIN DEPENDS roscpp rospy std_msgs message_runtime</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>编译生成的中间文件</p>
+<p>cpp: 在devel/include/包名 可以发现Person.h</p>
+<p>person：在devel/lib/python3/dist-packages/包名/msg 中的_Person.py</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">from 包名.msg import Person</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ros::spin     # 一直循环执行回调函数部分，无法执行后续语句</span><br><span class="line">ros::spinonce # 执行回调函数一次，执行后跳出结束语句</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>话题通信新解：</p>
+<p>发送方：pub \= rospy.Publisher(“话题name”,String,queue_size\=10)<br>订阅方：sub \= rospy.Subscriber(‘话题name’,String,doMsg,queue_size\=10)</p>
+<p>如果发送方速率过快，订阅方会一次性执行queue_size条</p>
+<p>在订阅方实现了ros::spinonce()如果其中使用rate设置了频率，就会以最小速度进行运行，这会影响话题通信的速率</p>
+</blockquote>
+<h4 id="服务通信"><a href="#服务通信" class="headerlink" title="服务通信"></a>服务通信</h4><p>服务通信更适用于对实时性有要求、具有一定逻辑处理的应用场景。</p>
+<p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250510195837885.png" alt="" title="服务通信框架图"></p>
+<p>必须确定在客户端发起请求时，服务端先启动<br>srv=请求+响应</p>
+<p>编译后查看CPP:devel/include/包名/…….h Python/dist_package srv下的包</p>
+<h4 id="参数服务器"><a href="#参数服务器" class="headerlink" title="参数服务器"></a>参数服务器</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置</span></span><br><span class="line">nh.<span class="built_in">setParam</span>(<span class="string">&quot;type&quot;</span>,<span class="string">&quot;属性值&quot;</span>);</span><br><span class="line">nh.<span class="built_in">setParam</span>(<span class="string">&quot;height&quot;</span>,<span class="number">2</span>);</span><br><span class="line"><span class="comment">// 获取</span></span><br><span class="line">result = nh.<span class="built_in">param</span>(<span class="string">&quot;查询变量name&quot;</span>.,<span class="number">0.5</span>)# 默认值<span class="number">0.5</span></span><br><span class="line"><span class="type">bool</span> if_result = nh.<span class="built_in">getParam</span>(<span class="string">&quot;查询变量name&quot;</span>,result)</span><br><span class="line"><span class="type">bool</span> if_result = nh.<span class="built_in">getParamCached</span>(<span class="string">&quot;查询变量name&quot;</span>,result)</span><br></pre></td></tr></table></figure>
+<p><strong>服务通信动态订阅和取消：</strong> self.subs.unregister()</p>
+<h4 id="action"><a href="#action" class="headerlink" title="action"></a>action</h4><p>ROS镇长得知这种情况后，就出手写了了一个新的制度，这个制度需要五个外卖小哥，两个小哥在李四这边，三个小哥在餐馆，他们分别负责不同的任务。 李四这边的两个小哥分别是：</p>
+<ul>
+<li>外卖小哥A名字叫goal,负责传递李四想吃的菜给餐馆</li>
+<li>外卖小哥B名字叫cancel，如何中途李四想取消，就告诉B，B会去通知</li>
+</ul>
+<p>餐馆这边的外卖小哥分别是：</p>
+<ul>
+<li>外卖小哥C名字叫status，负责通知李四当前菜做到哪一阶段了</li>
+<li>外卖小哥D叫feedback，这个小哥每10分钟跑一趟，告诉当前进度的百分比</li>
+<li>外卖小哥E叫result，负责最后把做好的菜送到李四手上</li>
+</ul>
+<p>总结一下： 上面所说的通信机制其实是ROS中的action，</p>
+<h3 id="ROS常见的代码函数"><a href="#ROS常见的代码函数" class="headerlink" title="ROS常见的代码函数"></a>ROS常见的代码函数</h3><h4 id="ROS内置时间相关函数"><a href="#ROS内置时间相关函数" class="headerlink" title="ROS内置时间相关函数"></a>ROS内置时间相关函数</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 预先设置节点和句柄</span><br><span class="line"># 获取当前时间</span><br><span class="line">ros::Time right_now = ros::Time::<span class="built_in">now</span>();</span><br><span class="line">right_now.<span class="built_in">toSec</span>() %f / right_now.sec %d</span><br><span class="line"># 设置时刻</span><br><span class="line"><span class="function">ros::Time <span class="title">t1</span><span class="params">(s,ns)</span></span></span><br><span class="line"><span class="function"># 休眠 </span></span><br><span class="line"><span class="function">ros::Duration <span class="title">du</span><span class="params">(<span class="number">4.5</span>)</span></span>;</span><br><span class="line">du.<span class="built_in">sleep</span>();</span><br><span class="line"># 设置运行频率</span><br><span class="line"><span class="function">ros::Rate <span class="title">rate</span><span class="params">(<span class="number">1</span>)</span></span>;<span class="comment">//指定频率</span></span><br><span class="line">rate.<span class="built_in">sleep</span>()</span><br><span class="line"># 定时器</span><br><span class="line">ros::Timer timer = nh.<span class="built_in">createTimer</span>(ros::<span class="built_in">Duration</span>(<span class="number">0.5</span>),doSomeThing,<span class="literal">true</span>);<span class="comment">//只执行一次</span></span><br><span class="line">ros::<span class="built_in">spin</span>(); <span class="comment">//必须 spin</span></span><br></pre></td></tr></table></figure>
+<h4 id="TF坐标变换使用"><a href="#TF坐标变换使用" class="headerlink" title="TF坐标变换使用"></a>TF坐标变换使用</h4><h3 id="launch文件标签介绍"><a href="#launch文件标签介绍" class="headerlink" title="launch文件标签介绍"></a>launch文件标签介绍</h3><p><launch> 标签是所有 launch 文件的根标签，充当其他标签的容器</p>
+<h4 id=""><a href="#" class="headerlink" title=""></a><node></h4><p>roslaunch 命令不能保证按照 node 的声明顺序来启动节点(<span data-type="text" style="color: var(--b3-font-color3);">节点的启动是</span><strong>多进程</strong><span data-type="text" style="color: var(--b3-font-color3);">的</span>)</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>可选值/类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pkg</td>
+<td>“包名”</td>
+<td>节点所属的包</td>
+</tr>
+<tr>
+<td>type</td>
+<td>“nodeType”</td>
+<td>节点类型（与之相同名称的可执行文件）</td>
+</tr>
+<tr>
+<td>name</td>
+<td>“nodeName”</td>
+<td>节点名称（在 ROS 网络拓扑中节点的名称）</td>
+</tr>
+<tr>
+<td>args</td>
+<td>“xxx xxx xxx”</td>
+<td>（可选）将参数传递给节点</td>
+</tr>
+<tr>
+<td>machine</td>
+<td>“机器名”</td>
+<td>在指定机器上启动节点</td>
+</tr>
+<tr>
+<td>respawn</td>
+<td>“true” 或 “false”</td>
+<td>（可选）如果节点退出，是否自动重启</td>
+</tr>
+<tr>
+<td>respawn_delay</td>
+<td>“N”</td>
+<td>（可选）如果 respawn 为 true，延迟 N 秒后启动节点</td>
+</tr>
+<tr>
+<td>required</td>
+<td>“true” 或 “false”</td>
+<td>（可选）该节点是否必须，如果为 true，节点退出时会杀死整个 roslaunch</td>
+</tr>
+<tr>
+<td>ns</td>
+<td>“xxx”</td>
+<td>（可选）在指定命名空间 xxx 中启动节点（rosnode list 展示为 /ns/name_node）</td>
+</tr>
+<tr>
+<td>clear_params</td>
+<td>“true” 或 “false”</td>
+<td>（可选）在启动前，删除节点的私有空间的所有参数</td>
+</tr>
+<tr>
+<td>output</td>
+<td>“log” 或 “screen”</td>
+<td>（可选）日志发送目标，可设置为 log（日志文件）或 screen（屏幕），默认是 log</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="-1"><a href="#-1" class="headerlink" title=""></a><include></h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>可选值/类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>file</td>
+<td>“$(find 包名)/xxx/xxx.launch”</td>
+<td><strong>必须</strong>，指定要包含的.launch 文件的路径（通常结合$(find pkg)使用）</td>
+</tr>
+<tr>
+<td>ns</td>
+<td>“xxx”</td>
+<td>（可选）在指定的命名空间xxx中导入launch文件，影响其内部节点的命名空间</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="-2"><a href="#-2" class="headerlink" title=""></a><remap></h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>​<code>from=&quot;原始话题名&quot;</code>​</td>
+<td>节点<strong>原本</strong>发布或订阅的话题名称（如 <code>/cmd_vel</code>​）。</td>
+</tr>
+<tr>
+<td>​<code>to=&quot;目标话题名&quot;</code>​</td>
+<td>重映射后的<strong>新</strong>话题名称（如 <code>/robot1/cmd_vel</code>​）。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;node pkg=<span class="string">&quot;my_package&quot;</span> type=<span class="string">&quot;listener&quot;</span> name=<span class="string">&quot;listener&quot;</span> output=<span class="string">&quot;screen&quot;</span>&gt;</span><br><span class="line">    &lt;remap from=<span class="string">&quot;chatter&quot;</span> to=<span class="string">&quot;new_chatter&quot;</span> /&gt;</span><br><span class="line">&lt;/node&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="-3"><a href="#-3" class="headerlink" title=""></a><param></h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>可选值</th>
+<th>默认行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>参数名称（可含命名空间）</td>
+<td>字符串</td>
+<td>必须指定</td>
+</tr>
+<tr>
+<td>value</td>
+<td>参数值</td>
+<td>任意合法值</td>
+<td>可选（需外部文件）</td>
+</tr>
+<tr>
+<td>type</td>
+<td>参数类型</td>
+<td>str/int/double/bool/yaml</td>
+<td>自动推断：<br />• 含”.”的数字→double<br />• 整数字→int<br />• “true”/“false”→bool<br />• 其他→str</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&lt;param</span> <span class="string">name=&quot;global_config/max_speed&quot;</span> <span class="string">value=&quot;1.5&quot;</span> <span class="string">type=&quot;double&quot;/&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="-4"><a href="#-4" class="headerlink" title=""></a><rosparam></h4><p><rosparam>可以从 YAML 文件导入参数，或将参数导出到 YAML 文件，也可以用来删除参数，<code>&lt;rosparam&gt;</code>​标签在<code>&lt;node&gt;</code>​标签中时被视为私有。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>可选值</th>
+<th>默认值</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>​<code>command</code>​</td>
+<td>参数操作类型</td>
+<td>​<code>load</code>​/<code>dump</code>​/<code>delete</code>​</td>
+<td>​<code>load</code>​</td>
+<td>​<code>load</code>​-从文件加载<br /><code>dump</code>​-导出到文件<br /><code>delete</code>​-删除参数</td>
+</tr>
+<tr>
+<td>​<code>file</code>​</td>
+<td>YAML文件路径（<code>load</code>​/<code>dump</code>​时使用）</td>
+<td>合法文件路径字符串</td>
+<td>无</td>
+<td>通常配合 <code>$(find pkg)</code>​ 使用</td>
+</tr>
+<tr>
+<td>​<code>param</code>​</td>
+<td>操作的参数名称（<code>load</code>​/<code>delete</code>​时使用）</td>
+<td>带命名空间的参数路径</td>
+<td>无</td>
+<td>​<code>load</code>​时作为参数前缀<br /><code>delete</code>​时作为删除目标</td>
+</tr>
+<tr>
+<td>​<code>ns</code>​</td>
+<td>为操作指定命名空间（会覆盖<code>param</code>​的命名空间部分）</td>
+<td>合法命名空间字符串</td>
+<td>无</td>
+<td>优先级高于<code>param</code>​中的路径</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&lt;rosparam</span> <span class="string">command=&quot;load&quot;</span> <span class="string">file=&quot;$(find</span> <span class="string">my_robot)/config/sensors.yaml&quot;</span> <span class="string">param=&quot;sensor_config&quot;</span> <span class="string">/&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="-5"><a href="#-5" class="headerlink" title=""></a><arg></h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>是否可选</th>
+<th>冲突规则</th>
+<th>示例值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>​<code>name</code>​</td>
+<td>参数名称（支持命名空间路径）</td>
+<td><strong>必选</strong></td>
+<td>-</td>
+<td>“sensors/lidar_enabled”</td>
+</tr>
+<tr>
+<td>default</td>
+<td>参数默认值（未提供时使用）</td>
+<td>可选</td>
+<td>不可与 value 同时使用</td>
+<td>default=”3.0”</td>
+</tr>
+<tr>
+<td>​<code>value</code>​</td>
+<td>参数显式设定值</td>
+<td>可选</td>
+<td>不可与 default 同时使用</td>
+<td>value=”true”</td>
+</tr>
+<tr>
+<td>​<code>doc</code>​</td>
+<td>参数描述文档（用于说明用途）</td>
+<td>可选</td>
+<td>-</td>
+<td>doc=”控制激光雷达开关”</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&lt;arg</span> <span class="string">name=&quot;car_length&quot;</span> <span class="string">default=&quot;0.55&quot;</span> <span class="string">doc=&quot;小车长度&quot;</span> <span class="string">/&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="-6"><a href="#-6" class="headerlink" title=""></a><group></h4><p><group>标签可以对节点分组，具有 ns 属性，可以让节点归属某个命名空间 解决重名问题</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>可选值</th>
+<th>默认值</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ns</td>
+<td>为组内所有节点和参数创建命名空间前缀</td>
+<td>任意合法命名空间字符串</td>
+<td>无</td>
+<td>支持多级命名空间（如 <code>ns=&quot;robot1/sensors&quot;</code>​）</td>
+</tr>
+<tr>
+<td>clear_params</td>
+<td>启动前是否清空该命名空间下的<strong>所有参数</strong></td>
+<td>true/false</td>
+<td>false</td>
+<td>⚠️ 高危操作！会递归删除整个命名空间树下的参数，可能导致系统其他部分失效</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&lt;group</span> <span class="string">ns=&quot;sensors&quot;&gt;</span></span><br><span class="line">  <span class="string">&lt;node</span> <span class="string">pkg=&quot;lidar_driver&quot;</span> <span class="string">type=&quot;lidar_node&quot;</span> <span class="string">name=&quot;lidar&quot;</span> </span><br><span class="line">        <span class="string">args=&quot;scan:=raw_scan&quot;</span> <span class="string">/&gt;</span></span><br><span class="line">  <span class="string">&lt;param</span> <span class="string">name=&quot;scan_range&quot;</span> <span class="string">value=&quot;10.0&quot;</span> <span class="string">/&gt;</span></span><br><span class="line"><span class="string">&lt;/group&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="CMakeLists"><a href="#CMakeLists" class="headerlink" title="CMakeLists"></a>CMakeLists</h3><ol>
+<li>CMakeLists.txt 文件中，命令名字是不区分大小写的，而参数和变量是大小写相关的</li>
+<li>ros的包 catkin_make后，可执行文件在./devel/lib/proj_name/proj_name_node</li>
+</ol>
+<h4 id="find-package"><a href="#find-package" class="headerlink" title="find_package"></a><strong>find_package</strong></h4><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">find_package</span>( [VERSION] [EXACT] [QUIET] [MODULE][REQUIRED] [[COMPONENTS] [components…]] [OPTIONAL_COMPONENTS components…])</span><br><span class="line"> 	在全局，全盘寻找指定name的库，找到后，就会将name_xxxx等变量赋值，就可以用对应的变量了</span><br><span class="line">    举例说明：</span><br><span class="line"> 	   &lt;NAME&gt;_FOUND</span><br><span class="line"> 	        若找到package，则此变量为<span class="number">1</span>，否则为<span class="number">0</span></span><br><span class="line"> 	    &lt;NAME&gt;_INCLUDE_DIRS <span class="keyword">or</span> &lt;NAME&gt;_INCLUDES</span><br><span class="line"> 	        头文件的路径</span><br><span class="line"> 	    &lt;NAME&gt;_LIBRARIES <span class="keyword">or</span> &lt;NAME&gt;_LIBS</span><br><span class="line"> 	        库文件的路径</span><br><span class="line"> 	    &lt;NAME&gt;_VERSION_STRINGS</span><br><span class="line"> 	        版本信息的字符串</span><br><span class="line"></span><br><span class="line">    关键字解释：</span><br><span class="line">		VERSION和EXACT: </span><br><span class="line">			都是可选的，version指定的是版本，如果指定就必须检查找到的包的版本是否和version兼容。</span><br><span class="line">			如果指定EXACT则表示必须完全匹配的版本而不是兼容版本就可以。</span><br><span class="line">   		QUIET：</span><br><span class="line">   			可选字段，表示如果查找失败，不会在屏幕进行输出</span><br><span class="line">   			但是如果指定了REQUIRED字段，则QUIET无效，仍然会输出查找失败提示语。</span><br><span class="line">		MODULE：</span><br><span class="line">     		可选字段，前面提到说“如果Module模式查找失败则回退到Config模式进行查找”</span><br><span class="line">     		但是假如设定了MODULE选项，那么就只在Module模式查找，</span><br><span class="line">     		如果Module模式下查找失败并不回落到Config模式查找。</span><br><span class="line">		REQUIRED：</span><br><span class="line">			可选字段，表示一定要找到包，找不到的话就立即停掉整个cmake。</span><br><span class="line">			而如果不指定REQUIRED则cmake会继续执行。</span><br><span class="line"> 		COMPONENTS components...:</span><br><span class="line"> 			可选字段，表示查找的包中必须要找到的组件(components）</span><br><span class="line"> 			如果有任何一个找不到就算失败，类似于REQUIRED，导致cmake停止执行。</span><br><span class="line"> 		OPTIONAL_COMPONENTS components...：</span><br><span class="line"> 			可选的模块，找不到也不会让cmake停止</span><br><span class="line"></span><br><span class="line"> 	举例：</span><br><span class="line">         <span class="keyword">find_package</span>(Boost <span class="number">1.49</span>.<span class="number">0</span> COMPONENTS unit_test_framework serialization)</span><br><span class="line">         Boost就是package,COMPONENTS 后面跟着的就是列出的一些与包相关的部件清单，若找不到，cmake停止执行</span><br></pre></td></tr></table></figure>
+<h4 id="批量编译py文件"><a href="#批量编译py文件" class="headerlink" title="批量编译py文件"></a>批量编译py文件</h4><p>批量添加py文件可执行权限：sudo find . -type f -name “*.py” -exec chmod +x {} ;</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 递归查找所有Python脚本文件</span></span><br><span class="line"><span class="keyword">file</span>(GLOB_RECURSE my_package_python_scripts </span><br><span class="line">    <span class="string">&quot;$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/scripts/*.py&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查是否找到Python文件</span></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">NOT</span> my_package_python_scripts)</span><br><span class="line">    <span class="keyword">message</span>(WARNING <span class="string">&quot;No Python scripts found in scripts/ directory&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>()</span><br><span class="line">    <span class="comment"># 安装Python文件到包的可执行目录</span></span><br><span class="line">    catkin_install_python(</span><br><span class="line">        PROGRAMS <span class="variable">$&#123;my_package_python_scripts&#125;</span></span><br><span class="line">        DESTINATION <span class="variable">$&#123;CATKIN_PACKAGE_BIN_DESTINATION&#125;</span></span><br><span class="line">    )</span><br><span class="line"><span class="keyword">endif</span>()</span><br></pre></td></tr></table></figure>
+<h3 id="URDF"><a href="#URDF" class="headerlink" title="URDF"></a>URDF</h3><p>机器人的表示分为两部分，一部分是关节joint，一部分是链接link。<br>可以简单的比喻为膝盖和腿，Joints定义了机器人各部分如何移动以及移动的范围。</p>
+<p>这部分不需要太多的关注，只需要了解概念即可，实际的使用会直接从建模软件中导出</p>
+<p>URDF工具：sudo apt install liburdfdom-tools</p>
+<p>check_urdf filename.urdf<br>urdf_to_graphiz filename.urdf 会生成pdf，可以检查是否有问题</p>
+<p>先将xyz摆正</p>
+<p>在URDF (Unified Robot Description Format) 中，直接支持一个关节模仿另一个关节的运动（Mimic Other Joint）的功能是通过 <code>&lt;mimic&gt;</code>​ 标签实现的。这个标签允许你指定一个关节的行为模仿另一个已经定义好的关节。下面是如何使用 <code>&lt;mimic&gt;</code>​ 标签来实现这一功能的例子：</p>
+<p>假设你有两个关节，分别是 <code>joint1</code>​ 和 <code>joint2</code>​，你希望 <code>joint2</code>​ 模仿 <code>joint1</code>​ 的运动。</p>
+<p>首先，定义你的两个关节，然后在第二个关节（<code>joint2</code>​）中添加 <code>&lt;mimic&gt;</code>​ 标签，如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;joint name=&quot;joint1&quot; type=&quot;revolute&quot;&gt;</span><br><span class="line">  &lt;parent link=&quot;link1&quot;/&gt;</span><br><span class="line">  &lt;child link=&quot;link2&quot;/&gt;</span><br><span class="line">  &lt;axis xyz=&quot;0 1 0&quot;/&gt;</span><br><span class="line">  &lt;limit effort=&quot;10&quot; velocity=&quot;3&quot; lower=&quot;-2.25&quot; upper=&quot;0.75&quot;/&gt;</span><br><span class="line">&lt;/joint&gt;</span><br><span class="line"></span><br><span class="line">&lt;joint name=&quot;joint2&quot; type=&quot;revolute&quot;&gt;</span><br><span class="line">  &lt;parent link=&quot;link3&quot;/&gt;</span><br><span class="line">  &lt;child link=&quot;link4&quot;/&gt;</span><br><span class="line">  &lt;axis xyz=&quot;0 1 0&quot;/&gt;</span><br><span class="line">  &lt;limit effort=&quot;10&quot; velocity=&quot;3&quot; lower=&quot;-2.25&quot; upper=&quot;0.75&quot;/&gt;</span><br><span class="line">  &lt;mimic joint=&quot;joint1&quot; multiplier=&quot;1.0&quot; offset=&quot;0.0&quot;/&gt;</span><br><span class="line">&lt;/joint&gt;</span><br></pre></td></tr></table></figure>
+<p>在这个例子中，<code>joint2</code>​ 将会模仿 <code>joint1</code>​ 的运动。<code>multiplier</code>​ 属性表示模仿的比例系数，而 <code>offset</code>​ 则表示一个固定的偏移量。这意味着 <code>joint2</code>​ 的位置将等于 <code>joint1</code>​ 的位置乘以 <code>multiplier</code>​ 加上 <code>offset</code>​。如果你想要 <code>joint2</code>​ 完全跟随 <code>joint1</code>​ 而没有比例变化或偏移，你可以将 <code>multiplier</code>​ 设置为 <code>1.0</code>​ 并将 <code>offset</code>​ 设置为 <code>0.0</code>​。</p>
+<ol>
+<li>为<code>lower_left_jointelc_joint</code>​添加yaw轴<code>-3.1416</code>​</li>
+<li>添加可变范围0-1.57</li>
+<li>连动杆</li>
+</ol>
+<p>​<code>robot_state_publisher</code>​：<strong>发布机器人模型的 TF 变换，</strong> 根据 <code>/joint_states</code>​ 话题接收到的关节角度，计算每个连杆的 <strong>坐标系（TF）</strong> ，并发布到 <code>/tf</code>​ 话题。</p>
+<h3 id="TF树"><a href="#TF树" class="headerlink" title="TF树"></a>TF树</h3><p>生成TF树pdf：rosrun tf view_frames<br>查看TF树：rosrun rqt_tf_tree rqt_tf_treeBIN_DESTINATION}</p>
+<h2 id="ROS积累"><a href="#ROS积累" class="headerlink" title="ROS积累"></a>ROS积累</h2><h3 id="构建元功能包​-5"><a href="#构建元功能包​-5" class="headerlink" title="构建元功能包​[5]"></a>构建元功能包​<a href="#20250510213215-0pb6z8h">[5]</a></h3><h3 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h3><p>问题：中文乱码<br>解决：setlocal(LC_ALL,””);</p>
+<p>使用自编译的opencv库时，需要自己编译cv_brige才能用，</p>
+<p>ROS会有限调用自己的库，没有的时候就会去指定路径寻找代码编译</p>
+<h3 id="catkin-make编译的构建技巧"><a href="#catkin-make编译的构建技巧" class="headerlink" title="catkin_make编译的构建技巧"></a>catkin_make编译的构建技巧</h3><p>单独编译某个包<br>catkin_make -DCATKIN_WHITELIST_PACKAGES\=”package1;package2”<br>注意：编译的参数会保留，如果需要恢复编译全部包的话需要指定<br>catkin_make -DCATKIN_WHITELIST_PACKAGES\=””</p>
+<h3 id="catkin-make的快照机制"><a href="#catkin-make的快照机制" class="headerlink" title="catkin_make的快照机制"></a>catkin_make的快照机制</h3><p>echo $ROS_PACKAGE_PATH 查看当前ros索引路径</p>
+<p>在catkin_make时，会检查编译时的ROS环境并记录下来，(我形容此为快照机制)，保存在your_ws_ws/devel/_setup_util.py python文件的CMAKE_PREFIX_PATH变量中。以后在执行这个工作空间的setup.bash脚本时，会使用编译时的状态<strong>覆盖ROS_PACKAGE_PATH的值</strong>。</p>
+<p>举例如下：<br>meldic使用python3编译的tf后就无法查看tf树(在rqt中)<br>解决方案：使用一个单独的工作空间去编译tf库，使用时候source —extend一下，在其他终端使用rqt就不受限制</p>
+<p>这个方案的本意非常好，但是在<strong>实践</strong>过程中会遇到一些问题，例如你在编译这个包之前环境变量存在环境A，A和当前编译的fast-lio2并不冲突，故在单独编译时不会有问题。编译依赖fast-lio2的功能包B【但与环境A冲突】，编译时并不会有问题，但是运行时就会因为存在环境A而报错，输出环境变量发现存在这个但是找不到在哪里添加的，实际上就是catkin_make的快照机制功能导致的。<strong>故编译有先后，胡乱编译需谨慎。</strong></p>
+<p>所以我们要掌握catkin_make的环境变量记忆功能，并利用它构建干净的环境变量，这里是常见的准则：</p>
+<ol>
+<li>在bashrc中出来ros本体不添加新的source库</li>
+<li>每次编译新开一个窗口进行编译，缺少的ros路径单独source —extend，确保最小环境变量编译实现</li>
+</ol>
+<p>在具体实践上，在其他工作空间被使用的包均不应该在.bashrc中被source，只有执行功能的包才可以，从而规避环境变量的冲突问题</p>
+<h3 id="ROS节点退出的自动处理"><a href="#ROS节点退出的自动处理" class="headerlink" title="ROS节点退出的自动处理"></a>ROS节点退出的自动处理</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">mySigintHandler</span><span class="params">(<span class="type">int</span> sig)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (robotController) &#123;</span><br><span class="line">        <span class="keyword">delete</span> robotController;</span><br><span class="line">        robotController = <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ros::<span class="built_in">shutdown</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 注意：一定要放置在ros句柄的定义之后，不然sigint处理会被覆盖</span></span><br><span class="line"><span class="built_in">signal</span>(SIGINT, mySigintHandler);</span><br></pre></td></tr></table></figure>
+<h1 id="资源链接-ROS"><a href="#资源链接-ROS" class="headerlink" title="资源链接-ROS"></a>资源链接-ROS</h1><p><a href="#20250511161310-u7prkma">[1]</a>  <a href="%20https://www.bilibili.com/video/BV1Ci4y1L7ZZ/?share_source=copy_web&amp;vd_source=c8643a01e258c28eb18c3e49c8d1b934">ROS机器人入门</a></p>
+<p><a href="#20250511161318-9bgywg9">[2]</a>  <a target="_blank" rel="noopener" href="http://www.autolabor.com.cn/book/ROSTutorials/">ROS机器人入门课程《ROS理论与实践》零基础教程</a></p>
+<p><a href="#20250507145201-wl1m74g">[3]</a>  <a target="_blank" rel="noopener" href="https://fishros.org.cn/forum/topic/20/%E5%B0%8F%E9%B1%BC%E7%9A%84%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%E7%B3%BB%E5%88%97">小鱼的一键安装系列 | 鱼香ROS</a></p>
+<p><a href="#20250508231350-f8rpkzd">[4]</a>  </p>
+<p><a href="#20250510213117-ethmjcr">[5]</a>  <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Ci4y1L7ZZ?t=115.6&amp;p=148">构建元功能包</a></p>
+<blockquote id="fn_1">
+<sup>1</sup>. # move_base<a href="#reffn_1" title="Jump back to footnote [1] in the text."> &#8617;</a>
+</blockquote>
+<pre><code>&gt; [带你理清：ROS机器人导航功能实现、解析、以及参数说明_ros中如何指定机器人去哪个位置-CSDN博客](https://blog.csdn.net/qq_42406643/article/details/118754093)
+&gt;
+&gt; [teb_local_planner参数配置经验](https://blog.csdn.net/qq_39266065/article/details/110820022?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522172225981916800178556238%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&amp;amp;request_id=172225981916800178556238&amp;amp;biz_id=0&amp;amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-1-110820022-null-null.142%5Ev100%5Epc_search_result_base8&amp;amp;utm_term=teblocalplanner%E8%B0%83%E5%8F%82&amp;amp;spm=1018.2226.3001.4187)
+&gt;
+&gt; [学习](https://blog.csdn.net/qq_23670601/article/details/98611636?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522172225981916800178556238%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&amp;amp;request_id=172225981916800178556238&amp;amp;biz_id=0&amp;amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-2-98611636-null-null.142%5Ev100%5Epc_search_result_base8&amp;amp;utm_term=teblocalplanner%E8%B0%83%E5%8F%82&amp;amp;spm=1018.2226.3001.4187)
+&gt;
+&gt; [修改](https://blog.csdn.net/luohuiwu/article/details/93053647)
+&gt;
+
+## global\_planner\_params.yaml
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">GlobalPlanner:</span>              <span class="comment"># Also see: http://wiki.ros.org/global_planner</span></span><br><span class="line">    <span class="attr">old_navfn_behavior:</span> <span class="literal">false</span>               </span><br><span class="line">                            <span class="comment"># 是否使用原来功能包navfn的规划路径方法，一般设置为false</span></span><br><span class="line">    <span class="attr">use_quadratic:</span> <span class="literal">true</span>     <span class="comment"># 是否使用二次近似函数</span></span><br><span class="line">    <span class="attr">use_dijkstra:</span> <span class="literal">false</span>     <span class="comment"># 是否使用Dijkstra算法</span></span><br><span class="line">    <span class="attr">use_grid_path:</span> <span class="literal">false</span>    <span class="comment"># 设置为true，则会规划一条沿着网格边界的路径</span></span><br><span class="line">    <span class="attr">allow_unknown:</span> <span class="literal">false</span>    <span class="comment"># 是否允许路径规划器在未知空间（灰色区域）创建路径规划</span></span><br><span class="line">                            <span class="comment"># Needs to have track_unknown_space: true in the obstacle / voxel layer (in costmap_commons_param) to work</span></span><br><span class="line">    <span class="attr">planner_window_x:</span> <span class="number">0.0</span>   <span class="comment"># 限定规划器 x轴的工作空间</span></span><br><span class="line">    <span class="attr">planner_window_y:</span> <span class="number">0.0</span>   <span class="comment"># 限定规划器 y轴的工作空间</span></span><br><span class="line">    <span class="attr">default_tolerance:</span> <span class="number">0.5</span>  <span class="comment"># 允许规划结果与目标点的误差范围</span></span><br><span class="line">    </span><br><span class="line">    <span class="attr">publish_scale:</span> <span class="number">100</span>      <span class="comment"># 设定发布可行性点的最大值</span></span><br><span class="line">    <span class="attr">planner_costmap_publish_frequency:</span> <span class="number">2.0</span>   <span class="comment"># default 0.0</span></span><br><span class="line">      </span><br><span class="line">    <span class="attr">lethal_cost:</span> <span class="number">253</span>                        <span class="comment"># default 253</span></span><br><span class="line">    <span class="attr">neutral_cost:</span> <span class="number">66</span>                        <span class="comment"># default 50</span></span><br><span class="line">    <span class="attr">cost_factor:</span> <span class="number">0.55</span>                       <span class="comment"># Factor to multiply each cost from costmap by, default 3.0</span></span><br><span class="line">    <span class="comment"># lethal_cost,neutral_cost,cost_factor 共同决定全局路径规划的性能</span></span><br><span class="line">    <span class="attr">publish_potential:</span> <span class="literal">true</span>                 <span class="comment"># Publish Potential Costmap (this is not like the navfn pointcloud2 potential), default true</span></span><br><span class="line">    <span class="attr">visualize_potential:</span> <span class="literal">false</span>              <span class="comment"># 是否启用全局规划器的可视化插件支持，默认为false</span></span><br><span class="line">    <span class="attr">minimum_travel_distance:</span> <span class="number">0.1</span>            <span class="comment"># 规划路径时考虑的最小旅行距离，避免过短的路径被规划出来，默认值为0.1米</span></span><br><span class="line">    <span class="attr">minimum_travel_time:</span> <span class="number">0.5</span>                <span class="comment"># 规划路径时考虑的最小旅行时间，避免过于快速地改变方向，默认值为0.5秒</span></span><br><span class="line">    <span class="attr">use_gaussian_filter:</span> <span class="literal">true</span>               <span class="comment"># 设置是否使用高斯过滤器平滑路径，默认为true</span></span><br><span class="line">    <span class="attr">gaussian_filter_sigma:</span> <span class="number">1.0</span>              <span class="comment"># 高斯过滤器的标准差，仅当use_gaussian_filter设置为true时有效，默认标准差值为1.0</span></span><br><span class="line">    <span class="attr">inflate_obstacles:</span> <span class="literal">true</span>                 <span class="comment"># 决定是否将障碍物膨胀以增加安全性，默认为true</span></span><br><span class="line">    <span class="attr">inflation_radius:</span> <span class="number">0.55</span>                  <span class="comment"># 膨胀半径，决定了障碍物周围安全区域的大小，单位是米，默认值为0.55米</span></span><br><span class="line">    <span class="attr">allow_alternative_path_finding:</span> <span class="literal">true</span>    <span class="comment"># 是否尝试绕过障碍物寻找替代路径，默认为true</span></span><br><span class="line">    <span class="attr">alternative_path_max_additional_length_ratio:</span> <span class="number">2.0</span>   <span class="comment"># 替代路径的最大额外长度比例，允许的额外长度越大，越有可能找到绕过障碍物的路径，默认值为2.0</span></span><br></pre></td></tr></table></figure>
+## base_local_planner_params.yaml
+
+### DWALocalPlannerROS
+
+[ROS导航仿真使用dwa做规划器的部分参数调试心得 - 知乎](https://zhuanlan.zhihu.com/p/470449688)
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">DWAPlannerROS:</span></span><br><span class="line">  <span class="attr">max_vel_x:</span> <span class="number">0.1</span>  <span class="comment"># 0.55</span></span><br><span class="line">  <span class="attr">min_vel_x:</span> <span class="number">0.0</span></span><br><span class="line">  <span class="attr">max_vel_y:</span> <span class="number">0.0</span></span><br><span class="line">  <span class="attr">min_vel_y:</span> <span class="number">0.0</span></span><br><span class="line">  <span class="attr">max_vel_trans:</span> <span class="number">0.6</span> <span class="comment"># 最大平移速度</span></span><br><span class="line">  <span class="attr">min_vel_trans:</span> <span class="number">0.05</span>  <span class="comment"># this is the min trans velocity when there is negligible rotational velocity</span></span><br><span class="line">  <span class="attr">trans_stopped_vel:</span> <span class="number">0.1</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Warning!</span></span><br><span class="line">  <span class="comment">#   do not set min_trans_vel to 0.0 otherwise dwa will always think translational velocities</span></span><br><span class="line">  <span class="comment">#   are non-negligible and small in place rotational velocities will be created.</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">max_vel_theta:</span> <span class="number">0.8</span>  <span class="comment"># choose slightly less than the base&#x27;s capability</span></span><br><span class="line">  <span class="attr">min_vel_theta:</span> <span class="number">0.45</span>  <span class="comment"># this is the min angular velocity when there is negligible translational velocity</span></span><br><span class="line">  <span class="attr">theta_stopped_vel:</span> <span class="number">0.1</span></span><br><span class="line">  <span class="attr">acc_lim_x:</span> <span class="number">18.0</span> <span class="comment"># maximum is theoretically 2.0, but we </span></span><br><span class="line">  <span class="attr">acc_lim_theta:</span> <span class="number">18.0</span></span><br><span class="line">  <span class="attr">acc_lim_y:</span> <span class="number">0.0</span>      <span class="comment"># diff drive robot</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Goal Tolerance Parameters</span></span><br><span class="line">  <span class="attr">yaw_goal_tolerance:</span> <span class="number">0.8</span>  <span class="comment"># 0.05</span></span><br><span class="line">  <span class="attr">xy_goal_tolerance:</span> <span class="number">0.3</span>  <span class="comment"># 0.10</span></span><br><span class="line">  <span class="attr">latch_xy_goal_tolerance:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Forward Simulation Parameters</span></span><br><span class="line">  <span class="attr">sim_time:</span> <span class="number">2.1</span>       <span class="comment"># 1.7</span></span><br><span class="line">  <span class="attr">vx_samples:</span> <span class="number">8</span>       <span class="comment"># 3</span></span><br><span class="line">  <span class="attr">vy_samples:</span> <span class="number">1</span>       <span class="comment"># diff drive robot, there is only one sample</span></span><br><span class="line">  <span class="attr">vtheta_samples:</span> <span class="number">20</span>  <span class="comment"># 20</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Trajectory Scoring Parameters</span></span><br><span class="line">  <span class="attr">path_distance_bias:</span> <span class="number">35.0</span>      <span class="comment"># 32.0   - weighting for how much it should stick to the global path plan</span></span><br><span class="line">  <span class="attr">goal_distance_bias:</span> <span class="number">26.0</span>      <span class="comment"># 24.0   - wighting for how much it should attempt to reach its goal</span></span><br><span class="line">  <span class="attr">occdist_scale:</span> <span class="number">0.6</span>            <span class="comment"># 0.01   - weighting for how much the controller should avoid obstacles</span></span><br><span class="line">  <span class="attr">forward_point_distance:</span> <span class="number">0.2</span> <span class="comment"># 0.325  - how far along to place an additional scoring point</span></span><br><span class="line">  <span class="attr">stop_time_buffer:</span> <span class="number">0.2</span>         <span class="comment"># 0.2    - amount of time a robot must stop in before colliding for a valid traj.</span></span><br><span class="line">  <span class="attr">scaling_speed:</span> <span class="number">0.25</span>           <span class="comment"># 0.25   - absolute velocity at which to start scaling the robot&#x27;s footprint</span></span><br><span class="line">  <span class="attr">max_scaling_factor:</span> <span class="number">0.2</span>       <span class="comment"># 0.2    - how much to scale the robot&#x27;s footprint when at speed.</span></span><br><span class="line"><span class="comment"># Oscillation Prevention Parameters</span></span><br><span class="line">  <span class="attr">oscillation_reset_dist:</span> <span class="number">0.05</span>  <span class="comment"># 0.05   - how far to travel before resetting oscillation flags</span></span><br><span class="line"><span class="comment"># Differential-drive robot configuration - necessary?</span></span><br><span class="line"><span class="comment">#  holonomic_robot: false</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+sim_time：我们可以将模拟时间sim_time视为允许机器人以采样速度移动的时间。仿真时间越长，计算负荷越大，同时规划器产生的路径也会变长。注意： 如果将仿真时间设置为非常低的值(≤2.0) 将导致性能有限,特别是当机器人需要通过狭窄的门口或家具之间的间隙时，因为没有足够的时间来获得最佳轨迹来通过狭窄的通道。另一方面，由于使用DWA本地规划器，所有的轨迹都是简单的圆弧，如果将仿真时间设置的非常高(&gt;=5.0) ，会导致长曲线不是非常灵活。因为规划器在每个时间间隔后都会积极地重新规划，可以进行小的调整。对于高性能的计算机，4.0秒的值也是足够的。
+
+## costmap_common_params.yaml
+
+该文件存储代价地图需要监听的传感器话题，代价地图公有参数等，全局代价地图和局部代价地图公有的参数放置进来，**机器人形状**和代价地图各layer图层
+
+### 机器人形状
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#robot_radius: 0.25</span></span><br><span class="line"><span class="attr">footprint:</span> [[<span class="number">0.23</span>,<span class="number">0.19</span>],[<span class="number">0.25</span>,<span class="number">0</span>],[<span class="number">0.23</span>,<span class="number">-0.19</span>],[<span class="number">-0.23</span>, <span class="number">-0.19</span>],[<span class="number">-0.23</span>,<span class="number">0.19</span>]]</span><br></pre></td></tr></table></figure>
+### 代价地图各layer图层
+
+#### **obstacle_layer障碍地图层**
+
+**障碍物层obstacle_layer**跟踪二维的，**体素层voxel_layer**跟踪三维的。
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">obstacle_layer:</span> <span class="string">配置障碍物图层</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="string">是否启用该层</span></span><br><span class="line">    <span class="attr">combination_method:</span> <span class="string">当设置为1时，新的障碍物信息会覆盖现有地图上的代价值</span></span><br><span class="line">    <span class="attr">track_unknown_space:</span> <span class="string">参数设置为true时,区分未知区域（unknown）</span></span><br><span class="line">    <span class="attr">max_obstacle_height:</span> <span class="string">插入到代价图中的障碍物的最大高度,建议设置略高于机器人的高度。</span></span><br><span class="line">    <span class="attr">origin_z:</span> <span class="string">地图Z轴原点位置，以米为单位</span></span><br><span class="line">    <span class="attr">z_resolution:</span> <span class="string">Z轴分辨率，影响垂直方向上的精度</span></span><br><span class="line">    <span class="attr">z_voxels:</span> <span class="string">每个垂直列中的体素数，决定网格的高度</span></span><br><span class="line">    <span class="attr">unknown_cost_value:</span> <span class="string">未知成本值，用于标记未探索空间的成本</span></span><br><span class="line">    <span class="attr">unknown_threshold:</span> <span class="string">被认为是“已知”的列中允许的未知单元的数量</span></span><br><span class="line">    <span class="attr">mark_threshold:</span> <span class="string">在被认为是“自由”的列中允许的最大标记单元数量。</span></span><br><span class="line">    <span class="attr">publish_voxel_map(bool):</span> <span class="string">是否发布体素地图</span></span><br><span class="line">    <span class="attr">obstacle_range(double):</span></span><br><span class="line">    <span class="attr">raytrace_range (double):</span> <span class="string">机器人检测自由空间的最大范围</span></span><br><span class="line">    <span class="attr">observation_sources:</span> <span class="string">向代价地图提供空间信息的传感器列表，例如激光雷达(scan)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">sensor_frame:</span> <span class="string">传感器坐标帧的名称</span></span><br><span class="line">        <span class="attr">observation_persistence:</span> <span class="string">设置传感器读数保存多长时间</span>,<span class="number">0.0</span><span class="string">，则为保存最新读数信息</span></span><br><span class="line">        <span class="attr">expected_update_rate:</span> <span class="string">读取传感器数据的频率，单位为</span> <span class="string">seconds</span>, <span class="string">若设为0.0，则为不断续地读取传感器数据。如果每0.05秒进行一次激光扫描，可以将此参数设置为0.1秒，以提供大量的缓冲区并占用一定的系统延迟</span></span><br><span class="line">        <span class="attr">max_obstacle_height:</span> <span class="string">传感器读数的最大有效高度，通常设置为略高于机器人的高度</span></span><br><span class="line">        <span class="attr">min_obstacle_height:</span> <span class="string">传感器读数的最小高度（m），通常设置为地面高度</span></span><br><span class="line">        <span class="attr">data_type:</span> <span class="string">数据类型</span></span><br><span class="line">        <span class="attr">topic:</span> <span class="string">话题名称</span></span><br><span class="line">        <span class="attr">marking:</span> <span class="string">决定传感器读数是否用于标记障碍物</span></span><br><span class="line">        <span class="attr">clearing:</span> <span class="string">决定传感器读数是否用于清除已有标记</span></span><br><span class="line">        <span class="attr">obstacle_range:</span> <span class="string">机器人检测障碍物的最大范围</span></span><br><span class="line">        <span class="attr">raytrace_range:</span> <span class="string">自由空间的最大范围</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+obstacle_range,raytrace_range取适当的值可以减少运算量
+
+#### inflation_layer膨胀层
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">inflation_layer:</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="string">是否启用该层</span></span><br><span class="line">    <span class="attr">cost_scaling_factor:</span> <span class="string">膨胀过程中应用到代价值的比例因子</span></span><br><span class="line">    <span class="attr">inflation_radius:</span> <span class="string">膨胀半径，膨胀层会把障碍物代价膨胀直到该半径为止，一般将该值设置为机器人底盘的直径大小</span></span><br></pre></td></tr></table></figure>
+inflation_radius **控制零成本点距离障碍物有多远**，膨胀层会把障碍物的代价膨胀直到该半径为止。
+
+cost_scaling_factor 越大，**膨胀点越宽，代价地图的边界越平滑**，使得机器人越来越靠中间，远离墙边或障障碍物。
+
+#### static_layer静态层
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">static_layer:</span></span><br><span class="line">    <span class="attr">enabled:</span> <span class="string">是否启用该层</span></span><br><span class="line">    <span class="attr">costmap_resolution:</span> <span class="string">地图分辨率,可分别为局部代价图和代价成本图设置</span></span><br><span class="line">    <span class="attr">inflation_radius:</span> <span class="string">膨胀半径，膨胀层会把障碍物代价膨胀直到该半径为止，一般将该值设置为机器人底盘的直径大小</span></span><br></pre></td></tr></table></figure>
+costmap_resolution：该参数直接影响计算量和路径规划效果。&lt;span data-type=&quot;text&quot; style=&quot;color: var(--b3-font-color12);&quot;&gt;当分辨率较低(&amp;gt;=0.05m)时，在狭窄的通道内，障碍物区域可能会&lt;/span&gt;**重叠**&lt;span data-type=&quot;text&quot; style=&quot;color: var(--b3-font-color12);&quot;&gt;，&lt;/span&gt;导致局部规划无法找到一条合理通过的路径。如果你有足够的计算能力，可以考虑增大这个参数获取更好精度的地图。**参数上限**需要看激光雷达设备的分辨率，否则会出现很多小的“未知点”，因为分辨率过大，超过设备的能力范围。
+
+## global\_costmap\_params.yaml
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">global_costmap:</span></span><br><span class="line">    <span class="attr">global_frame:</span> <span class="string">map</span> <span class="comment"># 全局代价地图坐标系</span></span><br><span class="line">    <span class="attr">robot_base_frame:</span> <span class="string">base_link</span> <span class="comment"># 机器人本体的基坐标系</span></span><br><span class="line">    <span class="attr">update_frequency:</span> <span class="number">1.0</span> <span class="comment"># 全局代价地图更新频率，一般较小</span></span><br><span class="line">                          <span class="comment"># 每个周期内，根据传感器信息mark/clear地图中的网格。</span></span><br><span class="line">    <span class="attr">publish_frequency:</span> <span class="number">1.0</span> <span class="comment"># 全局代价地图的发布频率，用于rviz可视化</span></span><br><span class="line">    <span class="attr">static_map:</span> <span class="literal">true</span> <span class="comment"># 是否使用map_server提供的地图来初始化</span></span><br><span class="line">  </span><br><span class="line">    <span class="attr">rolling_window:</span> <span class="literal">false</span> <span class="comment"># 是否在机器人移动过程中需要滚动窗口，局部地图需要设置</span></span><br><span class="line">    <span class="attr">resolution:</span> <span class="number">0.05</span> <span class="comment"># 栅格地图的分辨率，可以从加载的地图相对应的配置文件中获取到</span></span><br><span class="line">  </span><br><span class="line">    <span class="attr">transform_tolerance:</span> <span class="number">1.0</span> <span class="comment"># 坐标系间的转换可以忍受的最大延时</span></span><br><span class="line">    <span class="comment"># inflation_radius: 0.1 # 全局代价地图的膨胀半径</span></span><br><span class="line">    <span class="attr">plugins:</span></span><br><span class="line">       <span class="bullet">-</span> &#123;<span class="attr">name:</span> <span class="string">static_layer</span>,            <span class="attr">type:</span> <span class="string">&quot;costmap_2d::StaticLayer&quot;</span>&#125;</span><br><span class="line">       <span class="bullet">-</span> &#123;<span class="attr">name:</span> <span class="string">obstacle_layer</span>,          <span class="attr">type:</span> <span class="string">&quot;costmap_2d::ObstacleLayer&quot;</span>&#125;</span><br><span class="line">       <span class="bullet">-</span> &#123;<span class="attr">name:</span> <span class="string">inflation_layer</span>,         <span class="attr">type:</span> <span class="string">&quot;costmap_2d::InflationLayer&quot;</span>&#125;</span><br><span class="line">    <span class="comment"># plugins：在global_costmap中使用下面三个插件来融合三个不同图层，分别是</span></span><br><span class="line">    <span class="comment"># static_layer、obstacle_layer和inflation_layer，</span></span><br><span class="line">    <span class="comment"># 合成一个master_layer来进行全局路径规划。</span></span><br></pre></td></tr></table></figure>
+## local_costmap_params.yaml
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">local_costmap:</span></span><br><span class="line">  <span class="attr">global_frame:</span> <span class="string">odom</span> <span class="comment"># 在局部代价地图中的全局坐标系</span></span><br><span class="line">  <span class="attr">robot_base_frame:</span> <span class="string">base_link</span> <span class="comment"># 机器人本体的基坐标系</span></span><br><span class="line">  <span class="attr">update_frequency:</span> <span class="number">3.0</span> <span class="comment"># 局部代价地图的更新频率，</span></span><br><span class="line">                        <span class="comment"># 每个周期内，根据传感器信息mark/clear地图中的网格</span></span><br><span class="line">  <span class="attr">publish_frequency:</span> <span class="number">3.0</span> <span class="comment"># 局部代价地图的发布频率，只用于Rviz可视化</span></span><br><span class="line">  <span class="comment">#static_map: false # 局部代价地图一般不设置为静态地图</span></span><br><span class="line">  <span class="attr">rolling_window:</span> <span class="literal">true</span> <span class="comment"># 使用滚动窗口，始终保持机器人在当前局部地图的中心位置</span></span><br><span class="line">  <span class="attr">width:</span> <span class="number">2.5</span> <span class="comment"># 代价地图（滚动窗口）的宽度m</span></span><br><span class="line">  <span class="attr">height:</span> <span class="number">2.5</span> <span class="comment"># 代价地图（滚动窗口）的高度m</span></span><br><span class="line">  <span class="attr">resolution:</span> <span class="number">0.05</span> <span class="comment"># 代价地图（滚动窗口）的分辨率</span></span><br><span class="line">  <span class="attr">plugins:</span> </span><br><span class="line">  <span class="bullet">-</span> &#123;<span class="attr">name:</span> <span class="string">obstacle_layer</span>, <span class="attr">type:</span> <span class="string">&quot;costmap_2d::ObstacleLayer&quot;</span>&#125; </span><br><span class="line">  <span class="bullet">-</span> &#123;<span class="attr">name:</span> <span class="string">inflation_layer</span>, <span class="attr">type:</span> <span class="string">&quot;costmap_2d::InflationLayer&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+plugins：在局部代价地图中，不需要静态地图层，因为我们使用滚动窗口来不断的扫描障碍物，所以就需要融合两层地图（inflation\_layer和obstacle\_layer）即可，融合后的地图用于进行局部路径规划
+
+## 运动恢复
+
+### 清除代价地图恢复
+
+清除代价地图恢复是将本地代价地图还原成全局代价地图的状态。
+
+### 旋转恢复
+
+旋转恢复是通过旋转 360°来恢复。
+
+设置非常接近机器人的临时目标，并返回到以前访问过得姿态（即退出）
+
+设置一个相对较高的模拟时间 sim_time
+</code></pre><blockquote id="fn_2">
+<sup>2</sup>. # 在rviz中可视化三维检测框<a href="#reffn_2" title="Jump back to footnote [2] in the text."> &#8617;</a>
+</blockquote>
+<pre><code>[(18 封私信 / 28 条消息) 3D目标检测（8）：在Rviz中显示3d框（3d bounding box) - 知乎](https://zhuanlan.zhihu.com/p/432881120)
+
+所用的工具为ROS的marker消息类型。Marker显示允许各种基本形状的可编程添加到3D显示，通过发送visualization_msgs/Marker 来实现可视化。
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">ros::Publisher marker_pub = nh.<span class="built_in">advertise</span>&lt;visualization_msgs::Marker&gt;(<span class="string">&quot;/visualization_marker&quot;</span>, <span class="number">10</span>);</span><br><span class="line"><span class="comment">//publish target box with marker</span></span><br><span class="line">        visualization_msgs::Marker line_strip;</span><br><span class="line">line_strip.header.frame_id = <span class="string">&quot;camera_init&quot;</span>;</span><br><span class="line">line_strip.header.stamp = ros::Time::<span class="built_in">now</span>();</span><br><span class="line">line_strip.ns = <span class="string">&quot;target_box&quot;</span>;<span class="comment">//namespace</span></span><br><span class="line">line_strip.action = visualization_msgs::Marker::ADD;</span><br><span class="line">line_strip.pose.orientation.w = <span class="number">1.0</span>;</span><br><span class="line">line_strip.id = <span class="number">0</span>; <span class="comment">//unique id, useful when multiple markers exist.</span></span><br><span class="line">line_strip.type = visualization_msgs::Marker::LINE_STRIP; <span class="comment">//marker type</span></span><br><span class="line">line_strip.scale.x = <span class="number">0.1</span>; <span class="comment">//width of the line</span></span><br><span class="line">line_strip.color.r = <span class="number">1.0</span>; line_strip.color.g = <span class="number">1.0</span>; line_strip.color.b = <span class="number">1.0</span>;<span class="comment">//color of the line: white.</span></span><br><span class="line">line_strip.color.a = <span class="number">1.0</span>; <span class="comment">//不透明度，设0则全透明</span></span><br><span class="line">geometry_msgs:: Point p[<span class="number">8</span>];</span><br><span class="line"><span class="comment">//inten_position是目标物的坐标</span></span><br><span class="line">p[<span class="number">0</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>);     p[<span class="number">0</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">+0.2</span>; p[<span class="number">0</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">+0.5</span>;</span><br><span class="line">p[<span class="number">1</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>);     p[<span class="number">1</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">-0.2</span>; p[<span class="number">1</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">+0.5</span>;</span><br><span class="line">p[<span class="number">2</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>);     p[<span class="number">2</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">-0.2</span>; p[<span class="number">2</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">-1</span>;</span><br><span class="line">p[<span class="number">3</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>);     p[<span class="number">3</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">+0.2</span>; p[<span class="number">3</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">-1</span>;</span><br><span class="line">p[<span class="number">4</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>)<span class="number">+0.4</span>; p[<span class="number">4</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">+0.2</span>; p[<span class="number">4</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">-1</span>;</span><br><span class="line">p[<span class="number">5</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>)<span class="number">+0.4</span>; p[<span class="number">5</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">-0.2</span>; p[<span class="number">5</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">-1</span>;</span><br><span class="line">p[<span class="number">6</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>)<span class="number">+0.4</span>; p[<span class="number">6</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">-0.2</span>; p[<span class="number">6</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">+0.5</span>;</span><br><span class="line">p[<span class="number">7</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>)<span class="number">+0.4</span>; p[<span class="number">7</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">+0.2</span>; p[<span class="number">7</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">+0.5</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义立方体的12条边的索引对</span></span><br><span class="line"><span class="comment">// 每一对数字代表一条边的两个顶点在p数组中的索引</span></span><br><span class="line"><span class="type">int</span> edges[<span class="number">12</span>][<span class="number">2</span>] = &#123;</span><br><span class="line">    &#123;<span class="number">0</span>, <span class="number">1</span>&#125;, &#123;<span class="number">1</span>, <span class="number">2</span>&#125;, &#123;<span class="number">2</span>, <span class="number">3</span>&#125;, &#123;<span class="number">3</span>, <span class="number">0</span>&#125;, <span class="comment">// Front face</span></span><br><span class="line">    &#123;<span class="number">4</span>, <span class="number">5</span>&#125;, &#123;<span class="number">5</span>, <span class="number">6</span>&#125;, &#123;<span class="number">6</span>, <span class="number">7</span>&#125;, &#123;<span class="number">7</span>, <span class="number">4</span>&#125;, <span class="comment">// Back face</span></span><br><span class="line">    &#123;<span class="number">0</span>, <span class="number">7</span>&#125;, &#123;<span class="number">1</span>, <span class="number">6</span>&#125;, &#123;<span class="number">2</span>, <span class="number">5</span>&#125;, &#123;<span class="number">3</span>, <span class="number">4</span>&#125;  <span class="comment">// Connecting edges</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 循环添加所有边的点到 line_list</span></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">12</span>; ++i) &#123;</span><br><span class="line">    line_list.points.<span class="built_in">push_back</span>(p[edges[i][<span class="number">0</span>]]);</span><br><span class="line">    line_list.points.<span class="built_in">push_back</span>(p[edges[i][<span class="number">1</span>]]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">marker_pub.<span class="built_in">publish</span>(line_list);</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">ros::Publisher marker_pub = nh.advertisevisualization_msgs::<span class="built_in">Marker</span>(<span class="string">&quot;/visualization_marker&quot;</span>, <span class="number">10</span>);</span><br><span class="line"><span class="comment">//publish target box with marker</span></span><br><span class="line">visualization_msgs::Marker line_strip;</span><br><span class="line">line_strip.header.frame_id = <span class="string">&quot;camera_init&quot;</span>;</span><br><span class="line">line_strip.header.stamp = ros::Time::<span class="built_in">now</span>();</span><br><span class="line">line_strip.ns = <span class="string">&quot;target_box&quot;</span>;<span class="comment">//namespace</span></span><br><span class="line">line_strip.action = visualization_msgs::Marker::ADD;</span><br><span class="line">line_strip.pose.orientation.w = <span class="number">1.0</span>;</span><br><span class="line">line_strip.id = <span class="number">0</span>; <span class="comment">//unique id, useful when multiple markers exist.</span></span><br><span class="line">line_strip.type = visualization_msgs::Marker::LINE_STRIP; <span class="comment">//marker type</span></span><br><span class="line">line_strip.scale.x = <span class="number">0.1</span>; <span class="comment">//width of the line</span></span><br><span class="line">line_strip.color.r = <span class="number">1.0</span>; line_strip.color.g = <span class="number">1.0</span>; line_strip.color.b = <span class="number">1.0</span>;<span class="comment">//color of the line: white.</span></span><br><span class="line">line_strip.color.a = <span class="number">1.0</span>; <span class="comment">//不透明度，设0则全透明</span></span><br><span class="line">geometry_msgs:: Point p[<span class="number">8</span>];</span><br><span class="line"><span class="comment">//inten_position是目标物的坐标</span></span><br><span class="line">p[<span class="number">0</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>); p[<span class="number">0</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">+0.2</span>; p[<span class="number">0</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">+0.5</span>;</span><br><span class="line">p[<span class="number">1</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>); p[<span class="number">1</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">-0.2</span>; p[<span class="number">1</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">+0.5</span>;</span><br><span class="line">p[<span class="number">2</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>); p[<span class="number">2</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">-0.2</span>; p[<span class="number">2</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">-1</span>;</span><br><span class="line">p[<span class="number">3</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>); p[<span class="number">3</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">+0.2</span>; p[<span class="number">3</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">-1</span>;</span><br><span class="line">p[<span class="number">4</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>)<span class="number">+0.4</span>; p[<span class="number">4</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">+0.2</span>; p[<span class="number">4</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">-1</span>;</span><br><span class="line">p[<span class="number">5</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>)<span class="number">+0.4</span>; p[<span class="number">5</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">-0.2</span>; p[<span class="number">5</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">-1</span>;</span><br><span class="line">p[<span class="number">6</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>)<span class="number">+0.4</span>; p[<span class="number">6</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">-0.2</span>; p[<span class="number">6</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">+0.5</span>;</span><br><span class="line">p[<span class="number">7</span>].x = <span class="built_in">inten_position</span>(<span class="number">0</span>)<span class="number">+0.4</span>; p[<span class="number">7</span>].y = <span class="built_in">inten_position</span>(<span class="number">1</span>)<span class="number">+0.2</span>; p[<span class="number">7</span>].z = <span class="built_in">inten_position</span>(<span class="number">2</span>)<span class="number">+0.5</span>;</span><br><span class="line"><span class="comment">//LINE_STRIP类型仅仅将line_strip.points中相邻的两个点相连，如0和1，1和2，2和3</span></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">8</span>; i++)&#123;</span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[i]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//为了保证矩形框的八条边都存在：</span></span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[<span class="number">0</span>]);</span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[<span class="number">3</span>]);</span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[<span class="number">2</span>]);</span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[<span class="number">5</span>]);</span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[<span class="number">6</span>]);</span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[<span class="number">1</span>]);</span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[<span class="number">0</span>]);</span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[<span class="number">7</span>]);</span><br><span class="line">line_strip.points.<span class="built_in">push_back</span>(p[<span class="number">4</span>]);</span><br><span class="line">marker_pub.<span class="built_in">publish</span>(line_strip);</span><br></pre></td></tr></table></figure>
+![image](https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/image-20250617104315-m41jvs3.png &quot;顶点定义图&quot;)
+
+‍
+</code></pre></article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/ros/">ros</a><a class="post-meta__tags" href="/tags/linux/">linux</a></div><div class="post-share"><div class="addtoany"><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_button_wechat"></a><a class="a2a_button_email"></a><a class="a2a_button_copy_link"></a><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a></div></div><script async="async" src="https://static.addtoany.com/menu/page.js"></script></div></div><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"/><div class="post-reward"><button class="tip-button reward-button"><span class="tip-button__text">赞助</span><div class="coin-wrapper"><div class="coin"><div class="coin__middle"></div><div class="coin__back"></div><div class="coin__front"></div></div></div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" target="_blank"><img class="post-qr-code-img" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li></ul></div></button></div><audio id="coinAudio" src="https://npm.elemecdn.com/akilar-candyassets@1.0.36/audio/aowu.m4a"></audio><script defer="defer" src="/js/coin.js"></script><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/can-bus-protocol-1hdfpv.html" title="CAN总线协议"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">CAN总线协议</div></div><div class="info-2"><div class="info-item-1">CAN总线协议CAN总线基本概念与发展历程CAN总线全称为控制器局域网络（Controller Area Network），最初由德国博世公司于1986年为汽车电子系统设计。与传统点对点通信方式相比，CAN总线采用广播式通信，允许多个设备共享同一通信线路，显著减少了线束复杂度。 CAN总线物理层与电气特性CAN总线物理层是协议实现的基础，决定了信号如何在物理介质上传输。CAN总线采用双绞线传输差分信号，通过CAN_H和CAN_L两根线上的电压差表示逻辑状态，这种设计显著增强了抗电磁干扰能力。 信号电平定义CAN总线定义了两种逻辑状态：显性（Dominant）和隐性（Recessive）。显性电平对应逻辑0，隐性电平对应逻辑1。具体电压范围如下：     总线类型 显性电平（CAN_H/CAN_L） 隐性电平（CAN_H/CAN_L）     高速CAN（ISO 11898-2） 3.5V（CAN_H）/1.5V（CAN_L） 2.5V（CAN_H）/2.5V（CAN_L）   低速CAN（ISO...</div></div></div></a><a class="pagination-related" href="/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html" title="进程通信：系统协作的核心机制"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">进程通信：系统协作的核心机制</div></div><div class="info-2"><div class="info-item-1">进程通信：系统协作的核心机制进程通信本质上是通过操作系统内核作为中介，实现不同进程间的数据交换与协同操作。 进程通信的基本原理操作系统通过虚拟内存机制为每个进程提供独立的地址空间，这种隔离设计确保了进程的独立性和安全性。然而，这种隔离也带来了信息共享的障碍。进程通信的核心在于利用操作系统提供的机制，让不同进程能够访问同一共享资源或交换信息。 进程通信的分类与特点进程通信根据信息传递量的大小和效率高低，通常分为低级通信和高级通信两大类。 低级通信主要传递控制信息，如状态和整数值。这类通信方式简单直接，但信息量小，效率相对较低。典型的低级通信方式包括信号(Signals) 和信号量 (Semaphores)...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/post/ros2-z19uq9s.html" title="ROS2"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-19</div><div class="info-item-2">ROS2</div></div><div class="info-2"><div class="info-item-1">ROS2 动手学ROS2  ROS1与ROS2核心差异全面解析ROS2采用去中心化的DDS通信架构，取代了ROS1中心化的Master机制 本文将从架构设计、通信机制、实时性能、跨平台兼容性、安全性和开发工具链等多个维度，深入分析ROS1与ROS2的关键差异，帮助开发者根据项目需求做出更合理的选择。 架构设计与通信机制差异当ROS1 Master崩溃时，整个系统将无法正常工作，导致单点故障。虽然存在类似自动重启master节点，心跳检测等方案，但是在需要高可靠性的工业场景中存在明显缺陷。ROS2采用去中心化的分布式架构，基于工业级标准DDS（Data Distribution Service）实现节点间直接通信。ROS2系统中不存在单一中心节点，各节点能够独立运行并直接与其他节点通信，即使部分节点失效，系统其余部分仍能正常工作。 通信机制：ROS1使用自定义的TCPROS/UDPROS协议，节点间通信需要通过ROS...</div></div></div></a><a class="pagination-related" href="/post/dynamic-subscription-and-unsubscribe-topics-ros-ros-z1spdsu.html" title="ROS动态订阅与取消话题的方法"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-02</div><div class="info-item-2">ROS动态订阅与取消话题的方法</div></div><div class="info-2"><div class="info-item-1">本文介绍了在ROS中实现动态订阅和取消订阅话题的两种实用方法
+</div></div></div></a><a class="pagination-related" href="/post/linux-device-driver-model-zkepct.html" title="Linux设备驱动模型"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-16</div><div class="info-item-2">Linux设备驱动模型</div></div><div class="info-2"><div class="info-item-1">Linux设备驱动模型Linux设备驱动模型是内核中管理和组织硬件设备的核心框架，它通过抽象化硬件，为驱动程序提供统一接口，简化了设备识别、驱动匹配和系统管理的复杂性。该模型基于总线、设备、驱动和类四大核心组件构建，通过sysfs文件系统向用户空间公开设备信息。理解设备驱动模型对嵌入式Linux和驱动开发至关重要，它使得内核能够高效地识别硬件、加载匹配的驱动程序，并提供统一的设备访问接口。 两个视角：四大核心组件+文件系统视角 设备驱动模型的基本架构Linux设备驱动模型的核心是总线、设备、驱动和类四个组件。总线是连接设备和驱动的桥梁，负责管理和协调设备与驱动的匹配过程。设备代表物理硬件单元，驱动是控制设备的软件模块，而类则对功能相似的设备进行逻辑归类，提供统一接口。 设备驱动模型初步解析​  CSDN:深入理解 Linux 设备模型与 sysfs 文件系统全景图解-CSDN博客 知乎：Linux驱动——设备模型 - 知乎  总线（Bus）数据结构：struct bus_type 12345struct bus_type hello_bus_type =...</div></div></div></a><a class="pagination-related" href="/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html" title="进程通信：系统协作的核心机制"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-18</div><div class="info-item-2">进程通信：系统协作的核心机制</div></div><div class="info-2"><div class="info-item-1">进程通信：系统协作的核心机制进程通信本质上是通过操作系统内核作为中介，实现不同进程间的数据交换与协同操作。 进程通信的基本原理操作系统通过虚拟内存机制为每个进程提供独立的地址空间，这种隔离设计确保了进程的独立性和安全性。然而，这种隔离也带来了信息共享的障碍。进程通信的核心在于利用操作系统提供的机制，让不同进程能够访问同一共享资源或交换信息。 进程通信的分类与特点进程通信根据信息传递量的大小和效率高低，通常分为低级通信和高级通信两大类。 低级通信主要传递控制信息，如状态和整数值。这类通信方式简单直接，但信息量小，效率相对较低。典型的低级通信方式包括信号(Signals) 和信号量 (Semaphores)...</div></div></div></a><a class="pagination-related" href="/post/script-writing-experience-2qew5s.html" title="Bash脚本编写经验"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-07-28</div><div class="info-item-2">Bash脚本编写经验</div></div><div class="info-2"><div class="info-item-1">脚本书写经验 参考链接：GPT-SoVITS/install.sh at main · RVC-Boss/GPT-SoVITS Wiki：github.com/dylanaraps/pure-bash-bible 中文版  1234567891011121314151617181920212223242526#!/bin/bash# ==============================================#  脚本模板                              配置部分# ==============================================SCRIPT_DIR=&quot;$(cd &quot;$(dirname &quot;$&#123;BASH_SOURCE[0]&#125;&quot;)&quot; &amp;&gt;/dev/null &amp;&amp; pwd)&quot;# ==============================================# 颜色定义部分#...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">lovedream-ms</div><div class="author-info-description">别急着赶路，去感受路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lovedream-ms"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lovedream-ms" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/2179417385@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我们读书是为了成为提灯人去照亮黑暗，而不是为了自己有灯而沾沾自喜还要去吹灭别人的蜡烛</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ROS"><span class="toc-text">ROS</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ROS%E4%BB%8B%E7%BB%8D"><span class="toc-text">ROS介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ROS%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-text">ROS的文件系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ROS%E5%B8%B8%E7%94%A8%E7%BB%88%E7%AB%AF%E5%91%BD%E4%BB%A4"><span class="toc-text">ROS常用终端命令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rostopic"><span class="toc-text">rostopic</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosnode"><span class="toc-text">rosnode</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#roscd-rosmv-roscp-rosls"><span class="toc-text">roscd rosmv roscp rosls</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosed-roscat"><span class="toc-text">rosed roscat</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosbag"><span class="toc-text">rosbag</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosparam"><span class="toc-text">rosparam</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosservice"><span class="toc-text">rosservice</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosmsg"><span class="toc-text">rosmsg</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rossrv"><span class="toc-text">rossrv</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rospack"><span class="toc-text">rospack</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosclean"><span class="toc-text">rosclean</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosgraph"><span class="toc-text">rosgraph</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosdep"><span class="toc-text">rosdep</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosversion"><span class="toc-text">rosversion</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosstack"><span class="toc-text">rosstack</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rostest"><span class="toc-text">rostest</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rosunit"><span class="toc-text">rosunit</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#roswtf"><span class="toc-text">roswtf</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ROS%E5%B8%B8%E7%94%A8%E5%8F%AF%E8%A7%86%E5%8C%96%E5%B7%A5%E5%85%B7"><span class="toc-text">ROS常用可视化工具</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rqt-console"><span class="toc-text">rqt_console</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rqt-plot"><span class="toc-text">rqt_plot</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rqt-image-view"><span class="toc-text">rqt_image_view</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rqt-graph"><span class="toc-text">rqt_graph</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ROS%E9%80%9A%E4%BF%A1%E6%9C%BA%E5%88%B6"><span class="toc-text">ROS通信机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%9D%E9%A2%98%E9%80%9A%E4%BF%A1"><span class="toc-text">话题通信</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E9%80%9A%E4%BF%A1"><span class="toc-text">服务通信</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-text">参数服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#action"><span class="toc-text">action</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ROS%E5%B8%B8%E8%A7%81%E7%9A%84%E4%BB%A3%E7%A0%81%E5%87%BD%E6%95%B0"><span class="toc-text">ROS常见的代码函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ROS%E5%86%85%E7%BD%AE%E6%97%B6%E9%97%B4%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="toc-text">ROS内置时间相关函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TF%E5%9D%90%E6%A0%87%E5%8F%98%E6%8D%A2%E4%BD%BF%E7%94%A8"><span class="toc-text">TF坐标变换使用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#launch%E6%96%87%E4%BB%B6%E6%A0%87%E7%AD%BE%E4%BB%8B%E7%BB%8D"><span class="toc-text">launch文件标签介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-1"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-2"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-3"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-4"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-5"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-6"><span class="toc-text"></span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CMakeLists"><span class="toc-text">CMakeLists</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#find-package"><span class="toc-text">find_package</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%B9%E9%87%8F%E7%BC%96%E8%AF%91py%E6%96%87%E4%BB%B6"><span class="toc-text">批量编译py文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URDF"><span class="toc-text">URDF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TF%E6%A0%91"><span class="toc-text">TF树</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ROS%E7%A7%AF%E7%B4%AF"><span class="toc-text">ROS积累</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E5%85%83%E5%8A%9F%E8%83%BD%E5%8C%85%E2%80%8B-5"><span class="toc-text">构建元功能包​[5]</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#catkin-make%E7%BC%96%E8%AF%91%E7%9A%84%E6%9E%84%E5%BB%BA%E6%8A%80%E5%B7%A7"><span class="toc-text">catkin_make编译的构建技巧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#catkin-make%E7%9A%84%E5%BF%AB%E7%85%A7%E6%9C%BA%E5%88%B6"><span class="toc-text">catkin_make的快照机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ROS%E8%8A%82%E7%82%B9%E9%80%80%E5%87%BA%E7%9A%84%E8%87%AA%E5%8A%A8%E5%A4%84%E7%90%86"><span class="toc-text">ROS节点退出的自动处理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B5%84%E6%BA%90%E9%93%BE%E6%8E%A5-ROS"><span class="toc-text">资源链接-ROS</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习的数学原理"/></a><div class="content"><a class="title" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理">强化学习的数学原理</a><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/data-structure-zbgbam.html" title="数据结构"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/data-structure-zbgbam.html" title="数据结构">数据结构</a><time datetime="2025-09-27T14:04:28.000Z" title="更新于 2025-09-27 22:04:28">2025-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2024 - 2025 By lovedream-ms</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b1</a></span></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  /* 使用 link_color 作为社交图标的颜色 */
+  .social-links i {
+    color: rgba(0, 159, 183, 1);
+  }
+  .social-link {
+    /* 使用 link_color 作为链接默认颜色 */
+    color: rgba(0, 159, 183, 1);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    /* 使用 blockquote_background_color 作为链接背景色，保持风格统一 */
+    background: rgba(0, 159, 183, 0.1);
+  }
+  .social-link:hover {
+    /* 鼠标悬停时，图标颜色变为白色以保证对比度 */
+    color: #ffffff;
+    /* 使用 button_hover 作为链接悬停背景色 */
+    background: #F7C67F;
+    transform: translateY(-3px) scale(1.2);
+    /* 阴影颜色与悬停背景色匹配 */
+    box-shadow: 0 5px 15px rgba(247, 198, 127, 0.4);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  /* 版权信息使用 meta_color */
+  .copyright {
+    font-size: 1.1rem; 
+    color: #778899;
+    font-weight: 400;
+  }
+  /* 标语使用 main 主色调，突出显示 */
+  .tagline {
+    font-size: 0.8rem;
+    color: #8ADBB4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* 访客统计信息使用 meta_color */
+  .visitor-count {
+    font-size: 0.75rem;
+    color: #778899;
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <div class="social-links">
+    <a href="https://github.com/lovedream-ms" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://blog.csdn.net/2303_76343222" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="CSDN" title="CSDN">
+      <i class="fas fa-code"></i>
+    </a>
+    <a href="https://space.bilibili.com/1397568600" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="bilibili" title="bilibili">
+      <i class="fab fa-bilibili"></i>
+    </a>
+  </div>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-up"></i><span class="scroll-percent"></span></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://commit-manger.vercel.app/',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: true,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script async src="/js/costom.js"></script><script async src="/js/fps.js"></script><script async src="/js/coin.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>

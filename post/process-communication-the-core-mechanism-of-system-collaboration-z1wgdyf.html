@@ -1,0 +1,391 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>进程通信：系统协作的核心机制 | Homeの主页のPage</title><meta name="author" content="lovedream-ms"><meta name="copyright" content="lovedream-ms"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="本文系统介绍了Linux进程通信的核心机制。主要内容包括： 1. 基本原理：操作系统通过虚拟内存隔离进程，进程通信需借助内核中介实现数据交换。 2. 通信分类： 3. 主要通信方式详解： 4. 典型应用场景：命令行管道、微服务架构、分布式系统、生产者-消费者模型等。 文章强调不同通信方式的特性及适用场景，帮助开发者根据需求选择合适的进程间通信方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程通信：系统协作的核心机制">
+<meta property="og:url" content="https://blog.lovedream.icu/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html">
+<meta property="og:site_name" content="Homeの主页のPage">
+<meta property="og:description" content="本文系统介绍了Linux进程通信的核心机制。主要内容包括： 1. 基本原理：操作系统通过虚拟内存隔离进程，进程通信需借助内核中介实现数据交换。 2. 通信分类： 3. 主要通信方式详解： 4. 典型应用场景：命令行管道、微服务架构、分布式系统、生产者-消费者模型等。 文章强调不同通信方式的特性及适用场景，帮助开发者根据需求选择合适的进程间通信方案。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg">
+<meta property="article:published_time" content="2025-05-18T09:54:34.000Z">
+<meta property="article:modified_time" content="2025-05-18T14:13:21.000Z">
+<meta property="article:author" content="lovedream-ms">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="管道">
+<meta property="article:tag" content="进程通信">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "进程通信：系统协作的核心机制",
+  "url": "https://blog.lovedream.icu/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html",
+  "image": "https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg",
+  "datePublished": "2025-05-18T09:54:34.000Z",
+  "dateModified": "2025-05-18T14:13:21.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "lovedream-ms",
+      "url": "https://blog.lovedream.icu/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250429153115.png"><link rel="canonical" href="https://blog.lovedream.icu/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1B1B1B')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: true,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '进程通信：系统协作的核心机制',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/bilibili.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/oneImageFlow.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fps.css" media="defer" onload="this.media='all'"><span id="fps"></span><link rel="stylesheet" href="/css/selfCard/selfCard.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/selfCard/cardStatus.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/page.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/pageTitle.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/toc.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fontWeight.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Homeの主页のPage</span></a><a class="nav-page-title" href="/"><span class="site-name">进程通信：系统协作的核心机制</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">进程通信：系统协作的核心机制</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2025-05-18T14:13:21.000Z" title="更新于 2025-05-18 22:13:21">2025-05-18</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">2.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span class="waline-pageview-count" data-path="/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html#post-comment"><span class="waline-comment-count" data-path="/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="进程通信：系统协作的核心机制"><a href="#进程通信：系统协作的核心机制" class="headerlink" title="进程通信：系统协作的核心机制"></a>进程通信：系统协作的核心机制</h1><p><strong>进程通信本质上是通过操作系统内核作为中介，实现不同进程间的数据交换与协同操作</strong>。</p>
+<h2 id="进程通信的基本原理"><a href="#进程通信的基本原理" class="headerlink" title="进程通信的基本原理"></a>进程通信的基本原理</h2><p>操作系统通过虚拟内存机制为每个进程提供独立的地址空间，这种隔离设计确保了进程的独立性和安全性。然而，这种隔离也带来了信息共享的障碍。<strong>进程通信的核心在于利用操作系统提供的机制，让不同进程能够访问同一共享资源或交换信息</strong>。</p>
+<h2 id="进程通信的分类与特点"><a href="#进程通信的分类与特点" class="headerlink" title="进程通信的分类与特点"></a>进程通信的分类与特点</h2><p>进程通信根据信息传递量的大小和效率高低，通常分为低级通信和高级通信两大类。</p>
+<p><strong>低级通信</strong>主要传递控制信息，如状态和整数值。这类通信方式简单直接，但信息量小，效率相对较低。典型的低级通信方式包括<strong>信号(Signals)</strong> 和信号量 <strong>(Semaphores)</strong> 。信号用于通知进程特定事件的发生，如进程终止或中断；信号量则用于进程间的同步和互斥，控制对共享资源的访问。</p>
+<p><strong>高级通信</strong>则专注于传递大量数据，提高通信效率，并减轻程序编制的复杂度。高级通信主要包括<strong>共享内存模式、消息传递模式和共享文件模式</strong>。</p>
+<p>共享内存允许多个进程直接访问同一块物理内存区域，实现高效数据交换；<br>消息队列通过结构化消息传递，支持异步通信和选择性接收；<br>共享文件则利用文件系统作为中介，允许进程间共享数据，但效率相对较低。</p>
+<h2 id="主要进程通信方式详解"><a href="#主要进程通信方式详解" class="headerlink" title="主要进程通信方式详解"></a>主要进程通信方式详解</h2><h3 id="管道通信：最原始的”传声筒”"><a href="#管道通信：最原始的”传声筒”" class="headerlink" title="管道通信：最原始的”传声筒”"></a>管道通信：最原始的”传声筒”</h3><p>管道是Linux中最简单、最常用的进程通信方式之一。它提供了一个单向数据流，可以在进程间传递数据。管道分为<strong>匿名管道</strong>和<strong>命名管道(FIFO)</strong> 两种类型。</p>
+<p>匿名管道只能用于具有<strong>亲缘关系</strong>的进程间通信，如父子进程。其工作原理是通过系统调用创建一个内存级文件，<strong>子进程在创建时会继承父进程的文件描述符表</strong>，从而共享这个管道。数据写入管道后，会先进入内核缓冲区，直到被读取进程读取。匿名管道实现简单，效率高，但只能传递字节流，且缺乏高级功能如选择性接收。</p>
+<p>命名管道(FIFO)则克服了匿名管道的限制，允许无亲缘关系的进程间通信。它通过文件系统路径命名，进程可以通过标准文件操作函数(如open、read、write)访问命名管道。命名管道遵循FIFO原则，数据按照写入顺序依次读出。虽然命名管道的实现比匿名管道复杂，但其灵活性更高，适用于更广泛的场景。</p>
+<p><strong>管道通信的典型应用场景</strong>包括命令行管道操作（匿名管道）(如<code>ls | grep .txt</code>​)、日志系统中日志进程与收集进程的交互、以及需要简单高效数据传输的父子进程间通信。</p>
+<h3 id="消息队列：进程间的”邮局”"><a href="#消息队列：进程间的”邮局”" class="headerlink" title="消息队列：进程间的”邮局”"></a>消息队列：进程间的”邮局”</h3><p>消息队列是一种基于消息的异步通信方式，它允许进程间传递结构化消息。消息队列在系统内核中维护一个消息链表，不同进程可以向队列中发送消息，也可以从队列中接收消息。</p>
+<p>消息队列的核心是<strong>内核维护的消息队列数据结构</strong>。在Linux中，消息队列由<code>struct msqid_ds</code>​结构维护，系统通过<code>msgque[MSGMNI]</code>​指针数组管理所有消息队列。每个消息队列都有一个唯一的标识符(msgid)，进程通过这个标识符访问消息队列。消息本身则由<code>struct msgbuf</code>​表示，包含消息类型(mtype)和消息内容(mtext)两个主要部分。</p>
+<p><strong>消息队列的典型应用场景</strong>包括微服务架构中的异步任务处理、分布式系统中的事件驱动架构、日志收集系统以及需要解耦系统组件的场景。在微服务中，消息队列常用于实现服务间的解耦，如用户注册后发送邮件通知，注册服务只需将消息放入队列，而不必直接调用邮件服务。</p>
+<h3 id="共享内存：进程间的”共享空间”"><a href="#共享内存：进程间的”共享空间”" class="headerlink" title="共享内存：进程间的”共享空间”"></a>共享内存：进程间的”共享空间”</h3><p>共享内存是效率最高的进程通信方式，它允许多个进程共享同一块物理内存区域。这些进程可以将共享内存<strong>映射</strong>到各自的虚拟地址空间中，然后像访问自己的内存一样直接读写共享数据。</p>
+<p><strong>共享内存的工作原理</strong>基于虚拟内存管理。当两个进程映射同一块共享内存时，它们实际上是在各自的虚拟地址空间中指向同一块物理内存。操作系统通过内存管理单元(MMU)确保对共享内存的访问是安全的，不会导致进程间的数据干扰。</p>
+<p>主要特点：</p>
+<ol>
+<li><strong>高效性</strong>：数据交换无需经过内核或文件系统，直接在用户空间进行。</li>
+<li>低延迟：进程间数据传递几乎实时，适合高性能场景。</li>
+<li>高吞吐量：可以处理大量数据，适合大数据传输。</li>
+<li>需要同步机制：由于多个进程可以同时访问共享内存，需要额外的同步机制(如信号量或互斥锁)保证数据一致性。</li>
+</ol>
+<p>共享内存的实现方式有两种：<strong>普通文件映射和匿名文件映射</strong>。普通文件映射适用于任何进程间，需要通过一个文件作为中介；匿名文件映射则适用于有亲缘关系的进程，如父子进程，无需具体文件。</p>
+<p>fast-livo2中的时间戳同步技术，将雷达的时间戳通过共享内存的方式完成任务</p>
+<p>雷达端：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int64_t</span> high;</span><br><span class="line">    <span class="type">int64_t</span> low;</span><br><span class="line">&#125;time_stamp;</span><br><span class="line"><span class="comment">// 在Lddc类中定义time_stamp* pointt属性</span></span><br><span class="line"><span class="comment">// 在类函数PollingLidarPointCloudData中指向一个硬盘的空间目录</span></span><br><span class="line">Lddc::<span class="built_in">init</span>()</span><br><span class="line">&#123;</span><br><span class="line">    std::string path_for_time_stamp = <span class="string">&quot;/home/wilson/timeshare&quot;</span>;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *shared_file_name = path_for_time_stamp.<span class="built_in">c_str</span>();</span><br><span class="line">    <span class="comment">// 使用fd句柄初始化pointt</span></span><br><span class="line">    <span class="type">int</span> fd = <span class="built_in">open</span>(shared_file_name, O_CREAT|O_RDWR|O_TRUNC, <span class="number">0666</span>);</span><br><span class="line">    <span class="keyword">if</span>（fd==<span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">ROS_ERROR</span>(<span class="string">&quot;open failed\n&quot;</span>);</span><br><span class="line">        isOpended = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">ROS_ERROR</span>(<span class="string">&quot;open code:%d\n&quot;</span>,fd);</span><br><span class="line">        isOpended = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">lseek</span>(fd, <span class="built_in">sizeof</span>(time_stamp)* <span class="number">1</span>, SEEK_SET);</span><br><span class="line">    <span class="built_in">write</span>(fd,<span class="string">&quot;&quot;</span>,<span class="number">1</span>);</span><br><span class="line">    pointt =（time_stamp *)<span class="built_in">mmap</span>(<span class="literal">NULL</span>, <span class="built_in">sizeof</span>(time_stamp)*<span class="number">1</span>,PROT_READ|PROT_WRITE,MAP_SHARED,fd,O);</span><br><span class="line">&#125;</span><br><span class="line">Lddc::<span class="built_in">publish</span>()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(!pkg.points.<span class="built_in">empty</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        timestamp = pkg.base_time;</span><br><span class="line">    &#125;</span><br><span class="line">    pointt-&gt;low = timestamp;</span><br><span class="line">    <span class="built_in">ROS_ERROR</span>(Custom Point:：pointt-&gt;low=%ld\n<span class="string">&quot;,pointt-&gt;low);</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>相机端：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int64_t</span> high;</span><br><span class="line">    <span class="type">int64_t</span> low;</span><br><span class="line">&#125;time_stamp;</span><br><span class="line"></span><br><span class="line">time_stamp* pointt;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    std::string path_for_time_stamp = <span class="string">&quot;/home/wilson/timeshare&quot;</span>;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *shared_file_name = path_for_time_stamp.<span class="built_in">c_str</span>();</span><br><span class="line">    <span class="comment">// 使用fd句柄初始化pointt</span></span><br><span class="line">    <span class="type">int</span> fd = <span class="built_in">open</span>(shared_file_name, O_RDWR);</span><br><span class="line">    pointt =（time_stamp *)<span class="built_in">mmap</span>(<span class="literal">NULL</span>, <span class="built_in">sizeof</span>(time_stamp)*<span class="number">1</span>,PROT_READ|PROT_WRITE, MAP_SHARED, fd, O);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">publish</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int64_t</span> low = pointt-&gt;low;</span><br><span class="line">    <span class="type">double</span> time_pc = low/<span class="number">1000000000.0</span>;</span><br><span class="line">    ros::Time rcv_time = ros::<span class="built_in">Time</span>(time_pc);</span><br><span class="line">    image_msg.header.stamp = rcv_time;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="套接字：跨网络的”通信使者”"><a href="#套接字：跨网络的”通信使者”" class="headerlink" title="套接字：跨网络的”通信使者”"></a>套接字：跨网络的”通信使者”</h3><p>套接字是Linux中最强大的进程通信机制之一，它不仅支持本地进程间通信，还支持网络通信，使不同计算机上的进程能够相互交流。</p>
+<p><strong>套接字的分类与特点：</strong></p>
+<p><strong>AF_UNIX套接字</strong>：基于文件系统的本地通信套接字，不需要网络协议栈，通信效率高。它通过文件系统路径命名，进程通过标准的socket、bind、connect、send/recv等API进行通信。AF_UNIX套接字支持流式(SOCK_STREAM)和数据包(SOCK_DGRAM)两种通信模式，前者保证数据顺序且不截断，后者则可能丢失数据或乱序。</p>
+<p><strong>TCP/IP套接字</strong>：基于IP地址和端口号的网络通信套接字，支持跨计算机通信，但通信效率相对较低。</p>
+<h3 id="信号量：共享资源的”交通警察”"><a href="#信号量：共享资源的”交通警察”" class="headerlink" title="信号量：共享资源的”交通警察”"></a>信号量：共享资源的”交通警察”</h3><p>信号量是一种用于进程同步和资源管理的机制，它通过控制对共享资源的访问，确保数据的一致性和完整性。<strong>信号量本质上是一个计数器，通过原子操作P等待和V释放来实现进程间的同步</strong>。</p>
+<p>信号量主要分为两种类型：二进制信号量，计数信号量</p>
+<p>信号量的工作原理基于两个基本操作：<br>P操作等待：尝试获取信号量，如果信号量值大于0，则减1并允许进程继续执行；如果值为0，则进程被阻塞，直到有其他进程释放信号量。<br>V操作释放：释放信号量，将信号量值加1，如果有进程因该信号量被阻塞，则唤醒其中一个。</p>
+<p>信号量的典型应用场景包括：生产者-消费者模型中协调生产与消费速率；读写锁实现，控制对共享资源的读写访问。这部分可以看看jyy的讲解。</p>
+<p>信号量的使用建议：优先使用POSIX信号量而非System V信号量</p>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/%E7%AE%A1%E9%81%93/">管道</a><a class="post-meta__tags" href="/tags/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/">进程通信</a></div><div class="post-share"><div class="addtoany"><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_button_wechat"></a><a class="a2a_button_email"></a><a class="a2a_button_copy_link"></a><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a></div></div><script async="async" src="https://static.addtoany.com/menu/page.js"></script></div></div><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"/><div class="post-reward"><button class="tip-button reward-button"><span class="tip-button__text">赞助</span><div class="coin-wrapper"><div class="coin"><div class="coin__middle"></div><div class="coin__back"></div><div class="coin__front"></div></div></div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" target="_blank"><img class="post-qr-code-img" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li></ul></div></button></div><audio id="coinAudio" src="https://npm.elemecdn.com/akilar-candyassets@1.0.36/audio/aowu.m4a"></audio><script defer="defer" src="/js/coin.js"></script><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/rosload-zookeq.html" title="ROS"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">ROS</div></div><div class="info-2"><div class="info-item-1">ROS B站​视频​[1] 文档​[2] move_base1 在rviz中可视化三维检测框2  ROS介绍环境部署：要求：ros和ubuntu版本具有一一对应的关系，安装前要注意，建议入坑ros2，但是我的这篇暂时以ros1教程为主，考虑到之前的一些技术积累都是建立在这个上的。 安装建议使用鱼香ros​[3] 1wget http://fishros.com/install -O fishros &amp;&amp; . fishros 可以安装Terminator实现多终端显示，类似tmux的窗格 ROS的文件系统 整个项目由catkin_make进行管理【基于CMake进行二次开发】，详情可见后续补充​[4]，后面会对每一部分文件进行说明。 ROS常用终端命令这里以使用终端创建一个工作空间为例学习工作空间的相关命令： 12345mkdir -p ws_learn/src # -p：允许递归创建cd ws_learn # 此时终端的输出编译结果catkin_makecd srccatkin_create_pkg hello_world roscpp #...</div></div></div></a><a class="pagination-related" href="/post/linux-device-driver-model-zkepct.html" title="Linux设备驱动模型"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Linux设备驱动模型</div></div><div class="info-2"><div class="info-item-1">Linux设备驱动模型Linux设备驱动模型是内核中管理和组织硬件设备的核心框架，它通过抽象化硬件，为驱动程序提供统一接口，简化了设备识别、驱动匹配和系统管理的复杂性。该模型基于总线、设备、驱动和类四大核心组件构建，通过sysfs文件系统向用户空间公开设备信息。理解设备驱动模型对嵌入式Linux和驱动开发至关重要，它使得内核能够高效地识别硬件、加载匹配的驱动程序，并提供统一的设备访问接口。 两个视角：四大核心组件+文件系统视角 设备驱动模型的基本架构Linux设备驱动模型的核心是总线、设备、驱动和类四个组件。总线是连接设备和驱动的桥梁，负责管理和协调设备与驱动的匹配过程。设备代表物理硬件单元，驱动是控制设备的软件模块，而类则对功能相似的设备进行逻辑归类，提供统一接口。 设备驱动模型初步解析​  CSDN:深入理解 Linux 设备模型与 sysfs 文件系统全景图解-CSDN博客 知乎：Linux驱动——设备模型 - 知乎  总线（Bus）数据结构：struct bus_type 12345struct bus_type hello_bus_type =...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/post/linux-device-driver-model-zkepct.html" title="Linux设备驱动模型"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-16</div><div class="info-item-2">Linux设备驱动模型</div></div><div class="info-2"><div class="info-item-1">Linux设备驱动模型Linux设备驱动模型是内核中管理和组织硬件设备的核心框架，它通过抽象化硬件，为驱动程序提供统一接口，简化了设备识别、驱动匹配和系统管理的复杂性。该模型基于总线、设备、驱动和类四大核心组件构建，通过sysfs文件系统向用户空间公开设备信息。理解设备驱动模型对嵌入式Linux和驱动开发至关重要，它使得内核能够高效地识别硬件、加载匹配的驱动程序，并提供统一的设备访问接口。 两个视角：四大核心组件+文件系统视角 设备驱动模型的基本架构Linux设备驱动模型的核心是总线、设备、驱动和类四个组件。总线是连接设备和驱动的桥梁，负责管理和协调设备与驱动的匹配过程。设备代表物理硬件单元，驱动是控制设备的软件模块，而类则对功能相似的设备进行逻辑归类，提供统一接口。 设备驱动模型初步解析​  CSDN:深入理解 Linux 设备模型与 sysfs 文件系统全景图解-CSDN博客 知乎：Linux驱动——设备模型 - 知乎  总线（Bus）数据结构：struct bus_type 12345struct bus_type hello_bus_type =...</div></div></div></a><a class="pagination-related" href="/post/rosload-zookeq.html" title="ROS"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-18</div><div class="info-item-2">ROS</div></div><div class="info-2"><div class="info-item-1">ROS B站​视频​[1] 文档​[2] move_base1 在rviz中可视化三维检测框2  ROS介绍环境部署：要求：ros和ubuntu版本具有一一对应的关系，安装前要注意，建议入坑ros2，但是我的这篇暂时以ros1教程为主，考虑到之前的一些技术积累都是建立在这个上的。 安装建议使用鱼香ros​[3] 1wget http://fishros.com/install -O fishros &amp;&amp; . fishros 可以安装Terminator实现多终端显示，类似tmux的窗格 ROS的文件系统 整个项目由catkin_make进行管理【基于CMake进行二次开发】，详情可见后续补充​[4]，后面会对每一部分文件进行说明。 ROS常用终端命令这里以使用终端创建一个工作空间为例学习工作空间的相关命令： 12345mkdir -p ws_learn/src # -p：允许递归创建cd ws_learn # 此时终端的输出编译结果catkin_makecd srccatkin_create_pkg hello_world roscpp #...</div></div></div></a><a class="pagination-related" href="/post/ros2-z19uq9s.html" title="ROS2"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-19</div><div class="info-item-2">ROS2</div></div><div class="info-2"><div class="info-item-1">ROS2 动手学ROS2  ROS1与ROS2核心差异全面解析ROS2采用去中心化的DDS通信架构，取代了ROS1中心化的Master机制 本文将从架构设计、通信机制、实时性能、跨平台兼容性、安全性和开发工具链等多个维度，深入分析ROS1与ROS2的关键差异，帮助开发者根据项目需求做出更合理的选择。 架构设计与通信机制差异当ROS1 Master崩溃时，整个系统将无法正常工作，导致单点故障。虽然存在类似自动重启master节点，心跳检测等方案，但是在需要高可靠性的工业场景中存在明显缺陷。ROS2采用去中心化的分布式架构，基于工业级标准DDS（Data Distribution Service）实现节点间直接通信。ROS2系统中不存在单一中心节点，各节点能够独立运行并直接与其他节点通信，即使部分节点失效，系统其余部分仍能正常工作。 通信机制：ROS1使用自定义的TCPROS/UDPROS协议，节点间通信需要通过ROS...</div></div></div></a><a class="pagination-related" href="/post/script-writing-experience-2qew5s.html" title="Bash脚本编写经验"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-07-28</div><div class="info-item-2">Bash脚本编写经验</div></div><div class="info-2"><div class="info-item-1">脚本书写经验 参考链接：GPT-SoVITS/install.sh at main · RVC-Boss/GPT-SoVITS Wiki：github.com/dylanaraps/pure-bash-bible 中文版  1234567891011121314151617181920212223242526#!/bin/bash# ==============================================#  脚本模板                              配置部分# ==============================================SCRIPT_DIR=&quot;$(cd &quot;$(dirname &quot;$&#123;BASH_SOURCE[0]&#125;&quot;)&quot; &amp;&gt;/dev/null &amp;&amp; pwd)&quot;# ==============================================# 颜色定义部分#...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">lovedream-ms</div><div class="author-info-description">别急着赶路，去感受路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lovedream-ms"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lovedream-ms" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/2179417385@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我们读书是为了成为提灯人去照亮黑暗，而不是为了自己有灯而沾沾自喜还要去吹灭别人的蜡烛</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%EF%BC%9A%E7%B3%BB%E7%BB%9F%E5%8D%8F%E4%BD%9C%E7%9A%84%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6"><span class="toc-text">进程通信：系统协作的核心机制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="toc-text">进程通信的基本原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E7%9A%84%E5%88%86%E7%B1%BB%E4%B8%8E%E7%89%B9%E7%82%B9"><span class="toc-text">进程通信的分类与特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F%E8%AF%A6%E8%A7%A3"><span class="toc-text">主要进程通信方式详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%A1%E9%81%93%E9%80%9A%E4%BF%A1%EF%BC%9A%E6%9C%80%E5%8E%9F%E5%A7%8B%E7%9A%84%E2%80%9D%E4%BC%A0%E5%A3%B0%E7%AD%92%E2%80%9D"><span class="toc-text">管道通信：最原始的”传声筒”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%EF%BC%9A%E8%BF%9B%E7%A8%8B%E9%97%B4%E7%9A%84%E2%80%9D%E9%82%AE%E5%B1%80%E2%80%9D"><span class="toc-text">消息队列：进程间的”邮局”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98%EF%BC%9A%E8%BF%9B%E7%A8%8B%E9%97%B4%E7%9A%84%E2%80%9D%E5%85%B1%E4%BA%AB%E7%A9%BA%E9%97%B4%E2%80%9D"><span class="toc-text">共享内存：进程间的”共享空间”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A5%97%E6%8E%A5%E5%AD%97%EF%BC%9A%E8%B7%A8%E7%BD%91%E7%BB%9C%E7%9A%84%E2%80%9D%E9%80%9A%E4%BF%A1%E4%BD%BF%E8%80%85%E2%80%9D"><span class="toc-text">套接字：跨网络的”通信使者”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F%EF%BC%9A%E5%85%B1%E4%BA%AB%E8%B5%84%E6%BA%90%E7%9A%84%E2%80%9D%E4%BA%A4%E9%80%9A%E8%AD%A6%E5%AF%9F%E2%80%9D"><span class="toc-text">信号量：共享资源的”交通警察”</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习的数学原理"/></a><div class="content"><a class="title" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理">强化学习的数学原理</a><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/data-structure-zbgbam.html" title="数据结构"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/data-structure-zbgbam.html" title="数据结构">数据结构</a><time datetime="2025-09-27T14:04:28.000Z" title="更新于 2025-09-27 22:04:28">2025-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2024 - 2025 By lovedream-ms</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b1</a></span></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  /* 使用 link_color 作为社交图标的颜色 */
+  .social-links i {
+    color: rgba(0, 159, 183, 1);
+  }
+  .social-link {
+    /* 使用 link_color 作为链接默认颜色 */
+    color: rgba(0, 159, 183, 1);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    /* 使用 blockquote_background_color 作为链接背景色，保持风格统一 */
+    background: rgba(0, 159, 183, 0.1);
+  }
+  .social-link:hover {
+    /* 鼠标悬停时，图标颜色变为白色以保证对比度 */
+    color: #ffffff;
+    /* 使用 button_hover 作为链接悬停背景色 */
+    background: #F7C67F;
+    transform: translateY(-3px) scale(1.2);
+    /* 阴影颜色与悬停背景色匹配 */
+    box-shadow: 0 5px 15px rgba(247, 198, 127, 0.4);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  /* 版权信息使用 meta_color */
+  .copyright {
+    font-size: 1.1rem; 
+    color: #778899;
+    font-weight: 400;
+  }
+  /* 标语使用 main 主色调，突出显示 */
+  .tagline {
+    font-size: 0.8rem;
+    color: #8ADBB4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* 访客统计信息使用 meta_color */
+  .visitor-count {
+    font-size: 0.75rem;
+    color: #778899;
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <div class="social-links">
+    <a href="https://github.com/lovedream-ms" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://blog.csdn.net/2303_76343222" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="CSDN" title="CSDN">
+      <i class="fas fa-code"></i>
+    </a>
+    <a href="https://space.bilibili.com/1397568600" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="bilibili" title="bilibili">
+      <i class="fab fa-bilibili"></i>
+    </a>
+  </div>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-up"></i><span class="scroll-percent"></span></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://commit-manger.vercel.app/',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: true,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script async src="/js/costom.js"></script><script async src="/js/fps.js"></script><script async src="/js/coin.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>

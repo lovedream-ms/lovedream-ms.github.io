@@ -1,0 +1,185 @@
+/* 多彩层级大纲 CSS片段 - 优化版 */
+
+:root {
+    /* 为各级标题定义统一的颜色变量，更具描述性 */
+    --color-heading-1: #eb8383; /* 柔和红 */
+    --color-heading-2: #ae9acb; /* 柔和紫 */
+    --color-heading-3: #7db5cd; /* 天蓝色 */
+    --color-heading-4: #71a796; /* 鼠尾草绿 */
+    --color-heading-5: #dcbf61; /* 金黄色 */
+    --color-heading-6: #dda36a; /* 暖橙色 */
+
+    /* 通用排版变量 */
+    --global-font-size: 16px; /* 全局字体大小 */
+    --heading-font-family: sans-serif; /* 标题字体，可替换为其他字体 */
+    --heading-margin-bottom: 0.7em; /* 标题底部外边距 */
+    --heading-margin-top: 1.5em; /* 标题顶部外边距 */
+    --heading-padding-left: 0px; /* 标题左侧内边距 */
+}
+
+body {
+    font-size: var(--global-font-size); /* 应用全局字体大小 */
+    line-height: 1.6; /* 行高 */
+    font-family: var(--heading-font-family); /* 应用默认字体 */
+}
+
+/* 通用标题样式 */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--heading-font-family); /* 标题字体 */
+    margin-top: var(--heading-margin-top); /* 顶部外边距 */
+    margin-bottom: var(--heading-margin-bottom); /* 底部外边距 */
+    line-height: 1.2; /* 行高 */
+    font-weight: 600; /* 字体粗细，让标题更醒目 */
+    padding-left: var(--heading-padding-left); /* 左侧内边距，确保为 ::before 伪元素预留空间 */
+    position: relative; /* 相对定位，用于伪元素定位 */
+}
+
+/* 各级标题的独立颜色和尺寸 */
+/* 这里的 h1 样式现在只应用于没有 .post-title 和 #site-title 类的 h1 元素 */
+h1:not(.post-title):not(#site-title) {
+    color: var(--color-heading-1); /* 标题1颜色 */
+    font-size: 2.5em; /* 标题1字体大小，Larger for primary headings */
+    border-bottom: 2px solid var(--color-heading-1); /* 底部边框，Add a subtle underline */
+    padding-bottom: 0.3em; /* 底部内边距 */
+    text-align: center;
+}
+.container.post-content h1,
+.container.post-content h2,
+.container.post-content h3,
+.container.post-content h4,
+.container.post-content h5,
+.container.post-content h6
+{
+    padding-left: 0px;
+}
+
+.container.post-content h1:hover,
+.container.post-content h2:hover,
+.container.post-content h3:hover,
+.container.post-content h4:hover,
+.container.post-content h5:hover,
+.container.post-content h6:hover
+{
+    padding-left: 4px;
+}
+/* 其他标题样式保持不变 */
+h2 {
+    color: var(--color-heading-2); /* 标题2颜色 */
+    font-size: 2em; /* 标题2字体大小 */
+}
+
+h3 {
+    color: var(--color-heading-3); /* 标题3颜色 */
+    font-size: 1.75em; /* 标题3字体大小 */
+}
+
+h4 {
+    color: var(--color-heading-4); /* 标题4颜色 */
+    font-size: 1.5em; /* 标题4字体大小 */
+}
+
+h5 {
+    color: var(--color-heading-5); /* 标题5颜色，Corrected to use custom property for consistency */
+    font-size: 1.25em; /* 标题5字体大小 */
+}
+
+h6 {
+    color: var(--color-heading-6); /* 标题6颜色 */
+    font-size: 1em; /* 标题6字体大小，Can be slightly larger than base font if desired */
+    font-weight: 700; /* 字体粗细，Make h6 bold to stand out */
+}
+
+/* Custom Content Before Headings within Article Container */
+/* 这里的 h1::before 样式也只应用于没有 .post-title 和 #site-title 类的 h1 元素 */
+#article-container h1:not(.post-title):not(#site-title)::before {
+    content: ""; /* 伪元素内容为空 */
+    display: inline-block; /* 行内块级显示 */
+    vertical-align: middle; /* 垂直居中对齐 */
+    margin-right: 30px; /* 右侧外边距，<-- 这里增加了距离 */
+    /* Add a graphical element for H1 if desired, e.g., a small icon or shape */
+    /* background-color: var(--color-heading-1); */ /* 背景颜色 */
+    /* width: 10px; */ /* 宽度 */
+    /* height: 10px; */ /* 高度 */
+    border-radius: 50%;
+}
+
+#article-container h2::before {
+    content: ""; /* 伪元素内容为 "H²" */
+    color: var(--color-heading-2); /* 颜色 */
+    font-weight: bold; /* 字体加粗 */
+    display: inline-block; /* 行内块级显示 */
+    vertical-align: middle; /* 垂直居中对齐 */
+    margin-right: 0px; /* 右侧外边距 */
+    font-size: 0.7em; /* 字体大小 */
+    opacity: 1; /* 透明度 */
+}
+
+#article-container h3::before {
+    content: ""; /* 伪元素内容为 "H³" */
+    color: var(--color-heading-3); /* 颜色 */
+    font-weight: bold; /* 字体加粗 */
+    display: inline-block; /* 行内块级显示 */
+    vertical-align: middle; /* 垂直居中对齐 */
+    margin-right: 0px; /* 右侧外边距 */
+    font-size: 0.7em; /* 字体大小 */
+    opacity: 1; /* 透明度 */
+}
+
+#article-container h4::before {
+    content: ""; /* 伪元素内容为 "H⁴ " */
+    color: var(--color-heading-4); /* 颜色 */
+    font-weight: bold; /* 字体加粗 */
+    display: inline-block; /* 行内块级显示 */
+    vertical-align: middle; /* 垂直居中对齐 */
+    margin-right: 0px; /* 右侧外边距 */
+    font-size: 0.7em; /* 字体大小 */
+    opacity: 1; /* 透明度 */
+}
+
+#article-container h5::before {
+    content: ""; /* 伪元素内容为 "H ⁵ " */
+    color: var(--color-heading-5); /* 颜色 */
+    font-weight: bold; /* 字体加粗 */
+    display: inline-block; /* 行内块级显示 */
+    vertical-align: middle; /* 垂直居中对齐 */
+    margin-right: 0px; /* 右侧外边距 */
+    font-size: 0.7em; /* 字体大小 */
+    opacity: 1; /* 透明度 */
+}
+
+#article-container h6::before {
+    content: ""; /* 伪元素内容为 "H⁶ " */
+    color: var(--color-heading-6); /* 颜色 */
+    font-weight: bold; /* 字体加粗 */
+    display: inline-block; /* 行内块级显示 */
+    vertical-align: middle; /* 垂直居中对齐 */
+    margin-right: 0px; /* 右侧外边距 */
+    font-size: 0.7em; /* 字体大小 */
+    opacity: 1; /* 透明度 */
+}
+
+/* Optional: Add hover effects for interactivity */
+/* 可选：添加鼠标悬停效果以增加交互性 */
+#article-container h1:hover,
+#article-container h2:hover,
+#article-container h3:hover,
+#article-container h4:hover,
+#article-container h5:hover,
+#article-container h6:hover {
+    opacity: 0.5; /* 鼠标悬停时透明度降低 */
+}
+
+/* Optional: Styles for anchor links if headings are targets */
+/* 可选：如果标题是锚点目标，则为其添加样式 */
+h1:target, h2:target, h3:target, h4:target, h5:target, h6:target {
+    animation: highlight 1s ease-in-out; /* 触发高亮动画 */
+}
+
+@keyframes highlight {
+    from {
+        background-color: rgba(255, 255, 0, 0.2); /* 从半透明黄色背景开始 */
+    }
+    to {
+        background-color: transparent; /* 动画结束时背景透明 */
+    }
+}

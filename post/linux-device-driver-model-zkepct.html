@@ -1,0 +1,502 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux设备驱动模型 | Homeの主页のPage</title><meta name="author" content="lovedream-ms"><meta name="copyright" content="lovedream-ms"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Linux设备驱动模型Linux设备驱动模型是内核中管理和组织硬件设备的核心框架，它通过抽象化硬件，为驱动程序提供统一接口，简化了设备识别、驱动匹配和系统管理的复杂性。该模型基于总线、设备、驱动和类四大核心组件构建，通过sysfs文件系统向用户空间公开设备信息。理解设备驱动模型对嵌入式Linux和驱动开发至关重要，它使得内核能够高效地识别硬件、加载匹配的驱动程序，并提供统一的设备访问接口。 两个视">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux设备驱动模型">
+<meta property="og:url" content="https://blog.lovedream.icu/post/linux-device-driver-model-zkepct.html">
+<meta property="og:site_name" content="Homeの主页のPage">
+<meta property="og:description" content="Linux设备驱动模型Linux设备驱动模型是内核中管理和组织硬件设备的核心框架，它通过抽象化硬件，为驱动程序提供统一接口，简化了设备识别、驱动匹配和系统管理的复杂性。该模型基于总线、设备、驱动和类四大核心组件构建，通过sysfs文件系统向用户空间公开设备信息。理解设备驱动模型对嵌入式Linux和驱动开发至关重要，它使得内核能够高效地识别硬件、加载匹配的驱动程序，并提供统一的设备访问接口。 两个视">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg">
+<meta property="article:published_time" content="2025-05-16T08:29:55.000Z">
+<meta property="article:modified_time" content="2025-05-16T13:50:23.000Z">
+<meta property="article:author" content="lovedream-ms">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="设备模型">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Linux设备驱动模型",
+  "url": "https://blog.lovedream.icu/post/linux-device-driver-model-zkepct.html",
+  "image": "https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg",
+  "datePublished": "2025-05-16T08:29:55.000Z",
+  "dateModified": "2025-05-16T13:50:23.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "lovedream-ms",
+      "url": "https://blog.lovedream.icu/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250429153115.png"><link rel="canonical" href="https://blog.lovedream.icu/post/linux-device-driver-model-zkepct.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1B1B1B')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: true,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux设备驱动模型',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/bilibili.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/oneImageFlow.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fps.css" media="defer" onload="this.media='all'"><span id="fps"></span><link rel="stylesheet" href="/css/selfCard/selfCard.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/selfCard/cardStatus.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/page.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/pageTitle.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/toc.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/fontWeight.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-25.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Homeの主页のPage</span></a><a class="nav-page-title" href="/"><span class="site-name">Linux设备驱动模型</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fas fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-home"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Linux设备驱动模型</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2025-05-16T13:50:23.000Z" title="更新于 2025-05-16 21:50:23">2025-05-16</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">4.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>14分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span class="waline-pageview-count" data-path="/post/linux-device-driver-model-zkepct.html"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/post/linux-device-driver-model-zkepct.html#post-comment"><span class="waline-comment-count" data-path="/post/linux-device-driver-model-zkepct.html"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="Linux设备驱动模型"><a href="#Linux设备驱动模型" class="headerlink" title="Linux设备驱动模型"></a>Linux设备驱动模型</h1><p>Linux设备驱动模型是内核中管理和组织硬件设备的核心框架，它通过抽象化硬件，为驱动程序提供统一接口，简化了设备识别、驱动匹配和系统管理的复杂性。该模型基于<strong>总线、设备、驱动和类</strong>四大核心组件构建，通过<strong>sysfs文件系统</strong>向用户空间公开设备信息。理解设备驱动模型对嵌入式Linux和驱动开发至关重要，它使得内核能够高效地识别硬件、加载匹配的驱动程序，并提供统一的设备访问接口。</p>
+<p>两个视角：四大核心组件+文件系统视角</p>
+<h2 id="设备驱动模型的基本架构"><a href="#设备驱动模型的基本架构" class="headerlink" title="设备驱动模型的基本架构"></a>设备驱动模型的基本架构</h2><p>Linux设备驱动模型的核心是总线、设备、驱动和类四个组件。<strong>总线是连接设备和驱动的桥梁</strong>，负责管理和协调设备与驱动的匹配过程。设备代表物理硬件单元，驱动是控制设备的软件模块，而类则对功能相似的设备进行逻辑归类，提供统一接口。</p>
+<h3 id="设备驱动模型初步解析"><a href="#设备驱动模型初步解析" class="headerlink" title="设备驱动模型初步解析"></a><strong>设备驱动模型初步解析</strong></h3><p><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/20250514141625.png" alt="image">​</p>
+<blockquote>
+<p>CSDN:<a target="_blank" rel="noopener" href="https://blog.csdn.net/Interview_TC/article/details/147099555">深入理解 Linux 设备模型与 sysfs 文件系统全景图解-CSDN博客</a></p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/529348585">Linux驱动——设备模型 - 知乎</a></p>
+</blockquote>
+<h4 id="总线（Bus）"><a href="#总线（Bus）" class="headerlink" title="总线（Bus）"></a><strong>总线（Bus）</strong></h4><p>数据结构：struct bus_type</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bus_type</span> <span class="title">hello_bus_type</span> =</span> &#123;</span><br><span class="line">	.name	= <span class="string">&quot;hello_bus&quot;</span>,         <span class="comment">// 总线名称</span></span><br><span class="line">	.match 	= hello_bus_match,     <span class="comment">// 匹配函数</span></span><br><span class="line">	.probe 	= hello_bus_probe,     <span class="comment">// 探测函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>作用：作为设备和驱动的匹配桥梁（如PCI、USB、I2C等总线）。</p>
+<p>常见总线如下：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>总线类型</th>
+<th>示例</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实体总线</td>
+<td>PCI、USB、I2C、SPI</td>
+<td>物理存在于硬件电路中，具有枚举机制</td>
+</tr>
+<tr>
+<td>虚拟总线</td>
+<td>platform、serio、amba</td>
+<td>无物理总线控制器，依赖设备树或手动注册</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>每种总线下均包含两个子目录：devices/：包含挂接的所有设备实例，drivers/：包含注册到总线的驱动程序</p>
+<p>所有的总线类型无论是虚拟总线还是实际物理总线创建后都会被挂载到/sys/bus下，每个总线类型内部包含了一个Kobj用于指向父目录并未子目录提供挂载点，两个Kset指针分别指向device和driver子目录，在device和driver目录下包含了该总线下挂载的所有驱动和设备。</p>
+<p>每一总线结构体内部都包含了match和probe两个函数指针，match负责设备和驱动间的匹配检验，probe负责在匹配成功后对新加入的设备或总线进行挂载。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">bus_register(<span class="keyword">struct</span> bus_type hello_bus_type);<span class="comment">//向内核注册一个bus</span></span><br><span class="line">bus_unregister(<span class="keyword">struct</span> bus_type hello_bus_type);<span class="comment">//从内核移除一个bus</span></span><br><span class="line"><span class="comment">//向对应的bus目录添加一个bus_attribute类型的变量文件</span></span><br><span class="line">bus_create_file(&amp;hello_bus_type, &amp;hello_bus_attr);</span><br></pre></td></tr></table></figure>
+<p>实践如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/sysfs.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 总线匹配函数</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">hello_bus_match</span><span class="params">(<span class="keyword">struct</span> device *dev, <span class="keyword">struct</span> device_driver *drv)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">strcmp</span>(dev_name(dev), drv-&gt;name) == <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 总线探测函数</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">hello_bus_probe</span><span class="params">(<span class="keyword">struct</span> device *dev)</span></span><br><span class="line">&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Hello bus probe: %s\n&quot;</span>, dev_name(dev));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 总线属性显示函数</span></span><br><span class="line"><span class="type">static</span> <span class="type">ssize_t</span> <span class="title function_">hello_bus_attr_show</span><span class="params">(<span class="keyword">struct</span> bus_type *bus, <span class="type">char</span> *buf)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">sprintf</span>(buf, <span class="string">&quot;Hello Bus!\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义总线属性（显式定义）</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">bus_attribute</span> <span class="title">hello_bus_attr</span> =</span> &#123;</span><br><span class="line">    .attr = &#123;</span><br><span class="line">        .name = <span class="string">&quot;hello_bus_attr&quot;</span>,</span><br><span class="line">        .mode = S_IRUGO,</span><br><span class="line">    &#125;,</span><br><span class="line">    .show = hello_bus_attr_show,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义总线类型</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bus_type</span> <span class="title">hello_bus_type</span> =</span> &#123;</span><br><span class="line">    .name   = <span class="string">&quot;hello_bus&quot;</span>,</span><br><span class="line">    .match  = hello_bus_match,</span><br><span class="line">    .probe  = hello_bus_probe,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块初始化函数</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">hello_bus_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> ret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册总线</span></span><br><span class="line">    ret = bus_register(&amp;hello_bus_type);</span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">        printk(KERN_ERR <span class="string">&quot;Failed to register hello_bus\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建总线属性文件</span></span><br><span class="line">    ret = bus_create_file(&amp;hello_bus_type, &amp;hello_bus_attr);</span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">        printk(KERN_ERR <span class="string">&quot;Failed to create bus attribute\n&quot;</span>);</span><br><span class="line">        bus_unregister(&amp;hello_bus_type);</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Hello bus registered successfully\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块退出函数</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">hello_bus_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 移除总线属性文件</span></span><br><span class="line">    bus_remove_file(&amp;hello_bus_type, &amp;hello_bus_attr);</span><br><span class="line">    <span class="comment">// 注销总线</span></span><br><span class="line">    bus_unregister(&amp;hello_bus_type);</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Hello bus unregistered\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(hello_bus_init);</span><br><span class="line">module_exit(hello_bus_exit);</span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;Your Name&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;A simple hello bus example&quot;</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ cat Makefile </span><br><span class="line">obj-m := hello_bus.o</span><br><span class="line">KDIR := /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build</span><br><span class="line">PWD := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">        make -C <span class="variable">$(KDIR)</span> M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">        make -C <span class="variable">$(KDIR)</span> M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">sudo</span> insmod hello_bus.ko</span><br><span class="line">$ <span class="built_in">cat</span> /sys/bus/hello_bus/hello_bus_attr</span><br><span class="line">Hello Bus!</span><br><span class="line">$ <span class="built_in">sudo</span> rmmod hello_bus</span><br></pre></td></tr></table></figure>
+<h4 id="设备（Device）"><a href="#设备（Device）" class="headerlink" title="设备（Device）"></a>设备（Device）</h4><p>数据结构：struct device 包含设备名称、所属总线、设备号等信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">device</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *init_name;           <span class="comment">// 设备初始名称</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bus_type</span> *<span class="title">bus</span>;</span>            <span class="comment">// 所属总线</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">device_driver</span> *<span class="title">driver</span>;</span>    <span class="comment">// 匹配驱动</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">parent</span>;</span>           <span class="comment">// 父设备</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">device_node</span> *<span class="title">of_node</span>;</span>     <span class="comment">// 对应设备树节点</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>作用：描述一个硬件或虚拟设备（如传感器、USB设备）</p>
+<p>设备名称、唯一标识（如设备树中的 compatible 属性）<br>所属总线、父设备（用于构建设备树层次）</p>
+<p>设备的代码含义是对Kobject的一个二次封装，都会挂载在/sys/devices目录下。在每一个设备路径下都会有一个subsystem软连接文件指向设备挂载的总线目录，相对的在创建一个设备后也会在对应的总线下创建一个软连接文件指向当前的设备路径。</p>
+<p>设备挂载到对应驱动后对应的驱动设备链表会增加一个新的设备节点，并尝试匹配，当新的驱动挂载后会遍历该设备链表尝试匹配。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ls</span> /sys/bus/pci/devices/0000\:00\:00.0/subsystem</span><br><span class="line">devices  drivers  drivers_autoprobe  drivers_probe  rescan  resource_alignment  slots  uevent</span><br></pre></td></tr></table></figure>
+<p>内核相关api</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//向内核注册设备</span></span><br><span class="line">device_register( <span class="keyword">struct</span> device &amp;bus_device);</span><br><span class="line"><span class="comment">//向内核移除设备</span></span><br><span class="line">device_unregister(<span class="keyword">struct</span> device &amp;bus_device);</span><br><span class="line"><span class="comment">//创建一个设备并绑定相应的设备类以及设备的父目录，设备ID(devt),设备名（fmt）</span></span><br><span class="line"><span class="keyword">struct</span> device *<span class="title function_">device_create</span><span class="params">(<span class="keyword">struct</span> class *cls, <span class="keyword">struct</span> device *parent, <span class="type">dev_t</span> devt, <span class="type">void</span> *drvdata, <span class="type">const</span> <span class="type">char</span> *fmt, ...)</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="驱动（Driver）"><a href="#驱动（Driver）" class="headerlink" title="驱动（Driver）"></a>驱动（Driver）</h4><p>作用：实现设备的具体操作（如读写寄存器、中断处理）。</p>
+<p>数据结构：struct device_driver（基础驱动）<br>关键方法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">device_driver</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;                         <span class="comment">// 驱动名称</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">of_device_id</span> *<span class="title">of_match_table</span>;</span> <span class="comment">// 匹配设备的兼容性表</span></span><br><span class="line">    <span class="type">int</span> (*probe)(<span class="keyword">struct</span> device *dev);         <span class="comment">// 驱动初始化回调</span></span><br><span class="line">    <span class="type">int</span> (*remove)(<span class="keyword">struct</span> device *dev);        <span class="comment">// 驱动移除回调</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bus_type</span> *<span class="title">bus</span>;</span>                     <span class="comment">// 驱动所依附的总线</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>驱动的基本结构也是对一个Kobj的二次封装，所有的驱动文件都会挂载到对应总线的drivers目录下。在挂载到总线后driver会调用总线的match函数进行配对，当匹配到对应的设备后会将当前driver加入到当前总线的驱动链表的末尾。</p>
+<p>总线内部包含一个probe函数，当设备挂载到总线会调用该probe函数，当驱动挂载后驱动内部也包含一个probe函数，两个probe函数存在优先级的关系，默认会先执行总线的probe函数，当总线的probe没有实现（函数指针为空）时，才会执行驱动中的probe函数，当然我们也可以在总线的probe函数中按照相应条件手动挂载驱动的probe。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//定义一个device_driver驱动结构体 内部至少包含以下四个部分</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">device_driver</span> <span class="title">hello_driver</span> =</span> &#123;</span><br><span class="line">	.name	= <span class="string">&quot;hello&quot;</span>,<span class="comment">//驱动名</span></span><br><span class="line">	.bus	= &amp;hello_bus_type,<span class="comment">//驱动挂载的总线结构体指针</span></span><br><span class="line">	.probe	= hello_driver_probe,<span class="comment">//驱动的probe函数</span></span><br><span class="line">	.remove = hello_driver_remove,<span class="comment">//驱动移除函数</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//注册一个hello_driver 驱动</span></span><br><span class="line">driver_register(<span class="keyword">struct</span> device_driver * hello_driver);</span><br><span class="line"><span class="comment">//向指定的driver目录添加一个attribute</span></span><br><span class="line">driver_create_file(<span class="keyword">struct</span> device_driver * driver,<span class="keyword">struct</span> driver_attribute * attribute);</span><br><span class="line"><span class="comment">//移除一个hello_driver驱动 </span></span><br><span class="line">driver_unregister(<span class="keyword">struct</span> device_driver * hello_driver);</span><br></pre></td></tr></table></figure>
+<h4 id="类（Class）"><a href="#类（Class）" class="headerlink" title="类（Class）"></a>类（Class）</h4><p>数据结构：struct class。</p>
+<p>作用：将具有相似功能的设备分组（如所有输入设备归属 input 类）从而提供标准化的接口</p>
+<p>这四个组件通过kobject/kset层次结构组织成一个逻辑树。总线注册后，在/sys/bus目录下创建一个子目录；设备注册后，在/sys/devices目录下创建表示其层次结构的目录；驱动注册后，在总线的drivers目录下创建一个子目录；类则在/sys/class目录下创建一个目录。</p>
+<h3 id="总线的作用与实现机制"><a href="#总线的作用与实现机制" class="headerlink" title="总线的作用与实现机制"></a>总线的作用与实现机制</h3><p>总线是设备驱动模型的核心枢纽，它维护设备和驱动的注册列表，并通过匹配（<code>match</code>​）和探测（<code>probe</code>​）机制实现设备与驱动的自动关联。<strong>总线的match函数是设备驱动匹配的关键</strong>，它根据特定总线的匹配规则（如PCI的厂商ID和设备ID，Platform的名称或兼容性字符串）判断设备与驱动是否兼容。</p>
+<p>以PCI总线为例，其匹配过程如下：设备注册时，内核会读取PCI配置空间中的厂商ID和设备ID；驱动注册时，驱动程序会提供一个<code>id_table</code>​数组，列出支持的设备ID。当驱动注册到PCI总线时，总线会遍历设备链表，调用match函数检查每个设备的ID是否与驱动的<code>id_table</code>​匹配。匹配成功后，总线会调用驱动的probe函数，完成设备初始化和绑定。</p>
+<p>Platform总线（Linux虚拟总线）的匹配规则略有不同，它优先通过设备树中的<code>compatible</code>​属性进行匹配，其次比较设备和驱动的名称。如果驱动提供了id_table，则会先进行ID匹配；否则直接比较名称是否相同。<strong>无论是先注册设备还是先注册驱动，总线都会自动触发匹配过程</strong>，确保设备与驱动正确绑定。</p>
+<p>总线的probe函数负责在匹配成功后执行设备初始化操作。对于PCI总线，__pci_device Probe函数会调用驱动的probe函数；对于Platform总线，platform Probe函数同样会执行驱动的初始化逻辑。设备与驱动的绑定关系通过驱动指针（device-&gt;driver）和设备列表（driver-&gt;bus-&gt;devices）来维持，形成一个双向关联的结构。</p>
+<h3 id="设备与驱动的注册流程"><a href="#设备与驱动的注册流程" class="headerlink" title="设备与驱动的注册流程"></a>设备与驱动的注册流程</h3><p>设备注册是驱动模型的首要步骤。设备注册通常通过device_add函数完成，该函数会将设备添加到总线的设备链表中，并触发总线的匹配机制。具体流程如下：</p>
+<ol>
+<li><strong>创建设备结构体</strong>：设备驱动程序需要定义一个<code>struct device</code>​实例，指定设备名称、所属总线等信息。</li>
+<li><strong>初始化设备对象</strong>：调用<code>device_initialize</code>​函数初始化设备的kobject、引用计数和锁机制。</li>
+<li><strong>添加设备到总线</strong>：调用<code>device_add</code>​函数将设备添加到总线，触发总线的匹配过程，寻找已注册的匹配驱动。</li>
+<li><strong>创建设备节点</strong>：如果设备需要用户空间访问，驱动程序可以调用<code>device Create</code>​函数在类目录下创建设备节点。</li>
+</ol>
+<p>驱动注册则通过driver Register函数完成，将驱动添加到总线的驱动链表中，并触发匹配机制。流程如下：</p>
+<ol>
+<li><strong>创建驱动结构体</strong>：驱动程序定义一个<code>struct device Driver</code>​实例，包含驱动名称、匹配函数、探测函数等。</li>
+<li><strong>注册驱动到总线</strong>：调用<code>driver Register</code>​或总线专用注册函数（如<code>platform Driver Register</code>​），最终触发<code>bus Add Driver</code>​函数。</li>
+<li><strong>匹配设备与驱动</strong>：<code>bus Add Driver</code>​调用<code>driver Attach</code>​函数，遍历总线上的设备链表，调用总线的match函数进行匹配。</li>
+<li><strong>执行probe函数</strong>：匹配成功后，调用驱动的probe函数完成设备初始化，建立设备与驱动的绑定关系。</li>
+</ol>
+<p><strong>设备注册和驱动注册的顺序不影响最终匹配结果</strong>，无论是先注册设备还是先注册驱动，总线都会在注册时遍历现有对象列表，寻找匹配。这种机制使得热插拔设备能够与内核中已加载的驱动自动关联，也使得驱动能够在设备存在时立即绑定。</p>
+<h3 id="sysfs-文件系统与设备模型映射"><a href="#sysfs-文件系统与设备模型映射" class="headerlink" title="sysfs 文件系统与设备模型映射"></a>sysfs 文件系统与设备模型映射</h3><p>Linux设备模型通过sysfs文件系统向用户空间公开设备信息，sysfs是一个虚拟文件系统，通常挂载在<code>/sys</code>​目录下。<strong>sysfs与设备模型紧密集成，其目录结构直接映射设备模型的对象层次关系</strong>，为设备管理和调试提供了直观的接口。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ tree /sys -L 1</span><br><span class="line">/sys</span><br><span class="line">├── block</span><br><span class="line">├── bus</span><br><span class="line">├── class</span><br><span class="line">├── dev</span><br><span class="line">├── devices</span><br><span class="line">├── firmware</span><br><span class="line">├── fs</span><br><span class="line">├── hypervisor</span><br><span class="line">├── kernel</span><br><span class="line">├── module</span><br><span class="line">└── power</span><br></pre></td></tr></table></figure>
+<p><strong>设备属性通过sysfs文件系统向用户空间暴露</strong>。驱动程序可以使用<code>DEVICE ATTR</code>​或<code>CLASS ATTR</code>​宏定义属性文件，通过<code>show</code>​和<code>store</code>​函数实现读写操作。例如，LED驱动可以定义<code>brightness</code>​属性，用户可以通过<code>echo 1 &gt; /sys/class/leds/led0/brightness</code>​来打开LED。</p>
+<p>这里的目录只是给我们提供了如何去看整个设备模型的<strong>不同的视角</strong>，所有的设备都在 <strong>/sys/ devices/</strong> 存放一份</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>/sys/block/</strong></td>
+<td>从块设备的角度来组织设备</td>
+</tr>
+<tr>
+<td><strong>/sys/bus/</strong></td>
+<td>从系统总线这个角度来组织设备，比如PCI总线或者USB总线</td>
+</tr>
+<tr>
+<td>/sys/class/</td>
+<td>把看问题的视角提高到了类别的高度<br />比如PCI设备或者USB设备等网络接口net、输入设备input<br /></td>
+</tr>
+<tr>
+<td><strong>/sys/devices/</strong></td>
+<td>所有设备的大本营</td>
+</tr>
+<tr>
+<td><strong>/sys/module/</strong></td>
+<td>记录当前加载的内核模块（<code>.ko</code>​ 文件）及其参数配置信息</td>
+</tr>
+<tr>
+<td><strong>/sys/kernel/</strong></td>
+<td>包含内核运行状态、调度策略、调试接口等核心功能相关的参数和状态信息</td>
+</tr>
+<tr>
+<td><strong>/sys/power/</strong></td>
+<td>电源管理相关接口，支持系统挂起（suspend）、恢复（resume）等操作配置</td>
+</tr>
+<tr>
+<td><strong>/sys/fs/</strong></td>
+<td>包含 <code>sysfs</code>​、<code>debugfs</code>​ 等虚拟文件系统的挂载点及配置信息<br />包含系统支持的所有文件系统<br /></td>
+</tr>
+<tr>
+<td><strong>/sys/firmware/</strong></td>
+<td>包含了一些比较低阶的子系统，<br />存储固件（如 UEFI/BIOS）信息、设备树（Device Tree）数据等<br /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>设备类目录的创建过程如下：</p>
+<ol>
+<li><strong>创建设备类</strong>：使用<code>class Create</code>​函数创建一个设备类对象，指定类名称和所属模块。</li>
+<li><strong>创建类目录</strong>：<code>class Create</code>​会自动在<code>/sys/class</code>​下创建一个同名目录，用于组织同类设备。</li>
+<li><strong>创建设备节点</strong>：使用<code>device Create</code>​函数在类目录下创建设备节点，用户空间可以通过该节点访问设备属性。</li>
+</ol>
+<p>sysfs中的属性文件会随着设备状态变化自动更新。内核通过sysfs Notify或sysfs Notify Dirent函数通知sysfs文件系统属性值已改变，用户空间读取属性文件时会得到最新值。这种动态更新机制使得用户空间可以实时监控设备状态。</p>
+<h3 id="用户空间访问设备信息"><a href="#用户空间访问设备信息" class="headerlink" title="用户空间访问设备信息"></a>用户空间访问设备信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ tree /sys/block/ -L 1</span><br><span class="line">/sys/block/</span><br><span class="line">├── loop0 -&gt; ../devices/virtual/block/loop0</span><br><span class="line">├── loop1 -&gt; ../devices/virtual/block/loop1</span><br><span class="line">├── loop10 -&gt; ../devices/virtual/block/loop10</span><br><span class="line">├── loop11 -&gt; ../devices/virtual/block/loop11</span><br><span class="line">├── loop12 -&gt; ../devices/virtual/block/loop12</span><br><span class="line">├── loop13 -&gt; ../devices/virtual/block/loop13</span><br><span class="line">├── loop14 -&gt; ../devices/virtual/block/loop14</span><br><span class="line">├── loop15 -&gt; ../devices/virtual/block/loop15</span><br><span class="line">├── loop2 -&gt; ../devices/virtual/block/loop2</span><br><span class="line">├── loop3 -&gt; ../devices/virtual/block/loop3</span><br><span class="line">├── loop4 -&gt; ../devices/virtual/block/loop4</span><br><span class="line">├── loop5 -&gt; ../devices/virtual/block/loop5</span><br><span class="line">├── loop6 -&gt; ../devices/virtual/block/loop6</span><br><span class="line">├── loop7 -&gt; ../devices/virtual/block/loop7</span><br><span class="line">├── loop8 -&gt; ../devices/virtual/block/loop8</span><br><span class="line">├── loop9 -&gt; ../devices/virtual/block/loop9</span><br><span class="line">├── sda -&gt; ../devices/pci0000:00/0000:00:17.0/ata3/host2/target2:0:0/2:0:0:0/block/sda</span><br><span class="line">└── sdb -&gt; ../devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/host3/target3:0:0/3:0:0:0/block/sdb</span><br></pre></td></tr></table></figure>
+<p>结果和df -h的输出是大致相同的，使用标准的文件操作命令（如ls、cat、echo）进行交互</p>
+<p>编程接口访问设备信息：<br>inotify是常用的文件系统变化监控接口</p>
+<p><strong>libsysfs库提供了高级API</strong>，允许用户空间程序以结构化的方式操作sysfs，无需直接处理文件操作。使用libsysfs库，可以更方便地访问设备属性、遍历设备树和管理设备节点。</p>
+<h3 id="设备模型的事件处理与电源管理"><a href="#设备模型的事件处理与电源管理" class="headerlink" title="设备模型的事件处理与电源管理"></a>设备模型的事件处理与电源管理</h3><p><strong>设备状态变化（如热插拔、电源状态改变）会通过sysfs通知用户空间</strong>，用户空间程序可以据此调整自身行为。</p>
+<p>电源管理是设备模型的重要功能之一。每个设备和驱动都可以定义电源管理操作（如suspend和resume函数），内核在系统进入休眠状态时，会自动调用这些函数，确保设备正确进入低功耗模式。电源管理操作通过struct dev_pm_ops结构体定义，包含设备的电源管理函数指针。</p>
+<p>设备模型还支持<strong>设备树（Device Tree）</strong> ，这是一种描述硬件设备及其关系的数据结构，使得内核可以在运行时动态构建设备模型。设备树允许在不修改内核的情况下描述硬件配置，提高了系统的可移植性。在嵌入式系统中，设备树广泛用于描述<strong>SoC</strong>上的外设连接和配置。</p>
+<h2 id="内核源码集中​解析​-注"><a href="#内核源码集中​解析​-注" class="headerlink" title="内核源码集中​解析​[注]"></a>内核源码集中​解析​<a href="#20250517000342-4rwdy9b">[注]</a></h2><p>请通过资源链接学习，这里的相关知识有点<span data-type="text">复杂</span>​</p>
+<p><img src="https://pic3.zhimg.com/v2-a591b137bec631643f251c55477c1eaa_1440w.jpg" alt=""></p>
+<h1 id="资源链接-Linux设备驱动模型"><a href="#资源链接-Linux设备驱动模型" class="headerlink" title="资源链接-Linux设备驱动模型"></a>资源链接-Linux设备驱动模型</h1><p><a href="#20250516163037-4g609xt">[注]</a></p>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/%E8%AE%BE%E5%A4%87%E6%A8%A1%E5%9E%8B/">设备模型</a></div><div class="post-share"><div class="addtoany"><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_button_wechat"></a><a class="a2a_button_email"></a><a class="a2a_button_copy_link"></a><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a></div></div><script async="async" src="https://static.addtoany.com/menu/page.js"></script></div></div><link rel="stylesheet" href="/css/coin.css" media="defer" onload="this.media='all'"/><div class="post-reward"><button class="tip-button reward-button"><span class="tip-button__text">赞助</span><div class="coin-wrapper"><div class="coin"><div class="coin__middle"></div><div class="coin__back"></div><div class="coin__front"></div></div></div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" target="_blank"><img class="post-qr-code-img" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a44c22f96d564b5f6055b7c81dd8247.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li></ul></div></button></div><audio id="coinAudio" src="https://npm.elemecdn.com/akilar-candyassets@1.0.36/audio/aowu.m4a"></audio><script defer="defer" src="/js/coin.js"></script><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html" title="进程通信：系统协作的核心机制"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">进程通信：系统协作的核心机制</div></div><div class="info-2"><div class="info-item-1">进程通信：系统协作的核心机制进程通信本质上是通过操作系统内核作为中介，实现不同进程间的数据交换与协同操作。 进程通信的基本原理操作系统通过虚拟内存机制为每个进程提供独立的地址空间，这种隔离设计确保了进程的独立性和安全性。然而，这种隔离也带来了信息共享的障碍。进程通信的核心在于利用操作系统提供的机制，让不同进程能够访问同一共享资源或交换信息。 进程通信的分类与特点进程通信根据信息传递量的大小和效率高低，通常分为低级通信和高级通信两大类。 低级通信主要传递控制信息，如状态和整数值。这类通信方式简单直接，但信息量小，效率相对较低。典型的低级通信方式包括信号(Signals) 和信号量 (Semaphores)...</div></div></div></a><a class="pagination-related" href="/post/gtest-z2gv4yl.html" title="Gtest"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Gtest</div></div><div class="info-2"><div class="info-item-1">Gtest 知乎​[1] B站​[2]  1234567891011$ tree -L 2.├── build├── CMakeLists.txt├── include├── src│   └── main.cpp└── tests    └── test_main.cpp4 directories, 3 files 1cmake .. &amp;&amp; make -j4 &amp;&amp; ls CMakeLists.txt模板1234567891011121314151617181920212223242526272829303132cmake_minimum_required(VERSION 3.14)project(MyProject)# 设置 C++ 标准set(CMAKE_CXX_STANDARD 17)set(CMAKE_CXX_STANDARD_REQUIRED ON)# 启用覆盖率支持set(CMAKE_CXX_FLAGS &quot;$&#123;CMAKE_CXX_FLAGS&#125; -fprofile-arcs...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/post/process-communication-the-core-mechanism-of-system-collaboration-z1wgdyf.html" title="进程通信：系统协作的核心机制"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-18</div><div class="info-item-2">进程通信：系统协作的核心机制</div></div><div class="info-2"><div class="info-item-1">进程通信：系统协作的核心机制进程通信本质上是通过操作系统内核作为中介，实现不同进程间的数据交换与协同操作。 进程通信的基本原理操作系统通过虚拟内存机制为每个进程提供独立的地址空间，这种隔离设计确保了进程的独立性和安全性。然而，这种隔离也带来了信息共享的障碍。进程通信的核心在于利用操作系统提供的机制，让不同进程能够访问同一共享资源或交换信息。 进程通信的分类与特点进程通信根据信息传递量的大小和效率高低，通常分为低级通信和高级通信两大类。 低级通信主要传递控制信息，如状态和整数值。这类通信方式简单直接，但信息量小，效率相对较低。典型的低级通信方式包括信号(Signals) 和信号量 (Semaphores)...</div></div></div></a><a class="pagination-related" href="/post/rosload-zookeq.html" title="ROS"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-18</div><div class="info-item-2">ROS</div></div><div class="info-2"><div class="info-item-1">ROS B站​视频​[1] 文档​[2] move_base1 在rviz中可视化三维检测框2  ROS介绍环境部署：要求：ros和ubuntu版本具有一一对应的关系，安装前要注意，建议入坑ros2，但是我的这篇暂时以ros1教程为主，考虑到之前的一些技术积累都是建立在这个上的。 安装建议使用鱼香ros​[3] 1wget http://fishros.com/install -O fishros &amp;&amp; . fishros 可以安装Terminator实现多终端显示，类似tmux的窗格 ROS的文件系统 整个项目由catkin_make进行管理【基于CMake进行二次开发】，详情可见后续补充​[4]，后面会对每一部分文件进行说明。 ROS常用终端命令这里以使用终端创建一个工作空间为例学习工作空间的相关命令： 12345mkdir -p ws_learn/src # -p：允许递归创建cd ws_learn # 此时终端的输出编译结果catkin_makecd srccatkin_create_pkg hello_world roscpp #...</div></div></div></a><a class="pagination-related" href="/post/ros2-z19uq9s.html" title="ROS2"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/77-16.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-05-19</div><div class="info-item-2">ROS2</div></div><div class="info-2"><div class="info-item-1">ROS2 动手学ROS2  ROS1与ROS2核心差异全面解析ROS2采用去中心化的DDS通信架构，取代了ROS1中心化的Master机制 本文将从架构设计、通信机制、实时性能、跨平台兼容性、安全性和开发工具链等多个维度，深入分析ROS1与ROS2的关键差异，帮助开发者根据项目需求做出更合理的选择。 架构设计与通信机制差异当ROS1 Master崩溃时，整个系统将无法正常工作，导致单点故障。虽然存在类似自动重启master节点，心跳检测等方案，但是在需要高可靠性的工业场景中存在明显缺陷。ROS2采用去中心化的分布式架构，基于工业级标准DDS（Data Distribution Service）实现节点间直接通信。ROS2系统中不存在单一中心节点，各节点能够独立运行并直接与其他节点通信，即使部分节点失效，系统其余部分仍能正常工作。 通信机制：ROS1使用自定义的TCPROS/UDPROS协议，节点间通信需要通过ROS...</div></div></div></a><a class="pagination-related" href="/post/script-writing-experience-2qew5s.html" title="Bash脚本编写经验"><img class="cover" src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-46.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-07-28</div><div class="info-item-2">Bash脚本编写经验</div></div><div class="info-2"><div class="info-item-1">脚本书写经验 参考链接：GPT-SoVITS/install.sh at main · RVC-Boss/GPT-SoVITS Wiki：github.com/dylanaraps/pure-bash-bible 中文版  1234567891011121314151617181920212223242526#!/bin/bash# ==============================================#  脚本模板                              配置部分# ==============================================SCRIPT_DIR=&quot;$(cd &quot;$(dirname &quot;$&#123;BASH_SOURCE[0]&#125;&quot;)&quot; &amp;&gt;/dev/null &amp;&amp; pwd)&quot;# ==============================================# 颜色定义部分#...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/a60f6fce967ef08834d0a4c9e7182e02_1-20250429120932-4hf5h2a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">lovedream-ms</div><div class="author-info-description">别急着赶路，去感受路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lovedream-ms"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lovedream-ms" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/2179417385@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">我们读书是为了成为提灯人去照亮黑暗，而不是为了自己有灯而沾沾自喜还要去吹灭别人的蜡烛</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B"><span class="toc-text">Linux设备驱动模型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84"><span class="toc-text">设备驱动模型的基本架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B%E5%88%9D%E6%AD%A5%E8%A7%A3%E6%9E%90"><span class="toc-text">设备驱动模型初步解析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%BB%E7%BA%BF%EF%BC%88Bus%EF%BC%89"><span class="toc-text">总线（Bus）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%EF%BC%88Device%EF%BC%89"><span class="toc-text">设备（Device）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A9%B1%E5%8A%A8%EF%BC%88Driver%EF%BC%89"><span class="toc-text">驱动（Driver）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%EF%BC%88Class%EF%BC%89"><span class="toc-text">类（Class）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BA%BF%E7%9A%84%E4%BD%9C%E7%94%A8%E4%B8%8E%E5%AE%9E%E7%8E%B0%E6%9C%BA%E5%88%B6"><span class="toc-text">总线的作用与实现机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E4%B8%8E%E9%A9%B1%E5%8A%A8%E7%9A%84%E6%B3%A8%E5%86%8C%E6%B5%81%E7%A8%8B"><span class="toc-text">设备与驱动的注册流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sysfs-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%AE%BE%E5%A4%87%E6%A8%A1%E5%9E%8B%E6%98%A0%E5%B0%84"><span class="toc-text">sysfs 文件系统与设备模型映射</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E8%AE%BF%E9%97%AE%E8%AE%BE%E5%A4%87%E4%BF%A1%E6%81%AF"><span class="toc-text">用户空间访问设备信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E6%A8%A1%E5%9E%8B%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E4%B8%8E%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86"><span class="toc-text">设备模型的事件处理与电源管理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E9%9B%86%E4%B8%AD%E2%80%8B%E8%A7%A3%E6%9E%90%E2%80%8B-%E6%B3%A8"><span class="toc-text">内核源码集中​解析​[注]</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B5%84%E6%BA%90%E9%93%BE%E6%8E%A5-Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B"><span class="toc-text">资源链接-Linux设备驱动模型</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-11.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="强化学习的数学原理"/></a><div class="content"><a class="title" href="/post/the-mathematical-principle-of-reinforcement-learning-sdlmx.html" title="强化学习的数学原理">强化学习的数学原理</a><time datetime="2025-10-07T05:28:09.000Z" title="更新于 2025-10-07 13:28:09">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/data-structure-zbgbam.html" title="数据结构"><img src="https://picgo-lovedreamms.oss-cn-beijing.aliyuncs.com/images/76-28.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/data-structure-zbgbam.html" title="数据结构">数据结构</a><time datetime="2025-09-27T14:04:28.000Z" title="更新于 2025-09-27 22:04:28">2025-09-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2024 - 2025 By lovedream-ms</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.0-b1</a></span></div><div class="footer_custom_text"><style>
+  .footer {
+    text-align: center;
+    position: relative;
+  }
+  .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  /* 使用 link_color 作为社交图标的颜色 */
+  .social-links i {
+    color: rgba(0, 159, 183, 1);
+  }
+  .social-link {
+    /* 使用 link_color 作为链接默认颜色 */
+    color: rgba(0, 159, 183, 1);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    /* 使用 blockquote_background_color 作为链接背景色，保持风格统一 */
+    background: rgba(0, 159, 183, 0.1);
+  }
+  .social-link:hover {
+    /* 鼠标悬停时，图标颜色变为白色以保证对比度 */
+    color: #ffffff;
+    /* 使用 button_hover 作为链接悬停背景色 */
+    background: #F7C67F;
+    transform: translateY(-3px) scale(1.2);
+    /* 阴影颜色与悬停背景色匹配 */
+    box-shadow: 0 5px 15px rgba(247, 198, 127, 0.4);
+    text-decoration: none !important; 
+  }
+  .footer p {
+    margin: 0.5rem 0;
+    line-height: 1;
+  }
+  /* 版权信息使用 meta_color */
+  .copyright {
+    font-size: 1.1rem; 
+    color: #778899;
+    font-weight: 400;
+  }
+  /* 标语使用 main 主色调，突出显示 */
+  .tagline {
+    font-size: 0.8rem;
+    color: #8ADBB4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* 访客统计信息使用 meta_color */
+  .visitor-count {
+    font-size: 0.75rem;
+    color: #778899;
+    font-weight: 300;
+  }
+  #visitorCount {
+    font-weight: bold;
+  }
+</style>
+<div class="footer">
+  <div class="social-links">
+    <a href="https://github.com/lovedream-ms" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://blog.csdn.net/2303_76343222" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="CSDN" title="CSDN">
+      <i class="fas fa-code"></i>
+    </a>
+    <a href="https://space.bilibili.com/1397568600" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="bilibili" title="bilibili">
+      <i class="fab fa-bilibili"></i>
+    </a>
+  </div>
+  <p class="visitor-count">访问量: <span id="visitorCount">1024</span> | 你是第 <span id="dailyVisitor">1</span> 位今日访客</p>
+</div>
+<script>
+  // 确保DOM加载完成后执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 模拟访问量增长
+    function updateVisitorCount() {
+      const countElement = document.getElementById('visitorCount');
+      let count = parseInt(countElement.textContent) || 1024;
+      // 从localStorage获取或初始化计数
+      const storedCount = localStorage.getItem('totalVisitors');
+      if (storedCount) {
+        count = parseInt(storedCount);
+        countElement.textContent = count;
+      }
+      // 每日访客计数
+      const today = new Date().toDateString();
+      const dailyData = JSON.parse(localStorage.getItem('dailyVisitors') || '{"date":"", "count":0}');
+      if (dailyData.date !== today) {
+        dailyData.date = today;
+        dailyData.count = 0;
+      }
+      dailyData.count += 1;
+      document.getElementById('dailyVisitor').textContent = dailyData.count;
+      localStorage.setItem('dailyVisitors', JSON.stringify(dailyData));
+      // 每30秒随机增加访问量
+      setInterval(() => {
+        count += Math.floor(Math.random() * 3);
+        countElement.textContent = count;
+        localStorage.setItem('totalVisitors', count.toString());
+      }, 30000);
+    }
+    updateVisitorCount();
+    // 添加点击动画效果
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 300);
+      });
+    });
+  });
+</script>
+</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-up"></i><span class="scroll-percent"></span></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://commit-manger.vercel.app/',
+      pageview: true,
+      dark: 'html[data-theme="dark"]',
+      comment: true,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script async src="/js/costom.js"></script><script async src="/js/fps.js"></script><script async src="/js/coin.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><!-- hexo injector body_end end --></body></html>
